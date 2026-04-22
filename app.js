@@ -28,6 +28,7 @@
     function celebrate() { if (typeof confetti === 'function') confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } }); }
     function isAnswerCorrect(q, ans) {
         if (q.type === 'open') { let u = (ans || '').trim(); if (!u) return false; let c = q.correctAnswers || []; let cs = q.caseSensitive || false; return c.some(x => cs ? u === x : u.toLowerCase() === x.toLowerCase()); }
+        else if (q.type === 'slider') { let userVal = parseInt(ans); return !isNaN(userVal) && userVal >= q.sliderMin && userVal <= q.sliderMax; }
         else { let sel = ans || []; let ci = q.options.reduce((a, o, i) => { if (o.isCorrect) a.push(i); return a; }, []); if (q.type === 'single') return sel.length === 1 && ci.length === 1 && sel[0] === ci[0]; return sel.length === ci.length && sel.every(v => ci.includes(v)) && ci.every(c => sel.includes(c)); }
     }
     function updateParticipantTotal(name) { let p = state.participants.find(p => p.name === name); if (p) { let t = state.scoreRecords.filter(r => r.participantName === name).reduce((s, r) => s + r.pointsEarned, 0); p.totalScore = t; } }
