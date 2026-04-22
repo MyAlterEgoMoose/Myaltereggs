@@ -36,7 +36,28 @@
     </div>
 </div>
 
-<div id="gradingModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-content"><div class="modal-header"><h2 id="modalTitle">📝 Grade Answer</h2><span class="modal-close" aria-label="Close">&times;</span></div><div id="modalQuestionInfo" class="modal-body"></div><div class="modal-body"><div class="input-group"><label>👤 Participant</label><input type="text" id="modalParticipantName" placeholder="Name / Number" list="participantsDatalist"><datalist id="participantsDatalist"></datalist></div><div class="input-group"><label>⭐ Points Awarded</label><input type="number" id="modalPointsEarned" step="0.5" placeholder="Any number (e.g., 5, 7.5, 10)"></div><div class="input-group"><label>📝 Notes (optional)</label><textarea id="modalNotes" rows="2"></textarea></div></div><div class="modal-footer"><button id="modalCancelBtn" class="btn-secondary">Cancel</button><button id="modalSaveBtn" class="btn-primary">✅ Save Score</button></div></div></div>
+<div id="gradingModal" class="modal fullscreen-module" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content fullscreen-content">
+        <div class="modal-header module-header">
+            <h2 id="modalTitle">📝 Grade Answer</h2>
+            <span class="modal-close" aria-label="Close">&times;</span>
+        </div>
+        <div id="modalQuestionInfo" class="modal-body"></div>
+        <div class="modal-body">
+            <div class="participant-buttons-container">
+                <label>👤 Select Participant & Points</label>
+                <div id="participantButtonsList" class="participant-buttons-list"></div>
+            </div>
+            <div class="input-group" style="margin-top:1rem;">
+                <label>📝 Notes (optional)</label>
+                <textarea id="modalNotes" rows="2"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="modalCancelBtn" class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
 
 <div id="scoreboard" class="scoreboard" aria-label="Scoreboard"><div class="scoreboard-header"><h3>🏆 LIVE SCOREBOARD</h3><button id="closeScoreboardBtn" class="close-scoreboard" style="background:none; border:none; color:white; font-size:1.5rem;" aria-label="Close scoreboard">✕</button></div><div class="scoreboard-tabs" role="tablist"><button class="tab-btn active" data-tab="rankings" role="tab">🏅 Rankings</button><button class="tab-btn" data-tab="details" role="tab">📊 Details</button><button class="tab-btn" data-tab="stats" role="tab">📈 Stats</button></div><div id="rankingsTab" class="tab-content active" role="tabpanel"><div style="display:flex; gap:0.5rem; margin-bottom:1rem;"><input type="text" id="searchParticipant" placeholder="🔍 Search"><select id="sortBySelect"><option value="score">Sort by Score</option><option value="name">Sort by Name</option></select></div><div id="rankingsList"></div></div><div id="detailsTab" class="tab-content" role="tabpanel"><select id="participantSelectDetail" style="width:100%; padding:0.5rem; border-radius:1rem;"><option value="">Select Participant</option></select><div id="participantDetailView"></div></div><div id="statsTab" class="tab-content" role="tabpanel"><div id="statsContent"></div></div><div class="scoreboard-footer"><button id="exportScoresBtn" class="btn-sm">📄 Export CSV</button><button id="resetScoresBtn" class="btn-sm" style="background:#dc3545;">Reset Scores</button></div></div>
 <button id="toggleScoreboardBtn" class="scoreboard-toggle">📊 Show Scoreboard 🏆</button>
