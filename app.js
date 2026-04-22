@@ -21,9 +21,79 @@
     function saveQuestion() { let d = gatherFormData(); if (!d) return; if (state.editingId) { let i = state.questions.findIndex(q => q.id === state.editingId); if (i !== -1) state.questions[i] = { ...state.questions[i], ...d, id: state.editingId }; state.editingId = null; } else state.questions.push({ id: generateId(), ...d }); clearForm(); renderQuestionsList(); renderSlideQuiz(); showMessage('Saved'); if (window.innerWidth <= 768) closeSidebar(); }
     function clearForm() { document.getElementById('questionText').value = ''; renderOptionInputs(); document.getElementById('correctAnswers').value = ''; document.getElementById('caseSensitive').checked = false; state.editingId = null; state.currentType = 'single'; updateTypeToggleUI(); }
     function renderSlideQuiz() { let c = document.getElementById('slideQuizContainer'); if (!state.questions.length) { c.innerHTML = '<div class="empty-message">Add questions</div>'; return; } let q = state.questions[state.currentSlideIndex]; let h = '<div class="slide-card"><div class="slide-header"><span>Q' + (state.currentSlideIndex + 1) + '/' + state.questions.length + '</span><span>⭐ Teacher decides points</span></div><div class="slide-question-text">' + escapeHtml(q.text) + '</div>'; if (q.type === 'open') h += '<textarea id="userAnswerInput" rows="4" style="width:100%;padding:0.8rem;border-radius:1rem;"></textarea>'; else { let it = q.type === 'single' ? 'radio' : 'checkbox'; h += '<div>' + q.options.map((o, i) => '<div class="slide-option"><input type="' + it + '" name="qOpt" value="' + i + '"><label>' + escapeHtml(o.text) + '</label></div>').join('') + '</div>'; } h += '<button class="submit-answer-btn" id="submitAnswerBtn">📝 Submit & Grade</button><div style="display:flex;justify-content:space-between;margin-top:1rem;"><button class="nav-btn" id="prevBtn" ' + (state.currentSlideIndex === 0 ? 'disabled' : '') + '>← Prev</button><span>' + (state.currentSlideIndex + 1) + '/' + state.questions.length + '</span><button class="nav-btn" id="nextBtn" ' + (state.currentSlideIndex === state.questions.length - 1 ? 'disabled' : '') + '>Next →</button></div></div>'; c.innerHTML = h; document.getElementById('submitAnswerBtn').addEventListener('click', () => { let ans = null; if (q.type === 'open') ans = document.getElementById('userAnswerInput').value || ''; else { let chk = [...document.querySelectorAll('.slide-option input:checked')].map(cb => parseInt(cb.value)); ans = chk; } if ((q.type !== 'open' && (!ans || ans.length === 0)) || (q.type === 'open' && !ans.trim())) { showMessage('Provide answer', true); return; } let cf = isAnswerCorrect(q, ans); if (cf) celebrate(); showMessage(cf ? '✅ Matches expected! Open grading panel.' : '❌ Differs from expected. Open grading panel.'); openGradingModal(q, ans); }); document.getElementById('prevBtn').addEventListener('click', () => { if (state.currentSlideIndex > 0) { state.currentSlideIndex--; renderSlideQuiz(); } }); document.getElementById('nextBtn').addEventListener('click', () => { if (state.currentSlideIndex < state.questions.length - 1) { state.currentSlideIndex++; renderSlideQuiz(); } }); }
-    function openGradingModal(q, ua) { let m = document.getElementById('gradingModal'); document.getElementById('modalQuestionInfo').innerHTML = '<strong>Question:</strong> ' + escapeHtml(q.text) + '<br><strong>Answer:</strong> ' + escapeHtml(JSON.stringify(ua)) + '<br><small>You decide points (any number).</small>'; document.getElementById('modalPointsEarned').value = ''; document.getElementById('modalParticipantName').value = ''; document.getElementById('modalNotes').value = ''; m.dataset.questionId = q.id; m.dataset.questionText = q.text; m.style.display = 'block'; updateDatalist(); }
-    function closeGradingModal() { document.getElementById('gradingModal').style.display = 'none'; }
-    function saveScoreFromModal() { let n = document.getElementById('modalParticipantName').value.trim(); let p = parseFloat(document.getElementById('modalPointsEarned').value); let nt = document.getElementById('modalNotes').value.trim(); let qi = document.getElementById('gradingModal').dataset.questionId; let qt = document.getElementById('gradingModal').dataset.questionText; if (!n) { showMessage('Enter participant name', true); return; } if (isNaN(p) || p < 0) { showMessage('Enter valid points', true); return; } let part = state.participants.find(x => x.name === n); if (!part) { state.participants.push({ id: generateId(), name: n, totalScore: 0 }); renderParticipantsSidebar(); updateDatalist(); part = state.participants.find(x => x.name === n); } state.scoreRecords.push({ id: generateId(), participantName: n, questionId: qi, questionText: qt, pointsEarned: p, notes: nt, timestamp: new Date().toISOString() }); updateParticipantTotal(n); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); showMessage('✅ Saved ' + p + ' pts for ' + n); closeGradingModal(); }
+    function openGradingModal(q, ua) { 
+        let m = document.getElementById('gradingModal'); 
+        document.getElementById('modalQuestionInfo').innerHTML = '<strong>Question:</strong> ' + escapeHtml(q.text) + '<br><strong>Answer:</strong> ' + escapeHtml(JSON.stringify(ua)) + '<br><small>Select participant and points below.</small>'; 
+        document.getElementById('modalNotes').value = ''; 
+        m.dataset.questionId = q.id; 
+        m.dataset.questionText = q.text; 
+        renderParticipantButtons();
+        m.classList.add('active');
+    }
+    
+    function renderParticipantButtons() {
+        let container = document.getElementById('participantButtonsList');
+        if (!container) return;
+        
+        if (!state.participants.length) {
+            container.innerHTML = '<div style="color:#666;text-align:center;padding:2rem;">No participants yet. Add participants from the sidebar.</div>';
+            return;
+        }
+        
+        let pointsOptions = [0.5, 1, 2, 3, 5, 7.5, 10];
+        
+        container.innerHTML = state.participants.map(p => {
+            let pointsBtns = pointsOptions.map(pts => 
+                '<span class="points-badge" data-participant="' + escapeHtml(p.name) + '" data-points="' + pts + '">+' + pts + '</span>'
+            ).join('');
+            
+            return '<div class="participant-btn">' +
+                '<div class="participant-name">👤 ' + escapeHtml(p.name) + '</div>' +
+                '<div class="points-options">' + pointsBtns + '</div>' +
+                '</div>';
+        }).join('');
+        
+        container.querySelectorAll('.points-badge').forEach(btn => {
+            btn.addEventListener('click', () => {
+                let participantName = btn.dataset.participant;
+                let points = parseFloat(btn.dataset.points);
+                saveScore(participantName, points);
+            });
+        });
+    }
+    
+    function saveScore(participantName, points) {
+        let nt = document.getElementById('modalNotes').value.trim();
+        let qi = document.getElementById('gradingModal').dataset.questionId;
+        let qt = document.getElementById('gradingModal').dataset.questionText;
+        
+        let part = state.participants.find(x => x.name === participantName);
+        if (!part) {
+            state.participants.push({ id: generateId(), name: participantName, totalScore: 0 });
+            renderParticipantsSidebar();
+            part = state.participants.find(x => x.name === participantName);
+        }
+        
+        state.scoreRecords.push({
+            id: generateId(),
+            participantName: participantName,
+            questionId: qi,
+            questionText: qt,
+            pointsEarned: points,
+            notes: nt,
+            timestamp: new Date().toISOString()
+        });
+        
+        updateParticipantTotal(participantName);
+        renderParticipantsSidebar();
+        renderScoreboard();
+        showMessage('✅ Saved ' + points + ' pts for ' + participantName);
+        closeGradingModal();
+    }
+    
+    function closeGradingModal() { 
+        document.getElementById('gradingModal').classList.remove('active'); 
+    }
     function renderScoreboard() { renderRankings(); renderParticipantSelect(); renderStatistics(); }
     function renderRankings() { let c = document.getElementById('rankingsList'); if (!c) return; updateAllTotals(); if (!state.scoreRecords.length) { c.innerHTML = '<div class="empty-message">No scores yet</div>'; return; } let sv = (document.getElementById('searchParticipant')?.value || '').toLowerCase(); let sb = document.getElementById('sortBySelect')?.value || 'score'; let f = state.participants.filter(p => p.name.toLowerCase().includes(sv)); if (sb === 'score') f.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)); else f.sort((a, b) => a.name.localeCompare(b.name)); c.innerHTML = f.map((p, i) => { let sc = state.scoreRecords.filter(r => r.participantName === p.name); let av = sc.length ? (p.totalScore / sc.length).toFixed(1) : 0; let rc = '', md = ''; if (i === 0 && !sv) { rc = 'top-1'; md = '👑'; } else if (i === 1 && !sv) { rc = 'top-2'; md = '🥈'; } else if (i === 2 && !sv) { rc = 'top-3'; md = '🥉'; } return '<div class="rank-card ' + rc + '" onclick="selectParticipant(\'' + escapeHtml(p.name) + '\')"><div class="rank-header"><div><strong>' + (md || (i + 1)) + '. ' + escapeHtml(p.name) + '</strong></div><div class="rank-score">' + (p.totalScore || 0) + ' pts</div></div><div style="font-size:0.8rem;">📝 ' + sc.length + ' answers | avg ' + av + ' pts</div></div>'; }).join(''); }
     window.selectParticipant = function(n) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.getElementById('detailsTab').classList.add('active'); document.querySelector('[data-tab="details"]').classList.add('active'); let s = document.getElementById('participantSelectDetail'); if (s) s.value = n; renderParticipantDetails(n); };
@@ -59,7 +129,6 @@
         document.getElementById('importFile').addEventListener('change', e => { if (e.target.files.length) importData(e.target.files[0]); e.target.value = ''; });
         document.getElementById('typeToggleGroup').addEventListener('click', e => { let t = e.target.closest('.type-option'); if (t) { state.currentType = t.dataset.type; updateTypeToggleUI(); } });
         document.getElementById('modalCancelBtn').addEventListener('click', closeGradingModal);
-        document.getElementById('modalSaveBtn').addEventListener('click', saveScoreFromModal);
         document.querySelector('.modal-close').addEventListener('click', closeGradingModal);
         window.addEventListener('click', e => { if (e.target === document.getElementById('gradingModal')) closeGradingModal(); });
         document.getElementById('toggleScoreboardBtn').addEventListener('click', toggleScoreboard);
