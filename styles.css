@@ -16,20 +16,6 @@ body {
     margin: 0 auto;
 }
 
-.hero {
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.hero h1 {
-    font-size: 1.5rem;
-    color: #000;
-}
-
-.hero p {
-    color: #333;
-    margin-top: 0.5rem;
-}
 
 .toolbar {
     background: #f0f0f0;
