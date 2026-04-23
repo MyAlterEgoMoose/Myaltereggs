@@ -37,7 +37,7 @@ body {
     background: #fff;
 }
 
-.btn-export { background: #2c7da0; color: white; border: none; }
+.btn-export { background: #2c7da0; color: black; border: none; }
 .btn-import { background: #2c9e6e; color: white; border: none; }
 .btn-pdf { background: #dc3545; color: white; border: none; }
 .file-input-label { background: #5e6b7c; color: white; display: inline-block; border: none; }
