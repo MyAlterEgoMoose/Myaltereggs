@@ -441,6 +441,16 @@
             });
         }
         
+        // Upload image button handler - trigger file input click
+        if (document.getElementById('uploadImageBtn')) {
+            document.getElementById('uploadImageBtn').addEventListener('click', () => {
+                let fileInput = document.getElementById('questionImage');
+                if (fileInput) {
+                    fileInput.click();
+                }
+            });
+        }
+        
         // GitHub settings handler
         if (document.getElementById('saveGithubSettingsBtn')) {
             document.getElementById('saveGithubSettingsBtn').addEventListener('click', () => {

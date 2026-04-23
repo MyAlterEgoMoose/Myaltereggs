@@ -209,6 +209,11 @@ input[type="file"] { display: none; }
 .btn-secondary { background: #5e6b7c; color: black; border: none; padding: 0.6rem 1rem; font-weight: 600; cursor: pointer; border-radius: 4px; font-size: 0.9rem; }
 .btn-danger { background: #b91c1c; color: white; border: none; padding: 0.6rem; font-weight: 600; cursor: pointer; width: 100%; margin-top: 0.5rem; border-radius: 4px; font-size: 0.9rem; }
 .btn-sm { background: #2c7da0; color: white; border: none; padding: 0.4rem 0.8rem; cursor: pointer; font-size: 0.8rem; border-radius: 4px; }
+.btn-upload { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 0.7rem 1.2rem; font-weight: 700; cursor: pointer; border-radius: 8px; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+.btn-upload:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
+.btn-upload:active { transform: translateY(0); }
+.image-upload-wrapper { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.5rem; }
+.image-input { flex: 1; min-width: 200px; }
 
 .questions-list {
     max-height: 300px;
