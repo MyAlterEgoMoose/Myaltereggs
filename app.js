@@ -8,6 +8,39 @@
         branch: 'main',
         token: ''
     };
+    
+    // Load GitHub config from localStorage on startup
+    function loadGithubConfig() {
+        const saved = localStorage.getItem('githubConfig');
+        if (saved) {
+            try {
+                const config = JSON.parse(saved);
+                GITHUB_CONFIG.owner = config.owner || '';
+                GITHUB_CONFIG.repo = config.repo || '';
+                GITHUB_CONFIG.branch = config.branch || 'main';
+                GITHUB_CONFIG.token = config.token || '';
+                // Pre-fill the form fields if they exist
+                const ownerInput = document.getElementById('githubOwner');
+                const repoInput = document.getElementById('githubRepo');
+                const tokenInput = document.getElementById('githubToken');
+                if (ownerInput) ownerInput.value = GITHUB_CONFIG.owner;
+                if (repoInput) repoInput.value = GITHUB_CONFIG.repo;
+                if (tokenInput) tokenInput.value = GITHUB_CONFIG.token;
+            } catch (e) {
+                console.error('Failed to load GitHub config:', e);
+            }
+        }
+    }
+    
+    // Save GitHub config to localStorage
+    function saveGithubConfigToStorage() {
+        localStorage.setItem('githubConfig', JSON.stringify({
+            owner: GITHUB_CONFIG.owner,
+            repo: GITHUB_CONFIG.repo,
+            branch: GITHUB_CONFIG.branch,
+            token: GITHUB_CONFIG.token
+        }));
+    }
     function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     function toRoman(num) {
@@ -464,9 +497,13 @@
                 GITHUB_CONFIG.owner = owner;
                 GITHUB_CONFIG.repo = repo;
                 GITHUB_CONFIG.token = token;
+                saveGithubConfigToStorage(); // Save to localStorage
                 showMessage('✅ GitHub settings saved!');
             });
         }
+        
+        // Load GitHub config from localStorage on page load
+        loadGithubConfig();
     }
     function init() { renderOptionInputs(); renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); }
     initEventListeners();
