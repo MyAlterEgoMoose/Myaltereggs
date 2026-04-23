@@ -97,7 +97,47 @@
     function renderQuestionsList() { let a = document.getElementById('questionsListArea'); if (!state.questions.length) { a.innerHTML = '<div style="padding:1rem;">No questions</div>'; return; } a.innerHTML = state.questions.map((q, i) => '<div class="question-card" data-idx="' + i + '"><div><strong>' + (i + 1) + '.</strong> ' + escapeHtml(q.text.substring(0, 50)) + '</div><div><button class="edit-q" data-id="' + q.id + '">✏️</button><button class="delete-q" data-id="' + q.id + '">🗑️</button></div></div>').join(''); document.querySelectorAll('.delete-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let id = b.dataset.id; if (confirm('Delete?')) { state.questions = state.questions.filter(q => q.id !== id); if (state.currentSlideIndex >= state.questions.length) state.currentSlideIndex = Math.max(0, state.questions.length - 1); renderQuestionsList(); renderSlideQuiz(); showMessage('Deleted'); } })); document.querySelectorAll('.edit-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let q = state.questions.find(q => q.id === b.dataset.id); if (q) { state.editingId = q.id; state.currentType = q.type; document.getElementById('questionText').value = q.text; updateTypeToggleUI(); if (q.type === 'open') { document.getElementById('correctAnswers').value = (q.correctAnswers || []).join('\n'); document.getElementById('caseSensitive').checked = q.caseSensitive || false; } else if (q.type === 'slider') { document.getElementById('sliderMin').value = toRoman(q.sliderMin); document.getElementById('sliderMax').value = toRoman(q.sliderMax); } else renderOptionInputs(q.options); openSidebar(); } })); document.querySelectorAll('.question-card').forEach(c => c.addEventListener('click', () => { let i = parseInt(c.dataset.idx); if (!isNaN(i)) { state.currentSlideIndex = i; renderSlideQuiz(); } })); }
     function renderOptionInputs(opts = null) { let c = document.getElementById('optionsContainer'); let arr = opts || [{ text: '', isCorrect: false }, { text: '', isCorrect: false }]; c.innerHTML = ''; arr.forEach((o, i) => { let d = document.createElement('div'); d.className = 'option-row'; d.innerHTML = '<input type="text" class="option-text" value="' + escapeHtml(o.text) + '" placeholder="Option ' + (i + 1) + '"><input type="checkbox" class="option-correct" ' + (o.isCorrect ? 'checked' : '') + '> <span>✓</span><button type="button" class="btn-icon">✖</button>'; d.querySelector('button').addEventListener('click', () => { if (c.children.length > 1) d.remove(); else showMessage('Need at least one option', true); }); c.appendChild(d); }); }
     function updateTypeToggleUI() { document.querySelectorAll('.type-option').forEach(o => { if (o.dataset.type === state.currentType) o.classList.add('active'); else o.classList.remove('active'); }); document.getElementById('optionsGroup').style.display = state.currentType === 'open' || state.currentType === 'slider' ? 'none' : 'block'; document.getElementById('openAnswerGroup').style.display = state.currentType === 'open' ? 'block' : 'none'; document.getElementById('sliderRangeGroup').style.display = state.currentType === 'slider' ? 'block' : 'none'; }
-    function gatherFormData() { let t = document.getElementById('questionText').value.trim(); if (!t) { showMessage('Enter text', true); return null; } if (state.currentType === 'open') { let c = document.getElementById('correctAnswers').value.trim().split('\n').map(l => l.trim()).filter(l => l); return { text: t, type: 'open', correctAnswers: c, caseSensitive: document.getElementById('caseSensitive').checked }; } else if (state.currentType === 'slider') { let minVal = parseInt(document.getElementById('sliderMin').value); let maxVal = parseInt(document.getElementById('sliderMax').value); if (isNaN(minVal) || isNaN(maxVal)) { showMessage('Enter min and max values', true); return null; } if (!Number.isInteger(minVal) || !Number.isInteger(maxVal)) { showMessage('Min and max must be integers', true); return null; } if (minVal >= maxVal) { showMessage('Min must be less than max', true); return null; } return { text: t, type: 'slider', sliderMin: minVal, sliderMax: maxVal }; } else { let rows = document.querySelectorAll('#optionsContainer .option-row'); let opts = []; for (let r of rows) { let txt = r.querySelector('.option-text').value.trim(); if (!txt) { showMessage('All options need text', true); return null; } opts.push({ text: txt, isCorrect: r.querySelector('.option-correct').checked }); } if (opts.length < 2) { showMessage('At least 2 options', true); return null; } if (state.currentType === 'single' && opts.filter(o => o.isCorrect).length !== 1) { showMessage('Single: exactly one correct', true); return null; } if (state.currentType === 'multiple' && !opts.some(o => o.isCorrect)) { showMessage('Select at least one correct', true); return null; } return { text: t, options: opts, type: state.currentType }; } }
+    function gatherFormData() { 
+        let t = document.getElementById('questionText').value.trim(); 
+        if (!t) { showMessage('Enter text', true); return null; } 
+        
+        // Handle image file
+        let imageData = null;
+        let imageInput = document.getElementById('questionImage');
+        if (imageInput && imageInput.files && imageInput.files[0]) {
+            imageData = { fileName: imageInput.files[0].name, file: imageInput.files[0] };
+        }
+        
+        if (state.currentType === 'open') { 
+            let c = document.getElementById('correctAnswers').value.trim().split('\n').map(l => l.trim()).filter(l => l); 
+            let result = { text: t, type: 'open', correctAnswers: c, caseSensitive: document.getElementById('caseSensitive').checked };
+            if (imageData) result.image = imageData;
+            return result;
+        } else if (state.currentType === 'slider') { 
+            let minVal = parseInt(document.getElementById('sliderMin').value); 
+            let maxVal = parseInt(document.getElementById('sliderMax').value); 
+            if (isNaN(minVal) || isNaN(maxVal)) { showMessage('Enter min and max values', true); return null; } 
+            if (!Number.isInteger(minVal) || !Number.isInteger(maxVal)) { showMessage('Min and max must be integers', true); return null; } 
+            if (minVal >= maxVal) { showMessage('Min must be less than max', true); return null; } 
+            let result = { text: t, type: 'slider', sliderMin: minVal, sliderMax: maxVal };
+            if (imageData) result.image = imageData;
+            return result;
+        } else { 
+            let rows = document.querySelectorAll('#optionsContainer .option-row'); 
+            let opts = []; 
+            for (let r of rows) { 
+                let txt = r.querySelector('.option-text').value.trim(); 
+                if (!txt) { showMessage('All options need text', true); return null; } 
+                opts.push({ text: txt, isCorrect: r.querySelector('.option-correct').checked }); 
+            } 
+            if (opts.length < 2) { showMessage('At least 2 options', true); return null; } 
+            if (state.currentType === 'single' && opts.filter(o => o.isCorrect).length !== 1) { showMessage('Single: exactly one correct', true); return null; } 
+            if (state.currentType === 'multiple' && !opts.some(o => o.isCorrect)) { showMessage('Select at least one correct', true); return null; } 
+            let result = { text: t, options: opts, type: state.currentType };
+            if (imageData) result.image = imageData;
+            return result;
+        } 
+    }
     function saveQuestion() {
         let d = gatherFormData();
         if (!d) return;
