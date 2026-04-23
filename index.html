@@ -15,6 +15,7 @@
     <div class="section-title">✏️ Build Test</div>
     <div class="question-form">
         <div class="input-group"><label>📌 Question Text</label><input type="text" id="questionText" placeholder="e.g., What is capital of France?"></div>
+        <div class="input-group"><label>🖼️ Attach Image (optional)</label><input type="file" id="questionImage" accept="image/*"><div id="imagePreviewContainer"></div></div>
         <div id="optionsGroup"><label>🔘 Options</label><div id="optionsContainer"></div><button type="button" class="btn-icon" id="addOptionBtn">+ Add Option</button></div>
         <div id="openAnswerGroup" style="display:none;"><label>✏️ Correct Answers (reference)</label><textarea id="correctAnswers" rows="2"></textarea><div><input type="checkbox" id="caseSensitive"> <label>Case sensitive</label></div></div>
         <div id="sliderRangeGroup" style="display:none;"><label>📊 Slider Range (integers)</label><div style="display:flex;gap:0.5rem;align-items:center;"><input type="number" id="sliderMin" placeholder="Min" style="flex:1;"><span>to</span><input type="number" id="sliderMax" placeholder="Max" style="flex:1;"></div></div>
@@ -26,6 +27,12 @@
     <div class="participant-management"><div class="section-title" style="font-size:1.2rem;">👥 Participants</div><div style="display:flex; gap:0.5rem;"><input type="text" id="newParticipantName" placeholder="Name / Number"><button id="addParticipantBtn" class="btn-sm">➕ Add</button></div><div id="participantsList" class="participants-list-sidebar"></div></div>
     <button id="resetAllQuestionsBtn" class="btn-danger">🗑️ Reset All Questions</button>
     <button id="resetAllScoresBtn" class="btn-danger" style="margin-top:0.5rem; background:#dc3545;">🔄 Reset All Scores</button>
+    
+    <div class="section-title" style="font-size:1.2rem;margin-top:1rem;">⚙️ Settings</div>
+    <div class="input-group"><label>GitHub Owner</label><input type="text" id="githubOwner" placeholder="your-username"></div>
+    <div class="input-group"><label>GitHub Repo</label><input type="text" id="githubRepo" placeholder="your-repo-name"></div>
+    <div class="input-group"><label>GitHub Token (fine-grained PAT)</label><input type="password" id="githubToken" placeholder="ghp_..."></div>
+    <button id="saveGithubSettingsBtn" class="btn-primary" style="width:100%;margin-top:0.5rem;">💾 Save GitHub Settings</button>
 </div>
 
 <div class="main-content">

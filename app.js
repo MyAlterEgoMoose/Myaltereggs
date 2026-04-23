@@ -1,7 +1,13 @@
 // Teacher Grading System - Quiz with Scoreboard (Refactored)
 (function() {
     'use strict';
-    const state = { questions: [], participants: [], scoreRecords: [], currentSlideIndex: 0, editingId: null, currentType: 'single', isSidebarOpen: false };
+    const state = { questions: [], participants: [], scoreRecords: [], currentSlideIndex: 0, editingId: null, currentType: 'single', isSidebarOpen: false, uploadedImages: [] };
+    const GITHUB_CONFIG = {
+        owner: '',
+        repo: '',
+        branch: 'main',
+        token: ''
+    };
     function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     function toRoman(num) {
@@ -25,6 +31,60 @@
         return result;
     }
     function showMessage(msg, isError = false) { let d = document.querySelector('.status-msg'); if (d) d.remove(); let div = document.createElement('div'); div.className = 'status-msg'; div.style.background = isError ? '#b91c1c' : '#2c7da0'; div.textContent = msg; document.body.appendChild(div); setTimeout(() => div.remove(), 3000); }
+
+    // Image upload to GitHub
+    async function uploadImageToGitHub(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const base64Content = e.target.result.split(',')[1];
+                    const fileName = 'images/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                    const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${fileName}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: 'Upload image via quiz app',
+                            content: base64Content,
+                            branch: GITHUB_CONFIG.branch
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const imageUrl = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${fileName}`;
+                        state.uploadedImages.push({ originalName: file.name, githubUrl: imageUrl, uploadedAt: new Date().toISOString() });
+                        resolve(imageUrl);
+                    } else {
+                        const err = await response.json();
+                        reject(new Error(err.message || 'Upload failed'));
+                    }
+                } catch (err) {
+                    reject(err);
+                }
+            };
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Helper function to get question display text with image indicator
+    function getQuestionDisplayText(q) {
+        return q.text + (q.image ? ' 🖼️' : '');
+    }
+
+    // Helper function to render question image if present
+    function renderQuestionImage(q) {
+        if (q.image && q.image.imageUrl) {
+            return '<img src="' + escapeHtml(q.image.imageUrl) + '" alt="Question image" style="max-width:100%;max-height:300px;border-radius:1rem;margin-bottom:1rem;">';
+        }
+        return '';
+    }
     function isAnswerCorrect(q, ans) {
         if (q.type === 'open') { let u = (ans || '').trim(); if (!u) return false; let c = q.correctAnswers || []; let cs = q.caseSensitive || false; return c.some(x => cs ? u === x : u.toLowerCase() === x.toLowerCase()); }
         else if (q.type === 'slider') { let userVal = parseInt(ans); return !isNaN(userVal) && userVal >= q.sliderMin && userVal <= q.sliderMax; }
@@ -38,7 +98,51 @@
     function renderOptionInputs(opts = null) { let c = document.getElementById('optionsContainer'); let arr = opts || [{ text: '', isCorrect: false }, { text: '', isCorrect: false }]; c.innerHTML = ''; arr.forEach((o, i) => { let d = document.createElement('div'); d.className = 'option-row'; d.innerHTML = '<input type="text" class="option-text" value="' + escapeHtml(o.text) + '" placeholder="Option ' + (i + 1) + '"><input type="checkbox" class="option-correct" ' + (o.isCorrect ? 'checked' : '') + '> <span>✓</span><button type="button" class="btn-icon">✖</button>'; d.querySelector('button').addEventListener('click', () => { if (c.children.length > 1) d.remove(); else showMessage('Need at least one option', true); }); c.appendChild(d); }); }
     function updateTypeToggleUI() { document.querySelectorAll('.type-option').forEach(o => { if (o.dataset.type === state.currentType) o.classList.add('active'); else o.classList.remove('active'); }); document.getElementById('optionsGroup').style.display = state.currentType === 'open' || state.currentType === 'slider' ? 'none' : 'block'; document.getElementById('openAnswerGroup').style.display = state.currentType === 'open' ? 'block' : 'none'; document.getElementById('sliderRangeGroup').style.display = state.currentType === 'slider' ? 'block' : 'none'; }
     function gatherFormData() { let t = document.getElementById('questionText').value.trim(); if (!t) { showMessage('Enter text', true); return null; } if (state.currentType === 'open') { let c = document.getElementById('correctAnswers').value.trim().split('\n').map(l => l.trim()).filter(l => l); return { text: t, type: 'open', correctAnswers: c, caseSensitive: document.getElementById('caseSensitive').checked }; } else if (state.currentType === 'slider') { let minVal = parseInt(document.getElementById('sliderMin').value); let maxVal = parseInt(document.getElementById('sliderMax').value); if (isNaN(minVal) || isNaN(maxVal)) { showMessage('Enter min and max values', true); return null; } if (!Number.isInteger(minVal) || !Number.isInteger(maxVal)) { showMessage('Min and max must be integers', true); return null; } if (minVal >= maxVal) { showMessage('Min must be less than max', true); return null; } return { text: t, type: 'slider', sliderMin: minVal, sliderMax: maxVal }; } else { let rows = document.querySelectorAll('#optionsContainer .option-row'); let opts = []; for (let r of rows) { let txt = r.querySelector('.option-text').value.trim(); if (!txt) { showMessage('All options need text', true); return null; } opts.push({ text: txt, isCorrect: r.querySelector('.option-correct').checked }); } if (opts.length < 2) { showMessage('At least 2 options', true); return null; } if (state.currentType === 'single' && opts.filter(o => o.isCorrect).length !== 1) { showMessage('Single: exactly one correct', true); return null; } if (state.currentType === 'multiple' && !opts.some(o => o.isCorrect)) { showMessage('Select at least one correct', true); return null; } return { text: t, options: opts, type: state.currentType }; } }
-    function saveQuestion() { let d = gatherFormData(); if (!d) return; if (state.editingId) { let i = state.questions.findIndex(q => q.id === state.editingId); if (i !== -1) state.questions[i] = { ...state.questions[i], ...d, id: state.editingId }; state.editingId = null; } else state.questions.push({ id: generateId(), ...d }); clearForm(); renderQuestionsList(); renderSlideQuiz(); convertSliderToRoman(); showMessage('Saved'); if (window.innerWidth <= 768) closeSidebar(); }
+    function saveQuestion() {
+        let d = gatherFormData();
+        if (!d) return;
+
+        // Handle image upload if present
+        if (d.image && d.image.file) {
+            (async () => {
+                try {
+                    showMessage('⏳ Uploading image...');
+                    let imageUrl = await uploadImageToGitHub(d.image.file);
+                    d.image = { fileName: d.image.fileName, imageUrl: imageUrl };
+                    completeSave(d);
+                } catch (err) {
+                    showMessage('⚠️ Image upload failed: ' + err.message, true);
+                    d.image = null;
+                    completeSave(d);
+                }
+            })();
+        } else if (state.editingId) {
+            // Preserve existing image when editing without new image
+            let existingQ = state.questions.find(q => q.id === state.editingId);
+            if (existingQ && existingQ.image) {
+                d.image = existingQ.image;
+            }
+            completeSave(d);
+        } else {
+            completeSave(d);
+        }
+
+        function completeSave(data) {
+            if (state.editingId) {
+                let i = state.questions.findIndex(q => q.id === state.editingId);
+                if (i !== -1) state.questions[i] = { ...state.questions[i], ...data, id: state.editingId };
+                state.editingId = null;
+            } else {
+                state.questions.push({ id: generateId(), ...data });
+            }
+            clearForm();
+            renderQuestionsList();
+            renderSlideQuiz();
+            convertSliderToRoman();
+            showMessage('Saved');
+            if (window.innerWidth <= 768) closeSidebar();
+        }
+    }
     function convertSliderToRoman() {
         let minInput = document.getElementById('sliderMin');
         let maxInput = document.getElementById('sliderMax');
@@ -51,8 +155,84 @@
             }
         }
     }
-    function clearForm() { document.getElementById('questionText').value = ''; renderOptionInputs(); document.getElementById('correctAnswers').value = ''; document.getElementById('sliderMin').value = ''; document.getElementById('sliderMax').value = ''; document.getElementById('caseSensitive').checked = false; state.editingId = null; state.currentType = 'single'; updateTypeToggleUI(); }
-    function renderSlideQuiz() { let c = document.getElementById('slideQuizContainer'); if (!state.questions.length) { c.innerHTML = '<div class="empty-message">Add questions</div>'; return; } let q = state.questions[state.currentSlideIndex]; let h = '<div class="slide-card"><div class="slide-header"><span>Q' + (state.currentSlideIndex + 1) + '/' + state.questions.length + '</span><span>⭐ Teacher decides points</span></div><div class="slide-question-text">' + escapeHtml(q.text) + '</div>'; if (q.type === 'open') h += '<textarea id="userAnswerInput" rows="4" style="width:100%;padding:0.8rem;border-radius:1rem;"></textarea>'; else if (q.type === 'slider') { h += '<div style="margin:2rem 0;position:relative;"><input type="range" id="sliderAnswer" min="' + q.sliderMin + '" max="' + q.sliderMax + '" value="' + q.sliderMin + '" style="width:100%;"><div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:1.2rem;"><span>Min: <strong>' + toRoman(q.sliderMin) + '</strong></span><div id="sliderValueDisplay" class="slider-bubble">' + toRoman(q.sliderMin) + '</div><span>Max: <strong>' + toRoman(q.sliderMax) + '</strong></span></div></div>'; } else { let it = q.type === 'single' ? 'radio' : 'checkbox'; h += '<div>' + q.options.map((o, i) => '<div class="slide-option"><input type="' + it + '" name="qOpt" value="' + i + '"><label>' + escapeHtml(o.text) + '</label></div>').join('') + '</div>'; } h += '<button class="submit-answer-btn" id="submitAnswerBtn">📝 Submit & Grade</button><div style="display:flex;justify-content:space-between;margin-top:1rem;"><button class="nav-btn" id="prevBtn" ' + (state.currentSlideIndex === 0 ? 'disabled' : '') + '>← Prev</button><span>' + (state.currentSlideIndex + 1) + '/' + state.questions.length + '</span><button class="nav-btn" id="nextBtn" ' + (state.currentSlideIndex === state.questions.length - 1 ? 'disabled' : '') + '>Next →</button></div></div>'; c.innerHTML = h; if (q.type === 'slider') { let slider = document.getElementById('sliderAnswer'); let display = document.getElementById('sliderValueDisplay'); function updateBubble() { let val = parseInt(slider.value); let min = parseInt(slider.min); let max = parseInt(slider.max); let percent = ((val - min) / (max - min)) * 100; display.textContent = toRoman(val); display.style.left = percent + '%'; } updateBubble(); slider.addEventListener('input', updateBubble); } document.getElementById('submitAnswerBtn').addEventListener('click', () => { let ans = null; if (q.type === 'open') ans = document.getElementById('userAnswerInput').value || ''; else if (q.type === 'slider') ans = parseInt(document.getElementById('sliderAnswer').value); else { let chk = [...document.querySelectorAll('.slide-option input:checked')].map(cb => parseInt(cb.value)); ans = chk; } if ((q.type !== 'open' && q.type !== 'slider' && (!ans || ans.length === 0)) || (q.type === 'open' && !ans.trim())) { showMessage('Provide answer', true); return; } let cf = isAnswerCorrect(q, ans);  showMessage(cf ? '✅ Matches expected! Open grading panel.' : '❌ Differs from expected. Open grading panel.'); openGradingModal(q, ans); }); document.getElementById('prevBtn').addEventListener('click', () => { if (state.currentSlideIndex > 0) { state.currentSlideIndex--; renderSlideQuiz(); } }); document.getElementById('nextBtn').addEventListener('click', () => { if (state.currentSlideIndex < state.questions.length - 1) { state.currentSlideIndex++; renderSlideQuiz(); } }); }
+    function clearForm() { 
+        document.getElementById('questionText').value = ''; 
+        renderOptionInputs(); 
+        document.getElementById('correctAnswers').value = ''; 
+        document.getElementById('sliderMin').value = ''; 
+        document.getElementById('sliderMax').value = ''; 
+        document.getElementById('caseSensitive').checked = false; 
+        state.editingId = null; 
+        state.currentType = 'single'; 
+        updateTypeToggleUI();
+        // Clear image input and preview
+        let imgInput = document.getElementById('questionImage');
+        if (imgInput) imgInput.value = '';
+        let preview = document.getElementById('imagePreviewContainer');
+        if (preview) preview.innerHTML = '';
+    }
+    function renderSlideQuiz() { 
+        let c = document.getElementById('slideQuizContainer'); 
+        if (!state.questions.length) { 
+            c.innerHTML = '<div class="empty-message">Add questions</div>'; 
+            return; 
+        } 
+        let q = state.questions[state.currentSlideIndex]; 
+        let h = '<div class="slide-card"><div class="slide-header"><span>Q' + (state.currentSlideIndex + 1) + '/' + state.questions.length + '</span><span>⭐ Teacher decides points</span></div><div class="slide-question-text">' + escapeHtml(q.text) + '</div>'; 
+        // Render image if present
+        h += renderQuestionImage(q);
+        if (q.type === 'open') h += '<textarea id="userAnswerInput" rows="4" style="width:100%;padding:0.8rem;border-radius:1rem;"></textarea>'; 
+        else if (q.type === 'slider') { 
+            h += '<div style="margin:2rem 0;position:relative;"><input type="range" id="sliderAnswer" min="' + q.sliderMin + '" max="' + q.sliderMax + '" value="' + q.sliderMin + '" style="width:100%;"><div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:1.2rem;"><span>Min: <strong>' + toRoman(q.sliderMin) + '</strong></span><div id="sliderValueDisplay" class="slider-bubble">' + toRoman(q.sliderMin) + '</div><span>Max: <strong>' + toRoman(q.sliderMax) + '</strong></span></div></div>'; 
+        } else { 
+            let it = q.type === 'single' ? 'radio' : 'checkbox'; 
+            h += '<div>' + q.options.map((o, i) => '<div class="slide-option"><input type="' + it + '" name="qOpt" value="' + i + '"><label>' + escapeHtml(o.text) + '</label></div>').join('') + '</div>'; 
+        } 
+        h += '<button class="submit-answer-btn" id="submitAnswerBtn">📝 Submit & Grade</button><div style="display:flex;justify-content:space-between;margin-top:1rem;"><button class="nav-btn" id="prevBtn" ' + (state.currentSlideIndex === 0 ? 'disabled' : '') + '>← Prev</button><span>' + (state.currentSlideIndex + 1) + '/' + state.questions.length + '</span><button class="nav-btn" id="nextBtn" ' + (state.currentSlideIndex === state.questions.length - 1 ? 'disabled' : '') + '>Next →</button></div></div>'; 
+        c.innerHTML = h; 
+        if (q.type === 'slider') { 
+            let slider = document.getElementById('sliderAnswer'); 
+            let display = document.getElementById('sliderValueDisplay'); 
+            function updateBubble() { 
+                let val = parseInt(slider.value); 
+                let min = parseInt(slider.min); 
+                let max = parseInt(slider.max); 
+                let percent = ((val - min) / (max - min)) * 100; 
+                display.textContent = toRoman(val); 
+                display.style.left = percent + '%'; 
+            } 
+            updateBubble(); 
+            slider.addEventListener('input', updateBubble); 
+        } 
+        document.getElementById('submitAnswerBtn').addEventListener('click', () => { 
+            let ans = null; 
+            if (q.type === 'open') ans = document.getElementById('userAnswerInput').value || ''; 
+            else if (q.type === 'slider') ans = parseInt(document.getElementById('sliderAnswer').value); 
+            else { 
+                let chk = [...document.querySelectorAll('.slide-option input:checked')].map(cb => parseInt(cb.value)); 
+                ans = chk; 
+            } 
+            if ((q.type !== 'open' && q.type !== 'slider' && (!ans || ans.length === 0)) || (q.type === 'open' && !ans.trim())) { 
+                showMessage('Provide answer', true); 
+                return; 
+            } 
+            let cf = isAnswerCorrect(q, ans);  
+            showMessage(cf ? '✅ Matches expected! Open grading panel.' : '❌ Differs from expected. Open grading panel.'); 
+            openGradingModal(q, ans); 
+        }); 
+        document.getElementById('prevBtn').addEventListener('click', () => { 
+            if (state.currentSlideIndex > 0) { 
+                state.currentSlideIndex--; 
+                renderSlideQuiz(); 
+            } 
+        }); 
+        document.getElementById('nextBtn').addEventListener('click', () => { 
+            if (state.currentSlideIndex < state.questions.length - 1) { 
+                state.currentSlideIndex++; 
+                renderSlideQuiz(); 
+            } 
+        }); 
+    }
     function openGradingModal(q, ua) { 
         let m = document.getElementById('gradingModal'); 
         document.getElementById('modalQuestionInfo').innerHTML = '<strong>Question:</strong> ' + escapeHtml(q.text) + '<br><strong>Answer:</strong> ' + escapeHtml(JSON.stringify(ua)) + '<br><small>Select participant and points below.</small>'; 
@@ -140,15 +320,27 @@
         return arr;
     }
     
-    function exportData() { 
+    function exportData() {
+        // Upload any images associated with questions to GitHub
+        if (state.uploadedImages.length > 0 && (!GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo || !GITHUB_CONFIG.token)) {
+            showMessage('⚠️ Configure GitHub settings first (owner, repo, token)', true);
+            return;
+        }
+        
         let shuffledQuestions = shuffleArray([...state.questions]);
-        let d = { questions: shuffledQuestions, participants: state.participants, scoreRecords: state.scoreRecords }, 
-        b = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' }), 
-        a = document.createElement('a'); 
-        a.href = URL.createObjectURL(b); 
-        a.download = 'quiz_' + Date.now() + '.json'; 
-        a.click(); 
-        URL.revokeObjectURL(a.href); 
+        let d = { 
+            questions: shuffledQuestions, 
+            participants: state.participants, 
+            scoreRecords: state.scoreRecords,
+            uploadedImages: state.uploadedImages
+        };
+        let b = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+        let a = document.createElement('a');
+        a.href = URL.createObjectURL(b);
+        a.download = 'quiz_' + Date.now() + '.json';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showMessage('✅ Exported with ' + state.uploadedImages.length + ' image(s)');
     }
     
     function shuffleQuestionsInPlace() {
@@ -189,6 +381,42 @@
         document.querySelectorAll('.tab-btn').forEach(b => { b.addEventListener('click', () => { let t = b.dataset.tab; document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active')); b.classList.add('active'); document.getElementById(t + 'Tab').classList.add('active'); if (t === 'rankings') renderRankings(); if (t === 'details') renderParticipantSelect(); if (t === 'stats') renderStatistics(); }); });
         if (document.getElementById('searchParticipant')) document.getElementById('searchParticipant').addEventListener('input', renderRankings);
         if (document.getElementById('sortBySelect')) document.getElementById('sortBySelect').addEventListener('change', renderRankings);
+        
+        // Image preview handler
+        if (document.getElementById('questionImage')) {
+            document.getElementById('questionImage').addEventListener('change', e => {
+                let file = e.target.files[0];
+                let preview = document.getElementById('imagePreviewContainer');
+                if (preview) {
+                    if (file) {
+                        let reader = new FileReader();
+                        reader.onload = ev => {
+                            preview.innerHTML = '<img src="' + ev.target.result + '" alt="Preview" style="max-width:200px;max-height:150px;border-radius:0.5rem;margin-top:0.5rem;">';
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        preview.innerHTML = '';
+                    }
+                }
+            });
+        }
+        
+        // GitHub settings handler
+        if (document.getElementById('saveGithubSettingsBtn')) {
+            document.getElementById('saveGithubSettingsBtn').addEventListener('click', () => {
+                let owner = document.getElementById('githubOwner').value.trim();
+                let repo = document.getElementById('githubRepo').value.trim();
+                let token = document.getElementById('githubToken').value.trim();
+                if (!owner || !repo || !token) {
+                    showMessage('⚠️ Please fill in all GitHub settings', true);
+                    return;
+                }
+                GITHUB_CONFIG.owner = owner;
+                GITHUB_CONFIG.repo = repo;
+                GITHUB_CONFIG.token = token;
+                showMessage('✅ GitHub settings saved!');
+            });
+        }
     }
     function init() { renderOptionInputs(); renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); }
     initEventListeners();
