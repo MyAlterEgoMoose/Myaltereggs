@@ -150,6 +150,15 @@
         a.click(); 
         URL.revokeObjectURL(a.href); 
     }
+    
+    function shuffleQuestionsInPlace() {
+        state.questions = shuffleArray([...state.questions]);
+        state.currentSlideIndex = 0;
+        renderQuestionsList();
+        renderSlideQuiz();
+        showMessage('Questions shuffled');
+    }
+    
     function importData(f) { let r = new FileReader(); r.onload = e => { try { let d = JSON.parse(e.target.result); if (d.questions) state.questions = d.questions; if (d.participants) state.participants = d.participants; if (d.scoreRecords) state.scoreRecords = d.scoreRecords; renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); showMessage('Imported'); } catch (err) { showMessage('Invalid file', true); } }; r.readAsText(f); }
     function resetAllScores() { if (confirm('Reset all scores?')) { state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderParticipantsSidebar(); renderScoreboard(); showMessage('All scores reset'); } }
     function resetAllQuestions() { if (confirm('Delete all questions?')) { state.questions = []; state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); showMessage('Questions cleared'); } }
@@ -168,6 +177,7 @@
         document.getElementById('resetAllQuestionsBtn').addEventListener('click', resetAllQuestions);
         document.getElementById('resetAllScoresBtn').addEventListener('click', resetAllScores);
         document.getElementById('exportBtn').addEventListener('click', exportData);
+        document.getElementById('shuffleBtn').addEventListener('click', shuffleQuestionsInPlace);
         document.getElementById('resetScoresBtn').addEventListener('click', resetAllScores);
         document.getElementById('importFile').addEventListener('change', e => { if (e.target.files.length) importData(e.target.files[0]); e.target.value = ''; });
         document.getElementById('typeToggleGroup').addEventListener('click', e => { let t = e.target.closest('.type-option'); if (t) { state.currentType = t.dataset.type; updateTypeToggleUI(); } });
