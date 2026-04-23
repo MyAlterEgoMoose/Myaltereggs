@@ -1,27 +1,54 @@
-# Examples 1:
+```gitignore
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.class
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
-# Project with artifacts
-dist/
-build/
+# Dependencies
 node_modules/
+venv/
+.venv/
 .env
 .env.local
-.vscode/
-.idea/
+.env.*
+
+# Logs and temp files
 *.log
 *.tmp
 *.swp
-*.pyc
-__pycache__/
-.venv/
-venv/
-target/
-.gradle/
-.mypy_cache/
-.pytest_cache/
+*.swo
+
+# Editors
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Coverage
 coverage/
 htmlcov/
-*.env.*
+.coverage
+
+# Build directories
+dist/
+build/
+target/
+.gradle/
+
+# Python cache
+.mypy_cache/
+.pytest_cache/
+
+# Compressed files
 *.zip
 *.gz
 *.tar
@@ -44,10 +71,4 @@ htmlcov/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-.DS_Store
-Thumbs.db
-*.out
-*.exe
-*.dll
-*.so
-*.a
+```
