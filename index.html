@@ -35,11 +35,16 @@
     <div class="input-group"><label>GitHub Repo</label><input type="text" id="githubRepo" placeholder="your-repo-name"></div>
     <div class="input-group"><label>GitHub Token (fine-grained PAT)</label><input type="password" id="githubToken" placeholder="ghp_..."></div>
     <button id="saveGithubSettingsBtn" class="btn-primary" style="width:100%;margin-top:0.5rem;">💾 Save GitHub Settings</button>
+    
+    <div class="section-title" style="font-size:1.2rem;margin-top:1rem;">💾 Data Management</div>
+    <button id="exportBtn" class="btn-primary" style="width:100%;margin-top:0.5rem;">💾 Export Quiz</button>
+    <button id="importLocalBtn" class="btn-secondary" style="width:100%;margin-top:0.5rem;">📂 Import Local File</button>
+    <button id="importGitHubBtn" class="btn-secondary" style="width:100%;margin-top:0.5rem;">☁️ Import from GitHub</button>
+    <input type="file" id="importFile" accept=".json" style="display:none;">
 </div>
 
 <div class="main-content">
     <div class="app-container">
-        <div class="toolbar"><button class="btn-export" id="exportBtn">💾 Export</button><button class="btn-secondary" id="shuffleBtn">🔀 Shuffle Questions</button><button class="btn-secondary" id="importBtn">📂 Import</button><input type="file" id="importFile" accept=".json" style="display:none;"></div>
         <div class="quiz-main"><div class="preview-panel"><div class="section-title">🎯 Quiz</div><div id="slideQuizContainer"></div></div></div>
     </div>
 </div>
