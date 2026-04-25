@@ -40,6 +40,23 @@
     <div class="app-container">
         <div class="toolbar"><button class="btn-export" id="exportBtn">💾 Export</button><button class="btn-secondary" id="shuffleBtn">🔀 Shuffle Questions</button><label class="file-input-label" for="importFile">📂 Import</label><input type="file" id="importFile" accept=".json"></div>
         <div class="quiz-main"><div class="preview-panel"><div class="section-title">🎯 Quiz</div><div id="slideQuizContainer"></div></div></div>
+        
+        <!-- Grading Panel (revealed after answering) -->
+        <div id="gradingPanel" class="grading-panel" style="display:none;">
+            <div class="grading-panel-header">
+                <h3>📝 Grade Answer</h3>
+                <button id="closeGradingPanelBtn" class="close-grading-panel" aria-label="Close">✕</button>
+            </div>
+            <div id="gradingPanelInfo" class="grading-panel-info"></div>
+            <div class="grading-panel-body">
+                <label>👤 Select Participant & Points</label>
+                <div id="gradingPanelParticipants" class="participant-circles-list"></div>
+            </div>
+            <div class="input-group" style="margin-top:1rem;">
+                <label>📝 Notes (optional)</label>
+                <textarea id="gradingPanelNotes" rows="2"></textarea>
+            </div>
+        </div>
     </div>
 </div>
 
