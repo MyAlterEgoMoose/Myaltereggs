@@ -243,7 +243,7 @@
     function updateAllTotals() { state.participants.forEach(p => updateParticipantTotal(p.name)); }
     function renderParticipantsSidebar() { let c = document.getElementById('participantsList'); if (!c) return; if (!state.participants.length) { c.innerHTML = '<div style="color:#666;">No participants</div>'; return; } c.innerHTML = state.participants.map(p => '<div class="participant-item-sidebar"><span>👤 ' + escapeHtml(p.name) + '</span><span style="background:#ffc107;padding:0.2rem 0.5rem;border-radius:1rem;">' + (p.totalScore || 0) + ' pts</span><button class="delete-participant-side" data-name="' + escapeHtml(p.name) + '" style="background:#dc3545;border:none;border-radius:1rem;padding:0.2rem 0.5rem;">🗑️</button></div>').join(''); document.querySelectorAll('.delete-participant-side').forEach(b => b.addEventListener('click', () => { let n = b.dataset.name; if (confirm('Delete ' + n + '?')) { state.participants = state.participants.filter(p => p.name !== n); state.scoreRecords = state.scoreRecords.filter(r => r.participantName !== n); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); saveStateToCookie(); showMessage('Deleted ' + n); } })); }
     function updateDatalist() { let d = document.getElementById('participantsDatalist'); if (d) d.innerHTML = state.participants.map(p => '<option value="' + escapeHtml(p.name) + '">').join(''); }
-    function renderQuestionsList() { let a = document.getElementById('questionsListArea'); if (!state.questions.length) { a.innerHTML = '<div style="padding:1rem;">No questions</div>'; return; } a.innerHTML = state.questions.map((q, i) => '<div class="question-card" data-idx="' + i + '"><div><strong>' + (i + 1) + '.</strong> ' + escapeHtml(getQuestionDisplayText(q).substring(0, 50)) + '</div><div><button class="edit-q" data-id="' + q.id + '">✏️</button><button class="delete-q" data-id="' + q.id + '">🗑️</button></div></div>').join(''); document.querySelectorAll('.delete-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let id = b.dataset.id; if (confirm('Delete?')) { state.questions = state.questions.filter(q => q.id !== id); if (state.currentSlideIndex >= state.questions.length) state.currentSlideIndex = Math.max(0, state.questions.length - 1); renderQuestionsList(); renderSlideQuiz(); saveStateToCookie(); showMessage('Deleted'); } })); document.querySelectorAll('.edit-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let q = state.questions.find(q => q.id === b.dataset.id); if (q) { state.editingId = q.id; state.currentType = q.type; document.getElementById('questionText').value = q.text; updateTypeToggleUI(); if (q.type === 'open') { document.getElementById('correctAnswers').value = (q.correctAnswers || []).join('\n'); document.getElementById('caseSensitive').checked = q.caseSensitive || false; } else if (q.type === 'slider') { document.getElementById('sliderMin').value = toRoman(q.sliderMin); document.getElementById('sliderMax').value = toRoman(q.sliderMax); } else renderOptionInputs(q.options); openSidebar(); } })); document.querySelectorAll('.question-card').forEach(c => c.addEventListener('click', () => { let i = parseInt(c.dataset.idx); if (!isNaN(i)) { state.currentSlideIndex = i; renderSlideQuiz(); } })); }
+    function renderQuestionsList() { let a = document.getElementById('questionsListArea'); if (!state.questions.length) { a.innerHTML = '<div style="padding:1rem;">No questions</div>'; return; } a.innerHTML = state.questions.map((q, i) => '<div class="question-card" data-idx="' + i + '"><div><strong>' + (i + 1) + '.</strong> ' + escapeHtml(getQuestionDisplayText(q).substring(0, 50)) + '</div><div><button class="edit-q" data-id="' + q.id + '">✏️</button><button class="delete-q" data-id="' + q.id + '">🗑️</button></div></div>').join(''); document.querySelectorAll('.delete-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let id = b.dataset.id; if (confirm('Delete?')) { state.questions = state.questions.filter(q => q.id !== id); if (state.currentSlideIndex >= state.questions.length) state.currentSlideIndex = Math.max(0, state.questions.length - 1); renderQuestionsList(); renderSlideQuiz(); saveStateToCookie(); showMessage('Deleted'); } })); document.querySelectorAll('.edit-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let q = state.questions.find(q => q.id === b.dataset.id); if (q) { state.editingId = q.id; state.currentType = q.type; document.getElementById('questionText').value = q.text; updateTypeToggleUI(); if (q.type === 'open') { document.getElementById('correctAnswers').value = (q.correctAnswers || []).join('\n'); document.getElementById('caseSensitive').checked = q.caseSensitive || false; } else if (q.type === 'slider') { document.getElementById('sliderMin').value = q.sliderMin; document.getElementById('sliderMax').value = q.sliderMax; } else renderOptionInputs(q.options); openSidebar(); } })); document.querySelectorAll('.question-card').forEach(c => c.addEventListener('click', () => { let i = parseInt(c.dataset.idx); if (!isNaN(i)) { state.currentSlideIndex = i; renderSlideQuiz(); } })); }
     function renderOptionInputs(opts = null) { let c = document.getElementById('optionsContainer'); let arr = opts || [{ text: '', isCorrect: false }, { text: '', isCorrect: false }]; c.innerHTML = ''; arr.forEach((o, i) => { let d = document.createElement('div'); d.className = 'option-row'; d.innerHTML = '<input type="text" class="option-text" value="' + escapeHtml(o.text) + '" placeholder="Option ' + (i + 1) + '"><input type="checkbox" class="option-correct" ' + (o.isCorrect ? 'checked' : '') + '> <span>✓</span><button type="button" class="btn-icon">✖</button>'; d.querySelector('button').addEventListener('click', () => { if (c.children.length > 1) d.remove(); else showMessage('Need at least one option', true); }); c.appendChild(d); }); }
     function updateTypeToggleUI() { document.querySelectorAll('.type-option').forEach(o => { if (o.dataset.type === state.currentType) o.classList.add('active'); else o.classList.remove('active'); }); document.getElementById('optionsGroup').style.display = state.currentType === 'open' || state.currentType === 'slider' ? 'none' : 'block'; document.getElementById('openAnswerGroup').style.display = state.currentType === 'open' ? 'block' : 'none'; document.getElementById('sliderRangeGroup').style.display = state.currentType === 'slider' ? 'block' : 'none'; }
     function gatherFormData() { 
@@ -346,22 +346,9 @@
             clearForm();
             renderQuestionsList();
             renderSlideQuiz();
-            convertSliderToRoman();
             saveStateToCookie();
             showMessage('Saved');
             if (window.innerWidth <= 768) closeSidebar();
-        }
-    }
-    function convertSliderToRoman() {
-        let minInput = document.getElementById('sliderMin');
-        let maxInput = document.getElementById('sliderMax');
-        if (minInput && maxInput) {
-            let minVal = parseInt(minInput.value);
-            let maxVal = parseInt(maxInput.value);
-            if (!isNaN(minVal) && !isNaN(maxVal)) {
-                minInput.value = toRoman(minVal);
-                maxInput.value = toRoman(maxVal);
-            }
         }
     }
     function clearForm() { 
@@ -399,7 +386,7 @@
         h += renderQuestionAudio(q);
         if (q.type === 'open') h += '<textarea id="userAnswerInput" rows="4" style="width:100%;padding:0.8rem;border-radius:1rem;"></textarea>'; 
         else if (q.type === 'slider') { 
-            h += '<div style="margin:2rem 0;position:relative;"><input type="range" id="sliderAnswer" min="' + q.sliderMin + '" max="' + q.sliderMax + '" value="' + q.sliderMin + '" style="width:100%;"><div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:1.2rem;"><span>Min: <strong>' + toRoman(q.sliderMin) + '</strong></span><div id="sliderValueDisplay" class="slider-bubble">' + toRoman(q.sliderMin) + '</div><span>Max: <strong>' + toRoman(q.sliderMax) + '</strong></span></div></div>'; 
+            h += '<div class="slider-question-container"><input type="range" id="sliderAnswer" min="' + q.sliderMin + '" max="' + q.sliderMax + '" value="' + q.sliderMin + '"><div class="slider-labels"><span>Min: <strong>' + toRoman(q.sliderMin) + '</strong></span><div id="sliderValueDisplay" class="slider-value-display">' + toRoman(q.sliderMin) + '</div><span>Max: <strong>' + toRoman(q.sliderMax) + '</strong></span></div></div>'; 
         } else { 
             let it = q.type === 'single' ? 'radio' : 'checkbox'; 
             h += '<div class="options-grid">' + q.options.map((o, i) => '<div class="slide-option" data-index="' + i + '"><input type="' + it + '" name="qOpt" value="' + i + '" id="opt-' + i + '"><label for="opt-' + i + '">' + escapeHtml(o.text) + '</label></div>').join('') + '</div>'; 
@@ -431,11 +418,7 @@
             let display = document.getElementById('sliderValueDisplay'); 
             function updateBubble() { 
                 let val = parseInt(slider.value); 
-                let min = parseInt(slider.min); 
-                let max = parseInt(slider.max); 
-                let percent = ((val - min) / (max - min)) * 100; 
                 display.textContent = toRoman(val); 
-                display.style.left = percent + '%'; 
             } 
             updateBubble(); 
             slider.addEventListener('input', updateBubble); 
