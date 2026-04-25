@@ -265,10 +265,11 @@ input[type="file"] { display: none; }
 }
 
 .slide-question-text {
-    font-size: 1.2rem;
+    font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 1rem;
     word-wrap: break-word;
+    line-height: 1.4;
 }
 
 .slide-option {
@@ -611,7 +612,7 @@ input[type="file"] { display: none; }
     }
     
     .slide-question-text {
-        font-size: 1.1rem;
+        font-size: 1.5rem;
     }
     
     .slide-option {
@@ -713,7 +714,7 @@ input[type="file"] { display: none; }
     }
     
     .slide-question-text {
-        font-size: 1rem;
+        font-size: 1.3rem;
     }
     
     .slide-option {
