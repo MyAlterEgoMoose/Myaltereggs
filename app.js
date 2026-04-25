@@ -334,7 +334,7 @@
             h += '<div style="margin:2rem 0;position:relative;"><input type="range" id="sliderAnswer" min="' + q.sliderMin + '" max="' + q.sliderMax + '" value="' + q.sliderMin + '" style="width:100%;"><div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:1.2rem;"><span>Min: <strong>' + toRoman(q.sliderMin) + '</strong></span><div id="sliderValueDisplay" class="slider-bubble">' + toRoman(q.sliderMin) + '</div><span>Max: <strong>' + toRoman(q.sliderMax) + '</strong></span></div></div>'; 
         } else { 
             let it = q.type === 'single' ? 'radio' : 'checkbox'; 
-            h += '<div>' + q.options.map((o, i) => '<div class="slide-option"><input type="' + it + '" name="qOpt" value="' + i + '"><label>' + escapeHtml(o.text) + '</label></div>').join('') + '</div>'; 
+            h += '<div class="options-grid">' + q.options.map((o, i) => '<div class="slide-option" data-index="' + i + '"><input type="' + it + '" name="qOpt" value="' + i + '" id="opt-' + i + '"><label for="opt-' + i + '">' + escapeHtml(o.text) + '</label></div>').join('') + '</div>'; 
         } 
         h += '<button class="submit-answer-btn" id="submitAnswerBtn">📝 Submit & Grade</button><div style="display:flex;justify-content:space-between;margin-top:1rem;"><button class="nav-btn" id="prevBtn" ' + (state.currentSlideIndex === 0 ? 'disabled' : '') + '>← Prev</button><span>' + (state.currentSlideIndex + 1) + '/' + state.questions.length + '</span><button class="nav-btn" id="nextBtn" ' + (state.currentSlideIndex === state.questions.length - 1 ? 'disabled' : '') + '>Next →</button></div></div>'; 
         c.innerHTML = h; 
