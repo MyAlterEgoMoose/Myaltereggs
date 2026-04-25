@@ -9,6 +9,8 @@
         token: ''
     };
     
+    let lastImportedFileName = null;
+    
     // Load GitHub config from localStorage on startup
     function loadGithubConfig() {
         const saved = localStorage.getItem('githubConfig');
@@ -29,6 +31,12 @@
             } catch (e) {
                 console.error('Failed to load GitHub config:', e);
             }
+        }
+        
+        // Load last imported filename from localStorage
+        const lastImported = localStorage.getItem('lastImportedFileName');
+        if (lastImported) {
+            lastImportedFileName = lastImported;
         }
         
         // Try to load state from cookie first (for imported files persistence)
@@ -773,7 +781,16 @@
     // Export data directly to GitHub repository
     async function exportToGitHub(data) {
         try {
-            const fileName = 'quiz_data/quiz_' + Date.now() + '.json';
+            // Use the last imported filename if available, otherwise generate a new one
+            let fileName;
+            if (lastImportedFileName) {
+                fileName = 'quiz_data/' + lastImportedFileName;
+                showMessage('ℹ️ Overwriting: ' + fileName);
+            } else {
+                fileName = 'quiz_data/quiz_' + Date.now() + '.json';
+                showMessage('ℹ️ Creating new file: ' + fileName);
+            }
+            
             const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${fileName}`;
             
             // First, check if file exists to get the SHA
@@ -893,6 +910,10 @@
             if (data.uploadedImages) state.uploadedImages = data.uploadedImages;
             if (data.uploadedAudios) state.uploadedAudios = data.uploadedAudios;
             
+            // Save the last imported filename
+            lastImportedFileName = selectedFileName;
+            localStorage.setItem('lastImportedFileName', selectedFileName);
+            
             renderQuestionsList();
             renderSlideQuiz();
             renderParticipantsSidebar();
@@ -914,7 +935,34 @@
         showMessage('Questions shuffled');
     }
     
-    function importData(f) { let r = new FileReader(); r.onload = e => { try { let d = JSON.parse(e.target.result); if (d.questions) state.questions = d.questions; if (d.participants) state.participants = d.participants; if (d.scoreRecords) state.scoreRecords = d.scoreRecords; if (d.uploadedImages) state.uploadedImages = d.uploadedImages; if (d.uploadedAudios) state.uploadedAudios = d.uploadedAudios; renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); saveStateToCookie(); showMessage('Imported'); } catch (err) { showMessage('Invalid file', true); } }; r.readAsText(f); }
+    function importData(f) { 
+        let r = new FileReader(); 
+        r.onload = e => { 
+            try { 
+                let d = JSON.parse(e.target.result); 
+                if (d.questions) state.questions = d.questions; 
+                if (d.participants) state.participants = d.participants; 
+                if (d.scoreRecords) state.scoreRecords = d.scoreRecords; 
+                if (d.uploadedImages) state.uploadedImages = d.uploadedImages; 
+                if (d.uploadedAudios) state.uploadedAudios = d.uploadedAudios; 
+                
+                // Save the imported filename for local files
+                lastImportedFileName = f.name;
+                localStorage.setItem('lastImportedFileName', f.name);
+                
+                renderQuestionsList(); 
+                renderSlideQuiz(); 
+                renderParticipantsSidebar(); 
+                renderScoreboard(); 
+                updateDatalist(); 
+                saveStateToCookie(); 
+                showMessage('Imported: ' + f.name); 
+            } catch (err) { 
+                showMessage('Invalid file', true); 
+            } 
+        }; 
+        r.readAsText(f); 
+    }
     function resetAllScores() { if (confirm('Reset all scores?')) { state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderParticipantsSidebar(); renderScoreboard(); saveStateToCookie(); showMessage('All scores reset'); } }
     function resetAllQuestions() { if (confirm('Delete all questions?')) { state.questions = []; state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); saveStateToCookie(); showMessage('Questions cleared'); } }
     function openSidebar() { document.getElementById('builderPanel').classList.add('open'); document.getElementById('overlay').classList.add('active'); state.isSidebarOpen = true; }
