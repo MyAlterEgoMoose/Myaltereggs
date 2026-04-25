@@ -335,6 +335,39 @@
         } else { 
             let it = q.type === 'single' ? 'radio' : 'checkbox'; 
             h += '<div class="options-grid">' + q.options.map((o, i) => '<div class="slide-option" data-index="' + i + '"><input type="' + it + '" name="qOpt" value="' + i + '" id="opt-' + i + '"><label for="opt-' + i + '">' + escapeHtml(o.text) + '</label></div>').join('') + '</div>'; 
+            
+            // Add click event to options for auto-submit
+            setTimeout(() => {
+                document.querySelectorAll('.slide-option').forEach(opt => {
+                    opt.addEventListener('click', function(e) {
+                        // Don't trigger if clicking directly on input
+                        if (e.target.tagName === 'INPUT') return;
+                        
+                        const input = this.querySelector('input');
+                        if (q.type === 'single') {
+                            // For single choice, uncheck others and check this one
+                            document.querySelectorAll('.slide-option input[type="radio"]').forEach(r => r.checked = false);
+                            input.checked = true;
+                        } else {
+                            // For multiple choice, toggle
+                            input.checked = !input.checked;
+                        }
+                        
+                        // Trigger answer submission after a short delay to allow visual feedback
+                        setTimeout(() => {
+                            let ans = null;
+                            let chk = [...document.querySelectorAll('.slide-option input:checked')].map(cb => parseInt(cb.value));
+                            ans = chk;
+                            
+                            if (ans && ans.length > 0) {
+                                let cf = isAnswerCorrect(q, ans);
+                                showMessage(cf ? '✅ Matches expected! Open grading panel.' : '❌ Differs from expected. Open grading panel.');
+                                openGradingModal(q, ans);
+                            }
+                        }, 150);
+                    });
+                });
+            }, 0);
         } 
         h += '<button class="submit-answer-btn" id="submitAnswerBtn">📝 Submit & Grade</button><div style="display:flex;justify-content:space-between;margin-top:1rem;"><button class="nav-btn" id="prevBtn" ' + (state.currentSlideIndex === 0 ? 'disabled' : '') + '>← Prev</button><span>' + (state.currentSlideIndex + 1) + '/' + state.questions.length + '</span><button class="nav-btn" id="nextBtn" ' + (state.currentSlideIndex === state.questions.length - 1 ? 'disabled' : '') + '>Next →</button></div></div>'; 
         c.innerHTML = h; 
