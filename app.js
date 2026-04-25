@@ -31,22 +31,25 @@
             }
         }
         
-        // Load uploaded images and audios from localStorage
-        const savedImages = localStorage.getItem('uploadedImages');
-        if (savedImages) {
-            try {
-                state.uploadedImages = JSON.parse(savedImages);
-            } catch (e) {
-                console.error('Failed to load uploaded images:', e);
+        // Try to load state from cookie first (for imported files persistence)
+        if (!loadStateFromCookie()) {
+            // Load uploaded images and audios from localStorage as fallback
+            const savedImages = localStorage.getItem('uploadedImages');
+            if (savedImages) {
+                try {
+                    state.uploadedImages = JSON.parse(savedImages);
+                } catch (e) {
+                    console.error('Failed to load uploaded images:', e);
+                }
             }
-        }
-        
-        const savedAudios = localStorage.getItem('uploadedAudios');
-        if (savedAudios) {
-            try {
-                state.uploadedAudios = JSON.parse(savedAudios);
-            } catch (e) {
-                console.error('Failed to load uploaded audios:', e);
+            
+            const savedAudios = localStorage.getItem('uploadedAudios');
+            if (savedAudios) {
+                try {
+                    state.uploadedAudios = JSON.parse(savedAudios);
+                } catch (e) {
+                    console.error('Failed to load uploaded audios:', e);
+                }
             }
         }
     }
@@ -63,6 +66,50 @@
         // Save uploaded images and audios to localStorage
         localStorage.setItem('uploadedImages', JSON.stringify(state.uploadedImages));
         localStorage.setItem('uploadedAudios', JSON.stringify(state.uploadedAudios));
+    }
+    
+    // Cookie helper functions
+    function setCookie(name, value, days) {
+        const expires = new Date(Date.now() + days * 864e5).toUTCString();
+        try {
+            document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/; SameSite=Lax';
+        } catch (e) {
+            console.warn('Cookie too large or failed to set:', e);
+        }
+    }
+    
+    function getCookie(name) {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[2]) : null;
+    }
+    
+    function saveStateToCookie() {
+        const stateData = JSON.stringify({
+            questions: state.questions,
+            participants: state.participants,
+            scoreRecords: state.scoreRecords,
+            uploadedImages: state.uploadedImages,
+            uploadedAudios: state.uploadedAudios
+        });
+        setCookie('quizState', stateData, 30); // Save for 30 days
+    }
+    
+    function loadStateFromCookie() {
+        const saved = getCookie('quizState');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (data.questions) state.questions = data.questions;
+                if (data.participants) state.participants = data.participants;
+                if (data.scoreRecords) state.scoreRecords = data.scoreRecords;
+                if (data.uploadedImages) state.uploadedImages = data.uploadedImages;
+                if (data.uploadedAudios) state.uploadedAudios = data.uploadedAudios;
+                return true;
+            } catch (e) {
+                console.error('Failed to parse cookie data:', e);
+            }
+        }
+        return false;
     }
     function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
@@ -194,9 +241,9 @@
     }
     function updateParticipantTotal(name) { let p = state.participants.find(p => p.name === name); if (p) { let t = state.scoreRecords.filter(r => r.participantName === name).reduce((s, r) => s + r.pointsEarned, 0); p.totalScore = t; } }
     function updateAllTotals() { state.participants.forEach(p => updateParticipantTotal(p.name)); }
-    function renderParticipantsSidebar() { let c = document.getElementById('participantsList'); if (!c) return; if (!state.participants.length) { c.innerHTML = '<div style="color:#666;">No participants</div>'; return; } c.innerHTML = state.participants.map(p => '<div class="participant-item-sidebar"><span>👤 ' + escapeHtml(p.name) + '</span><span style="background:#ffc107;padding:0.2rem 0.5rem;border-radius:1rem;">' + (p.totalScore || 0) + ' pts</span><button class="delete-participant-side" data-name="' + escapeHtml(p.name) + '" style="background:#dc3545;border:none;border-radius:1rem;padding:0.2rem 0.5rem;">🗑️</button></div>').join(''); document.querySelectorAll('.delete-participant-side').forEach(b => b.addEventListener('click', () => { let n = b.dataset.name; if (confirm('Delete ' + n + '?')) { state.participants = state.participants.filter(p => p.name !== n); state.scoreRecords = state.scoreRecords.filter(r => r.participantName !== n); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); showMessage('Deleted ' + n); } })); }
+    function renderParticipantsSidebar() { let c = document.getElementById('participantsList'); if (!c) return; if (!state.participants.length) { c.innerHTML = '<div style="color:#666;">No participants</div>'; return; } c.innerHTML = state.participants.map(p => '<div class="participant-item-sidebar"><span>👤 ' + escapeHtml(p.name) + '</span><span style="background:#ffc107;padding:0.2rem 0.5rem;border-radius:1rem;">' + (p.totalScore || 0) + ' pts</span><button class="delete-participant-side" data-name="' + escapeHtml(p.name) + '" style="background:#dc3545;border:none;border-radius:1rem;padding:0.2rem 0.5rem;">🗑️</button></div>').join(''); document.querySelectorAll('.delete-participant-side').forEach(b => b.addEventListener('click', () => { let n = b.dataset.name; if (confirm('Delete ' + n + '?')) { state.participants = state.participants.filter(p => p.name !== n); state.scoreRecords = state.scoreRecords.filter(r => r.participantName !== n); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); saveStateToCookie(); showMessage('Deleted ' + n); } })); }
     function updateDatalist() { let d = document.getElementById('participantsDatalist'); if (d) d.innerHTML = state.participants.map(p => '<option value="' + escapeHtml(p.name) + '">').join(''); }
-    function renderQuestionsList() { let a = document.getElementById('questionsListArea'); if (!state.questions.length) { a.innerHTML = '<div style="padding:1rem;">No questions</div>'; return; } a.innerHTML = state.questions.map((q, i) => '<div class="question-card" data-idx="' + i + '"><div><strong>' + (i + 1) + '.</strong> ' + escapeHtml(getQuestionDisplayText(q).substring(0, 50)) + '</div><div><button class="edit-q" data-id="' + q.id + '">✏️</button><button class="delete-q" data-id="' + q.id + '">🗑️</button></div></div>').join(''); document.querySelectorAll('.delete-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let id = b.dataset.id; if (confirm('Delete?')) { state.questions = state.questions.filter(q => q.id !== id); if (state.currentSlideIndex >= state.questions.length) state.currentSlideIndex = Math.max(0, state.questions.length - 1); renderQuestionsList(); renderSlideQuiz(); showMessage('Deleted'); } })); document.querySelectorAll('.edit-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let q = state.questions.find(q => q.id === b.dataset.id); if (q) { state.editingId = q.id; state.currentType = q.type; document.getElementById('questionText').value = q.text; updateTypeToggleUI(); if (q.type === 'open') { document.getElementById('correctAnswers').value = (q.correctAnswers || []).join('\n'); document.getElementById('caseSensitive').checked = q.caseSensitive || false; } else if (q.type === 'slider') { document.getElementById('sliderMin').value = toRoman(q.sliderMin); document.getElementById('sliderMax').value = toRoman(q.sliderMax); } else renderOptionInputs(q.options); openSidebar(); } })); document.querySelectorAll('.question-card').forEach(c => c.addEventListener('click', () => { let i = parseInt(c.dataset.idx); if (!isNaN(i)) { state.currentSlideIndex = i; renderSlideQuiz(); } })); }
+    function renderQuestionsList() { let a = document.getElementById('questionsListArea'); if (!state.questions.length) { a.innerHTML = '<div style="padding:1rem;">No questions</div>'; return; } a.innerHTML = state.questions.map((q, i) => '<div class="question-card" data-idx="' + i + '"><div><strong>' + (i + 1) + '.</strong> ' + escapeHtml(getQuestionDisplayText(q).substring(0, 50)) + '</div><div><button class="edit-q" data-id="' + q.id + '">✏️</button><button class="delete-q" data-id="' + q.id + '">🗑️</button></div></div>').join(''); document.querySelectorAll('.delete-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let id = b.dataset.id; if (confirm('Delete?')) { state.questions = state.questions.filter(q => q.id !== id); if (state.currentSlideIndex >= state.questions.length) state.currentSlideIndex = Math.max(0, state.questions.length - 1); renderQuestionsList(); renderSlideQuiz(); saveStateToCookie(); showMessage('Deleted'); } })); document.querySelectorAll('.edit-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let q = state.questions.find(q => q.id === b.dataset.id); if (q) { state.editingId = q.id; state.currentType = q.type; document.getElementById('questionText').value = q.text; updateTypeToggleUI(); if (q.type === 'open') { document.getElementById('correctAnswers').value = (q.correctAnswers || []).join('\n'); document.getElementById('caseSensitive').checked = q.caseSensitive || false; } else if (q.type === 'slider') { document.getElementById('sliderMin').value = toRoman(q.sliderMin); document.getElementById('sliderMax').value = toRoman(q.sliderMax); } else renderOptionInputs(q.options); openSidebar(); } })); document.querySelectorAll('.question-card').forEach(c => c.addEventListener('click', () => { let i = parseInt(c.dataset.idx); if (!isNaN(i)) { state.currentSlideIndex = i; renderSlideQuiz(); } })); }
     function renderOptionInputs(opts = null) { let c = document.getElementById('optionsContainer'); let arr = opts || [{ text: '', isCorrect: false }, { text: '', isCorrect: false }]; c.innerHTML = ''; arr.forEach((o, i) => { let d = document.createElement('div'); d.className = 'option-row'; d.innerHTML = '<input type="text" class="option-text" value="' + escapeHtml(o.text) + '" placeholder="Option ' + (i + 1) + '"><input type="checkbox" class="option-correct" ' + (o.isCorrect ? 'checked' : '') + '> <span>✓</span><button type="button" class="btn-icon">✖</button>'; d.querySelector('button').addEventListener('click', () => { if (c.children.length > 1) d.remove(); else showMessage('Need at least one option', true); }); c.appendChild(d); }); }
     function updateTypeToggleUI() { document.querySelectorAll('.type-option').forEach(o => { if (o.dataset.type === state.currentType) o.classList.add('active'); else o.classList.remove('active'); }); document.getElementById('optionsGroup').style.display = state.currentType === 'open' || state.currentType === 'slider' ? 'none' : 'block'; document.getElementById('openAnswerGroup').style.display = state.currentType === 'open' ? 'block' : 'none'; document.getElementById('sliderRangeGroup').style.display = state.currentType === 'slider' ? 'block' : 'none'; }
     function gatherFormData() { 
@@ -300,6 +347,7 @@
             renderQuestionsList();
             renderSlideQuiz();
             convertSliderToRoman();
+            saveStateToCookie();
             showMessage('Saved');
             if (window.innerWidth <= 768) closeSidebar();
         }
@@ -459,29 +507,53 @@
             return;
         }
         
-        let pointsOptions = [0.5, 1, 2, 3, 5, 7.5, 10];
-        
+        // Show participant circles initially
         container.innerHTML = '<div class="participants-points-horizontal">' + 
             state.participants.map(p => {
-                let pointsBtns = pointsOptions.map(pts => 
-                    '<button class="points-circle-btn" data-participant="' + escapeHtml(p.name) + '" data-points="' + pts + '">+' + pts + '</button>'
-                ).join('');
-                
                 let initials = p.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
                 
-                return '<div class="participant-circle-item">' +
+                return '<div class="participant-circle-item" data-participant="' + escapeHtml(p.name) + '">' +
                     '<div class="circle-avatar">' + initials + '</div>' +
                     '<div class="circle-name">' + escapeHtml(p.name) + '</div>' +
-                    '<div class="points-row">' + pointsBtns + '</div>' +
                     '</div>';
             }).join('') +
             '</div>';
         
+        // Add click listeners to participant circles
+        container.querySelectorAll('.participant-circle-item').forEach(circle => {
+            circle.addEventListener('click', () => {
+                let participantName = circle.dataset.participant;
+                showPointsForParticipant(participantName);
+            });
+        });
+    }
+    
+    function showPointsForParticipant(participantName) {
+        let container = document.getElementById('participantsPointsList');
+        if (!container) return;
+        
+        let pointsOptions = [0.5, 1, 2, 3, 5, 7.5, 10];
+        let p = state.participants.find(x => x.name === participantName);
+        if (!p) return;
+        
+        let initials = p.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        
+        let pointsBtns = pointsOptions.map(pts => 
+            '<button class="points-circle-btn" data-participant="' + escapeHtml(p.name) + '" data-points="' + pts + '">+' + pts + '</button>'
+        ).join('');
+        
+        container.innerHTML = '<div class="participants-points-horizontal">' +
+            '<div class="participant-circle-item">' +
+            '<div class="circle-avatar">' + initials + '</div>' +
+            '<div class="circle-name">' + escapeHtml(p.name) + '</div>' +
+            '<div class="points-row">' + pointsBtns + '</div>' +
+            '</div>' +
+            '</div>';
+        
         container.querySelectorAll('.points-circle-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                let participantName = btn.dataset.participant;
-                let points = parseFloat(btn.dataset.points);
-                saveScoreFromSection(participantName, points);
+                let pts = parseFloat(btn.dataset.points);
+                saveScoreFromSection(participantName, pts);
             });
         });
     }
@@ -509,6 +581,7 @@
         updateParticipantTotal(participantName);
         renderParticipantsSidebar();
         renderScoreboard();
+        saveStateToCookie();
         showMessage('✅ Saved ' + points + ' pts for ' + participantName);
         closeGradingSection();
     }
@@ -563,9 +636,9 @@
         showMessage('Questions shuffled');
     }
     
-    function importData(f) { let r = new FileReader(); r.onload = e => { try { let d = JSON.parse(e.target.result); if (d.questions) state.questions = d.questions; if (d.participants) state.participants = d.participants; if (d.scoreRecords) state.scoreRecords = d.scoreRecords; if (d.uploadedImages) state.uploadedImages = d.uploadedImages; if (d.uploadedAudios) state.uploadedAudios = d.uploadedAudios; renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); showMessage('Imported'); } catch (err) { showMessage('Invalid file', true); } }; r.readAsText(f); }
-    function resetAllScores() { if (confirm('Reset all scores?')) { state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderParticipantsSidebar(); renderScoreboard(); showMessage('All scores reset'); } }
-    function resetAllQuestions() { if (confirm('Delete all questions?')) { state.questions = []; state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); showMessage('Questions cleared'); } }
+    function importData(f) { let r = new FileReader(); r.onload = e => { try { let d = JSON.parse(e.target.result); if (d.questions) state.questions = d.questions; if (d.participants) state.participants = d.participants; if (d.scoreRecords) state.scoreRecords = d.scoreRecords; if (d.uploadedImages) state.uploadedImages = d.uploadedImages; if (d.uploadedAudios) state.uploadedAudios = d.uploadedAudios; renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); saveStateToCookie(); showMessage('Imported'); } catch (err) { showMessage('Invalid file', true); } }; r.readAsText(f); }
+    function resetAllScores() { if (confirm('Reset all scores?')) { state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderParticipantsSidebar(); renderScoreboard(); saveStateToCookie(); showMessage('All scores reset'); } }
+    function resetAllQuestions() { if (confirm('Delete all questions?')) { state.questions = []; state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); saveStateToCookie(); showMessage('Questions cleared'); } }
     function openSidebar() { document.getElementById('builderPanel').classList.add('open'); document.getElementById('overlay').classList.add('active'); state.isSidebarOpen = true; }
     function closeSidebar() { document.getElementById('builderPanel').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); state.isSidebarOpen = false; }
     function toggleSidebar() { state.isSidebarOpen ? closeSidebar() : openSidebar(); }
@@ -577,7 +650,7 @@
         document.getElementById('addOptionBtn').addEventListener('click', () => { let c = document.getElementById('optionsContainer'), d = document.createElement('div'); d.className = 'option-row'; d.innerHTML = '<input type="text" class="option-text" placeholder="New option"><input type="checkbox" class="option-correct"> <span>✓</span><button type="button" class="btn-icon">✖</button>'; d.querySelector('button').addEventListener('click', () => { if (c.children.length > 1) d.remove(); else showMessage('Need at least one option', true); }); c.appendChild(d); });
         document.getElementById('saveQuestionBtn').addEventListener('click', saveQuestion);
         document.getElementById('clearFormBtn').addEventListener('click', clearForm);
-        document.getElementById('addParticipantBtn').addEventListener('click', () => { let n = document.getElementById('newParticipantName').value.trim(); if (n) { if (!state.participants.find(p => p.name === n)) { state.participants.push({ id: generateId(), name: n, totalScore: 0 }); renderParticipantsSidebar(); updateDatalist(); showMessage('Added ' + n); } else showMessage('Exists', true); } else showMessage('Enter name', true); document.getElementById('newParticipantName').value = ''; });
+        document.getElementById('addParticipantBtn').addEventListener('click', () => { let n = document.getElementById('newParticipantName').value.trim(); if (n) { if (!state.participants.find(p => p.name === n)) { state.participants.push({ id: generateId(), name: n, totalScore: 0 }); renderParticipantsSidebar(); updateDatalist(); saveStateToCookie(); showMessage('Added ' + n); } else showMessage('Exists', true); } else showMessage('Enter name', true); document.getElementById('newParticipantName').value = ''; });
         document.getElementById('resetAllQuestionsBtn').addEventListener('click', resetAllQuestions);
         document.getElementById('resetAllScoresBtn').addEventListener('click', resetAllScores);
         document.getElementById('exportBtn').addEventListener('click', exportData);
