@@ -489,6 +489,7 @@
         const progressBar = audioContainer.querySelector('.progress-bar');
         const currentTimeEl = audioContainer.querySelector('.current-time');
         const durationTimeEl = audioContainer.querySelector('.duration-time');
+        const svgElement = audioContainer.querySelector('.circular-progress');
         
         // Calculate circumference for progress circle
         const radius = 52;
@@ -499,7 +500,11 @@
         progressBar.style.strokeDashoffset = circumference;
         progressBar.style.transition = 'stroke-dash-offset 0.1s linear';
         
+        // Make SVG cursor pointer to indicate it's interactive
+        svgElement.style.cursor = 'pointer';
+        
         let isPlaying = false;
+        let isDragging = false;
         
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
@@ -529,6 +534,30 @@
             isPlaying = !isPlaying;
         }
         
+        function seekToPosition(clientX, clientY) {
+            if (!audio.duration) return;
+            
+            const rect = svgElement.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            // Calculate angle from center to click position
+            const dx = clientX - centerX;
+            const dy = clientY - centerY;
+            let angle = Math.atan2(dy, dx);
+            
+            // Convert to 0-360 degrees, starting from top (-90 degrees)
+            angle = angle * (180 / Math.PI) + 90;
+            if (angle < 0) angle += 360;
+            
+            // Calculate percentage (clockwise from top)
+            const percent = angle / 360;
+            const newTime = percent * audio.duration;
+            
+            audio.currentTime = newTime;
+            updateProgress();
+        }
+        
         // Event listeners
         playPauseBtn.addEventListener('click', togglePlay);
         
@@ -544,6 +573,42 @@
             pauseIcon.style.display = 'none';
             progressBar.style.strokeDashoffset = circumference;
             currentTimeEl.textContent = '0:00';
+        });
+        
+        // Drag functionality for seeking
+        svgElement.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            seekToPosition(e.clientX, e.clientY);
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                seekToPosition(e.clientX, e.clientY);
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        // Touch support for mobile
+        svgElement.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            const touch = e.touches[0];
+            seekToPosition(touch.clientX, touch.clientY);
+            e.preventDefault();
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                const touch = e.touches[0];
+                seekToPosition(touch.clientX, touch.clientY);
+                e.preventDefault();
+            }
+        });
+        
+        document.addEventListener('touchend', () => {
+            isDragging = false;
         });
     }
     

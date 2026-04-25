@@ -972,6 +972,12 @@ input[type="file"] { display: none; }
     width: 120px;
     height: 120px;
     transform: rotate(-90deg);
+    cursor: pointer;
+}
+
+.circular-progress:hover .progress-bar {
+    stroke: #1a5f7a;
+    stroke-width: 10;
 }
 
 .circular-progress .progress-bg {
@@ -1024,7 +1030,7 @@ input[type="file"] { display: none; }
 
 .audio-time-display {
     position: absolute;
-    bottom: -30px;
+    bottom: -10px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
