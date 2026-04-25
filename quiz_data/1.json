@@ -1,152 +1,26 @@
 {
-  "version": "1.0",
-  "exportedAt": "2026-04-21T18:43:36.271Z",
-  "totalQuestions": 18,
   "questions": [
-    {
-      "id": "1776782903716-o9l4o0fj",
-      "text": "Все понятия за исключением одного относятся к повседневной жизни древневосточных славян.Выберите лишнее",
-      "type": "single",
-      "options": [
-        { "text": "Вервь", "isCorrect": false },
-        { "text": "Вече", "isCorrect": false },
-        { "text": "Епископ", "isCorrect": true },
-        { "text": "Дружина", "isCorrect": false }
-      ],
-      "audio": {
-        "fileName": "Все понятия за исключением одного относятся к повседневной жизни древневосточных славян.Выберите лишнее.wav",
-        "audioUrl": "https://github.com/MyAlterEgoMoose/Myaltereggs/raw/refs/heads/main/audios/%D0%92%D1%81%D0%B5%20%D0%BF%D0%BE%D0%BD%D1%8F%D1%82%D0%B8%D1%8F%20%D0%B7%D0%B0%20%D0%B8%D1%81%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B5%D0%BC%20%D0%BE%D0%B4%D0%BD%D0%BE%D0%B3%D0%BE%20%D0%BE%D1%82%D0%BD%D0%BE%D1%81%D1%8F%D1%82%D1%81%D1%8F%20%D0%BA%20%D0%BF%D0%BE%D0%B2%D1%81%D0%B5%D0%B4%D0%BD%D0%B5%D0%B2%D0%BD%D0%BE%D0%B9%20%D0%B6%D0%B8%D0%B7%D0%BD%D0%B8%20%D0%B4%D1%80%D0%B5%D0%B2%D0%BD%D0%B5%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D1%87%D0%BD%D1%8B%D1%85%20%D1%81%D0%BB%D0%B0%D0%B2%D1%8F%D0%BD.%D0%92%D1%8B%D0%B1%D0%B5%D1%80%D0%B8%D1%82%D0%B5%20%D0%BB%D0%B8%D1%88%D0%BD%D0%B5%D0%B5.wav"
-      }
-    },
-    {
-      "id": "1776782903716-giqk5sw7",
-      "text": "Выберите верный порядок первых правителей династии Рюриковичей",
-      "type": "single",
-      "options": [
-        { "text": "Олег — Ольга — Игорь — Святослав", "isCorrect": false },
-        { "text": "Ольга — Игорь — Святослав — Олег", "isCorrect": false },
-        { "text": "Святослав — Игорь — Ольга — Олег", "isCorrect": false },
-        { "text": "Олег — Игорь — Ольга — Святослав", "isCorrect": true }
-      ],
-      "audio": {
-        "fileName": "Выберите верный порядок первых правителей династии Рюриковичей.wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%92%D1%8B%D0%B1%D0%B5%D1%80%D0%B8%D1%82%D0%B5%20%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B9%20%D0%BF%D0%BE%D1%80%D1%8F%D0%B4%D0%BE%D0%BA%20%D0%BF%D0%B5%D1%80%D0%B2%D1%8B%D1%85%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D1%82%D0%B5%D0%BB%D0%B5%D0%B9%20%D0%B4%D0%B8%D0%BD%D0%B0%D1%81%D1%82%D0%B8%D0%B8%20%D0%A0%D1%8E%D1%80%D0%B8%D0%BA%D0%BE%D0%B2%D0%B8%D1%87%D0%B5%D0%B9.wav"
-      }
-    },
-    {
-      "id": "1776782903716-vxys48iw",
-      "text": "Кто из священослужителей благословил Дмитрия Донского перед Куликовской битвой?",
-      "type": "single",
-      "options": [
-        { "text": "Сергий Радонежский", "isCorrect": true },
-        { "text": "Патриарх Никон", "isCorrect": false },
-        { "text": "монах Нестор", "isCorrect": false },
-        { "text": "Архиепископ Спиридон", "isCorrect": false }
-      ],
-      "audio": {
-        "fileName": "Кто из священослужителей благословил Дмитрия Донского перед Куликовской битвой.wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9A%D1%82%D0%BE%20%D0%B8%D0%B7%20%D1%81%D0%B2%D1%8F%D1%89%D0%B5%D0%BD%D0%BE%D1%81%D0%BB%D1%83%D0%B6%D0%B8%D1%82%D0%B5%D0%BB%D0%B5%D0%B9%20%D0%B1%D0%BB%D0%B0%D0%B3%D0%BE%D1%81%D0%BB%D0%BE%D0%B2%D0%B8%D0%BB%20%D0%94%D0%BC%D0%B8%D1%82%D1%80%D0%B8%D1%8F%20%D0%94%D0%BE%D0%BD%D1%81%D0%BA%D0%BE%D0%B3%D0%BE%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B4%20%D0%9A%D1%83%D0%BB%D0%B8%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%BE%D0%B9%20%D0%B1%D0%B8%D1%82%D0%B2%D0%BE%D0%B9.wav"
-      }
-    },
-    {
-      "id": "1776782903716-1b1pwbfn",
-      "text": "Фраза \"Приди ко мне, брате, в Московъ\" зафиксирована как принадлежащая",
-      "type": "single",
-      "options": [
-        { "text": "Владимиру Мономаху", "isCorrect": false },
-        { "text": "Ивану Калите", "isCorrect": false },
-        { "text": "Дмитрию Донскому", "isCorrect": false },
-        { "text": "Нет верного варианта", "isCorrect": true }
-      ],
-      "audio": {
-        "fileName": "Фраза Приди ко мне, брате, в Московъ зафиксирована как принадлежащая.wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%A4%D1%80%D0%B0%D0%B7%D0%B0%20%D0%9F%D1%80%D0%B8%D0%B4%D0%B8%20%D0%BA%D0%BE%20%D0%BC%D0%BD%D0%B5%2C%20%D0%B1%D1%80%D0%B0%D1%82%D0%B5%2C%20%D0%B2%20%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%8A%20%D0%B7%D0%B0%D1%84%D0%B8%D0%BA%D1%81%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B0%20%D0%BA%D0%B0%D0%BA%20%D0%BF%D1%80%D0%B8%D0%BD%D0%B0%D0%B4%D0%BB%D0%B5%D0%B6%D0%B0%D1%89%D0%B0%D1%8F.wav"
-      }
-    },
-    {
-      "id": "1776782903716-y83amwwe",
-      "text": "В каком году произошло становление русской православной церкви независимой",
-      "type": "single",
-      "options": [
-        { "text": "1448", "isCorrect": true },
-        { "text": "1520", "isCorrect": false },
-        { "text": "1240", "isCorrect": false },
-        { "text": "1616", "isCorrect": false }
-      ],
-      "audio": {
-        "fileName": "В каком году произошло становление русской православной церкви независимой.wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%92%20%D0%BA%D0%B0%D0%BA%D0%BE%D0%BC%20%D0%B3%D0%BE%D0%B4%D1%83%20%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%BE%D1%88%D0%BB%D0%BE%20%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%80%D1%83%D1%81%D1%81%D0%BA%D0%BE%D0%B9%20%D0%BF%D1%80%D0%B0%D0%B2%D0%BE%D1%81%D0%BB%D0%B0%D0%B2%D0%BD%D0%BE%D0%B9%20%D1%86%D0%B5%D1%80%D0%BA%D0%B2%D0%B8%20%D0%BD%D0%B5%D0%B7%D0%B0%D0%B2%D0%B8%D1%81%D0%B8%D0%BC%D0%BE%D0%B9.wav"
-      }
-    },
-    {
-      "id": "1776782903716-fsu0zxb9",
-      "text": "Назовите город, который не входил в состав Московского княжества к концу правления Василия III",
-      "type": "single",
-      "options": [
-        { "text": "Псков", "isCorrect": false },
-        { "text": "Киев", "isCorrect": false },
-        { "text": "Вязьма", "isCorrect": false },
-        { "text": "Казань", "isCorrect": true }
-      ],
-      "audio": {
-        "fileName": "Назовите город, который не входил в состав Московского княжества к концу правления Василия III.wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9D%D0%B0%D0%B7%D0%BE%D0%B2%D0%B8%D1%82%D0%B5%20%D0%B3%D0%BE%D1%80%D0%BE%D0%B4%2C%20%D0%BA%D0%BE%D1%82%D0%BE%D1%80%D1%8B%D0%B9%20%D0%BD%D0%B5%20%D0%B2%D1%85%D0%BE%D0%B4%D0%B8%D0%BB%20%D0%B2%20%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2%20%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%BE%D0%B3%D0%BE%20%D0%BA%D0%BD%D1%8F%D0%B6%D0%B5%D1%81%D1%82%D0%B2%D0%B0%20%D0%BA%20%D0%BA%D0%BE%D0%BD%D1%86%D1%83%20%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%92%D0%B0%D1%81%D0%B8%D0%BB%D0%B8%D1%8F%20III.wav"
-      }
-    },
-    {
-      "id": "1776782903716-wi9wikyw",
-      "text": "Назовите автора-иконописца, жившего в XV в.",
-      "type": "single",
-      "options": [
-        { "text": "Феофан Грек", "isCorrect": true },
-        { "text": "Андреа Ботичелли", "isCorrect": false },
-        { "text": "Аристотель Фиораванти", "isCorrect": false },
-        { "text": "Марко Руффо", "isCorrect": false }
-      ],
-      "audio": {
-        "fileName": "Назовите автора-иконописца, жившего в XV в.wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9D%D0%B0%D0%B7%D0%BE%D0%B2%D0%B8%D1%82%D0%B5%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0-%D0%B8%D0%BA%D0%BE%D0%BD%D0%BE%D0%BF%D0%B8%D1%81%D1%86%D0%B0%2C%20%D0%B6%D0%B8%D0%B2%D1%88%D0%B5%D0%B3%D0%BE%20%D0%B2%20XV%20%D0%B2.wav"
-      }
-    },
-    {
-      "id": "1776782903716-1kveua5n",
-      "text": "Определите древнерусский письменный памятник по цитате: «Убьеть мужь мужа, то мьстить брату брата, или сынови отца, любо отцю сына, или братучаду, любо сестрину сынови; аще не будеть кто мьстя, то 40 гривен за голову; аще будеть русин, любо гридин, любо купчина, любо ябетник, любо мечник, аще изъгои будеть, любо словенин, то 40 гривен положите за нь.»",
-      "type": "single",
-      "options": [
-        { "text": "Судебник Ивана III", "isCorrect": false },
-        { "text": "Русская правда", "isCorrect": true },
-        { "text": "Поучение Владимира Мономаха", "isCorrect": false },
-        { "text": "Задонщина", "isCorrect": false }
-      ],
-      "audio": {
-        "fileName": "Определите древнерусский письменный памятник по цитате.wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9E%D0%BF%D1%80%D0%B5%D0%B4%D0%B5%D0%BB%D0%B8%D1%82%D0%B5%20%D0%B4%D1%80%D0%B5%D0%B2%D0%BD%D0%B5%D1%80%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9%20%D0%BF%D0%B8%D1%81%D1%8C%D0%BC%D0%B5%D0%BD%D0%BD%D1%8B%D0%B9%20%D0%BF%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA%20%D0%BF%D0%BE%20%D1%86%D0%B8%D1%82%D0%B0%D1%82%D0%B5.wav"
-      }
-    },
-    {
-      "id": "1776783683634-16yhhfgs",
-      "text": "Выберите порядок, в котором нижеуказанные города становились столицами",
-      "type": "single",
-      "options": [
-        { "text": "Новгород — Москва — Киев — Владимир", "isCorrect": false },
-        { "text": "Владимир — Киев — Новгород — Москва", "isCorrect": false },
-        { "text": "Новгород — Киев — Владимир — Москва", "isCorrect": true },
-        { "text": "Владимир — Новгород — Москва — Киев", "isCorrect": false }
-      ],
-      "audio": {
-        "fileName": "Выберите порядок, в котором нижеуказанные города становились столицами.wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%92%D1%8B%D0%B1%D0%B5%D1%80%D0%B8%D1%82%D0%B5%20%D0%BF%D0%BE%D1%80%D1%8F%D0%B4%D0%BE%D0%BA%2C%20%D0%B2%20%D0%BA%D0%BE%D1%82%D0%BE%D1%80%D0%BE%D0%BC%20%D0%BD%D0%B8%D0%B6%D0%B5%D1%83%D0%BA%D0%B0%D0%B7%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5%20%D0%B3%D0%BE%D1%80%D0%BE%D0%B4%D0%B0%20%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%B8%D0%BB%D0%B8%D1%81%D1%8C%20%D1%81%D1%82%D0%BE%D0%BB%D0%B8%D1%86%D0%B0%D0%BC%D0%B8.wav"
-      }
-    },
     {
       "id": "1776784128894-68uakwd9",
       "text": "Какая письменность была взята за основу при создании Кириллом и Мефодием азбуки",
       "type": "single",
       "options": [
-        { "text": "Письменность римской империи", "isCorrect": false },
-        { "text": "Византийское письмо", "isCorrect": true },
-        { "text": "Армянская письменность", "isCorrect": false },
-        { "text": "Арабское письмо", "isCorrect": false }
+        {
+          "text": "Письменность римской империи",
+          "isCorrect": false
+        },
+        {
+          "text": "Византийское письмо",
+          "isCorrect": true
+        },
+        {
+          "text": "Армянская письменность",
+          "isCorrect": false
+        },
+        {
+          "text": "Арабское письмо",
+          "isCorrect": false
+        }
       ],
       "audio": {
         "fileName": "Какая письменность была взята за основу при создании Кириллом и Мефодием азбуки.wav",
@@ -154,33 +28,30 @@
       }
     },
     {
-      "id": "1776784728380-x5hlkm73",
-      "text": "Назовите имя первого правителя и основателя Золотой Орды",
+      "id": "1776782903716-o9l4o0fj",
+      "text": "Все понятия за исключением одного относятся к повседневной жизни древневосточных славян.Выберите лишнее",
       "type": "single",
       "options": [
-        { "text": "Чингисхан", "isCorrect": false },
-        { "text": "Батый", "isCorrect": true },
-        { "text": "Узбек-хан", "isCorrect": false },
-        { "text": "Берке", "isCorrect": false }
+        {
+          "text": "Вервь",
+          "isCorrect": false
+        },
+        {
+          "text": "Вече",
+          "isCorrect": false
+        },
+        {
+          "text": "Епископ",
+          "isCorrect": true
+        },
+        {
+          "text": "Дружина",
+          "isCorrect": false
+        }
       ],
       "audio": {
-        "fileName": "Назовите имя первого правителя и основателя Золотой Орды.wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9D%D0%B0%D0%B7%D0%BE%D0%B2%D0%B8%D1%82%D0%B5%20%D0%B8%D0%BC%D1%8F%20%D0%BF%D0%B5%D1%80%D0%B2%D0%BE%D0%B3%D0%BE%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D1%82%D0%B5%D0%BB%D1%8F%20%D0%B8%20%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F%20%D0%97%D0%BE%D0%BB%D0%BE%D1%82%D0%BE%D0%B9%20%D0%9E%D1%80%D0%B4%D1%8B.wav"
-      }
-    },
-    {
-      "id": "1776785458690-jhz79e0w",
-      "text": "В чем состояло основное разногласие между Нестяжателями и Иосифлянами",
-      "type": "single",
-      "options": [
-        { "text": "Процедура таинства крещения", "isCorrect": false },
-        { "text": "Разночтения в церковных книгах", "isCorrect": false },
-        { "text": "Богатства и владения Церкви", "isCorrect": true },
-        { "text": "Церковь, в которой должно проходить венчание на царство", "isCorrect": false }
-      ],
-      "audio": {
-        "fileName": "В чем состояло основное разногласие между Нестяжателями и Иосифлянами.wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%92%20%D1%87%D0%B5%D0%BC%20%D1%81%D0%BE%D1%81%D1%82%D0%BE%D1%8F%D0%BB%D0%BE%20%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%BD%D0%BE%D0%B5%20%D1%80%D0%B0%D0%B7%D0%BD%D0%BE%D0%B3%D0%BB%D0%B0%D1%81%D0%B8%D0%B5%20%D0%BC%D0%B5%D0%B6%D0%B4%D1%83%20%D0%9D%D0%B5%D1%81%D1%82%D1%8F%D0%B6%D0%B0%D1%82%D0%B5%D0%BB%D1%8F%D0%BC%D0%B8%20%D0%B8%20%D0%98%D0%BE%D1%81%D0%B8%D1%84%D0%BB%D1%8F%D0%BD%D0%B0%D0%BC%D0%B8.wav"
+        "fileName": "Все понятия за исключением одного относятся к повседневной жизни древневосточных славян.Выберите лишнее.wav",
+        "audioUrl": "https://github.com/MyAlterEgoMoose/Myaltereggs/raw/refs/heads/main/audios/%D0%92%D1%81%D0%B5%20%D0%BF%D0%BE%D0%BD%D1%8F%D1%82%D0%B8%D1%8F%20%D0%B7%D0%B0%20%D0%B8%D1%81%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B5%D0%BC%20%D0%BE%D0%B4%D0%BD%D0%BE%D0%B3%D0%BE%20%D0%BE%D1%82%D0%BD%D0%BE%D1%81%D1%8F%D1%82%D1%81%D1%8F%20%D0%BA%20%D0%BF%D0%BE%D0%B2%D1%81%D0%B5%D0%B4%D0%BD%D0%B5%D0%B2%D0%BD%D0%BE%D0%B9%20%D0%B6%D0%B8%D0%B7%D0%BD%D0%B8%20%D0%B4%D1%80%D0%B5%D0%B2%D0%BD%D0%B5%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D1%87%D0%BD%D1%8B%D1%85%20%D1%81%D0%BB%D0%B0%D0%B2%D1%8F%D0%BD.%D0%92%D1%8B%D0%B1%D0%B5%D1%80%D0%B8%D1%82%D0%B5%20%D0%BB%D0%B8%D1%88%D0%BD%D0%B5%D0%B5.wav"
       }
     },
     {
@@ -188,10 +59,22 @@
       "text": "Где будет находится четвертый Рим по мнению монаха Филафея",
       "type": "single",
       "options": [
-        { "text": "Москва", "isCorrect": false },
-        { "text": "Константинополь", "isCorrect": false },
-        { "text": "Афины", "isCorrect": false },
-        { "text": "Нет верного варианта", "isCorrect": true }
+        {
+          "text": "Москва",
+          "isCorrect": false
+        },
+        {
+          "text": "Константинополь",
+          "isCorrect": false
+        },
+        {
+          "text": "Афины",
+          "isCorrect": false
+        },
+        {
+          "text": "Нет верного варианта",
+          "isCorrect": true
+        }
       ],
       "audio": {
         "fileName": "Где будет находится четвертый Рим по мнению монаха Филафея.wav",
@@ -199,14 +82,53 @@
       }
     },
     {
+      "id": "1776782903716-1b1pwbfn",
+      "text": "Фраза \"Приди ко мне, брате, в Московъ\" зафиксирована как принадлежащая",
+      "type": "single",
+      "options": [
+        {
+          "text": "Владимиру Мономаху",
+          "isCorrect": false
+        },
+        {
+          "text": "Ивану Калите",
+          "isCorrect": false
+        },
+        {
+          "text": "Дмитрию Донскому",
+          "isCorrect": false
+        },
+        {
+          "text": "Нет верного варианта",
+          "isCorrect": true
+        }
+      ],
+      "audio": {
+        "fileName": "Фраза Приди ко мне, брате, в Московъ зафиксирована как принадлежащая.wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%A4%D1%80%D0%B0%D0%B7%D0%B0%20%D0%9F%D1%80%D0%B8%D0%B4%D0%B8%20%D0%BA%D0%BE%20%D0%BC%D0%BD%D0%B5%2C%20%D0%B1%D1%80%D0%B0%D1%82%D0%B5%2C%20%D0%B2%20%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%8A%20%D0%B7%D0%B0%D1%84%D0%B8%D0%BA%D1%81%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B0%20%D0%BA%D0%B0%D0%BA%20%D0%BF%D1%80%D0%B8%D0%BD%D0%B0%D0%B4%D0%BB%D0%B5%D0%B6%D0%B0%D1%89%D0%B0%D1%8F.wav"
+      }
+    },
+    {
       "id": "1776786044932-xklmpmu5",
       "text": "В чем заключается различие оброка и барщины",
       "type": "single",
       "options": [
-        { "text": "Оброк выплачивался каждый месяц, а барщина — ежегодно", "isCorrect": false },
-        { "text": "Оброк это выплата деньгами или товаром, а барщина — отработка определенного срока на земле помещика", "isCorrect": true },
-        { "text": "Барщина платилась напрямую в казну, а оброк — непосредственно помещику", "isCorrect": false },
-        { "text": "Нет правильного ответа", "isCorrect": false }
+        {
+          "text": "Оброк выплачивался каждый месяц, а барщина — ежегодно",
+          "isCorrect": false
+        },
+        {
+          "text": "Оброк это выплата деньгами или товаром, а барщина — отработка определенного срока на земле помещика",
+          "isCorrect": true
+        },
+        {
+          "text": "Барщина платилась напрямую в казну, а оброк — непосредственно помещику",
+          "isCorrect": false
+        },
+        {
+          "text": "Нет правильного ответа",
+          "isCorrect": false
+        }
       ],
       "audio": {
         "fileName": "В чем заключается различие оброка и барщины.wav",
@@ -214,14 +136,80 @@
       }
     },
     {
+      "id": "1776783683634-16yhhfgs",
+      "text": "Выберите порядок, в котором нижеуказанные города становились столицами",
+      "type": "single",
+      "options": [
+        {
+          "text": "Новгород — Москва — Киев — Владимир",
+          "isCorrect": false
+        },
+        {
+          "text": "Владимир — Киев — Новгород — Москва",
+          "isCorrect": false
+        },
+        {
+          "text": "Новгород — Киев — Владимир — Москва",
+          "isCorrect": true
+        },
+        {
+          "text": "Владимир — Новгород — Москва — Киев",
+          "isCorrect": false
+        }
+      ],
+      "audio": {
+        "fileName": "Выберите порядок, в котором нижеуказанные города становились столицами.wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%92%D1%8B%D0%B1%D0%B5%D1%80%D0%B8%D1%82%D0%B5%20%D0%BF%D0%BE%D1%80%D1%8F%D0%B4%D0%BE%D0%BA%2C%20%D0%B2%20%D0%BA%D0%BE%D1%82%D0%BE%D1%80%D0%BE%D0%BC%20%D0%BD%D0%B8%D0%B6%D0%B5%D1%83%D0%BA%D0%B0%D0%B7%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5%20%D0%B3%D0%BE%D1%80%D0%BE%D0%B4%D0%B0%20%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%B8%D0%BB%D0%B8%D1%81%D1%8C%20%D1%81%D1%82%D0%BE%D0%BB%D0%B8%D1%86%D0%B0%D0%BC%D0%B8.wav"
+      }
+    },
+    {
+      "id": "1776782903716-y83amwwe",
+      "text": "В каком году произошло становление русской православной церкви независимой",
+      "type": "single",
+      "options": [
+        {
+          "text": "1448",
+          "isCorrect": true
+        },
+        {
+          "text": "1520",
+          "isCorrect": false
+        },
+        {
+          "text": "1240",
+          "isCorrect": false
+        },
+        {
+          "text": "1616",
+          "isCorrect": false
+        }
+      ],
+      "audio": {
+        "fileName": "В каком году произошло становление русской православной церкви независимой.wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%92%20%D0%BA%D0%B0%D0%BA%D0%BE%D0%BC%20%D0%B3%D0%BE%D0%B4%D1%83%20%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%BE%D1%88%D0%BB%D0%BE%20%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%80%D1%83%D1%81%D1%81%D0%BA%D0%BE%D0%B9%20%D0%BF%D1%80%D0%B0%D0%B2%D0%BE%D1%81%D0%BB%D0%B0%D0%B2%D0%BD%D0%BE%D0%B9%20%D1%86%D0%B5%D1%80%D0%BA%D0%B2%D0%B8%20%D0%BD%D0%B5%D0%B7%D0%B0%D0%B2%D0%B8%D1%81%D0%B8%D0%BC%D0%BE%D0%B9.wav"
+      }
+    },
+    {
       "id": "1776786937780-ddenebs9",
       "text": "Поместье и вотчина. В каком случае разрешалась продажа вотчины",
       "type": "single",
       "options": [
-        { "text": "После венчания на царство наследника правителя, пожаловавшего вотчину", "isCorrect": false },
-        { "text": "После 15 лет службы", "isCorrect": false },
-        { "text": "В случае смерти жены", "isCorrect": false },
-        { "text": "Нет правильного варианта", "isCorrect": true }
+        {
+          "text": "После венчания на царство наследника правителя, пожаловавшего вотчину",
+          "isCorrect": false
+        },
+        {
+          "text": "После 15 лет службы",
+          "isCorrect": false
+        },
+        {
+          "text": "В случае смерти жены",
+          "isCorrect": false
+        },
+        {
+          "text": "Нет правильного варианта",
+          "isCorrect": true
+        }
       ],
       "audio": {
         "fileName": "Поместье и вотчина. В каком случае разрешалась продажа вотчины.wav",
@@ -229,33 +217,30 @@
       }
     },
     {
-      "id": "1776788911502-sh6utvdm",
-      "text": "Какое из событий истории Руси было связано с крестовыми походами",
+      "id": "1776782903716-giqk5sw7",
+      "text": "Выберите верный порядок первых правителей династии Рюриковичей",
       "type": "single",
       "options": [
-        { "text": "Ледовое побоище", "isCorrect": true },
-        { "text": "Стояние на Угре", "isCorrect": false },
-        { "text": "Стояние на Калке", "isCorrect": false },
-        { "text": "Битва при Креси", "isCorrect": false }
+        {
+          "text": "Олег — Ольга — Игорь — Святослав",
+          "isCorrect": false
+        },
+        {
+          "text": "Ольга — Игорь — Святослав — Олег",
+          "isCorrect": false
+        },
+        {
+          "text": "Святослав — Игорь — Ольга — Олег",
+          "isCorrect": false
+        },
+        {
+          "text": "Олег — Игорь — Ольга — Святослав",
+          "isCorrect": true
+        }
       ],
       "audio": {
-        "fileName": "Какое из событий истории Руси было связано с крестовыми походами.wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9A%D0%B0%D0%BA%D0%BE%D0%B5%20%D0%B8%D0%B7%20%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B9%20%D0%B8%D1%81%D1%82%D0%BE%D1%80%D0%B8%D0%B8%20%D0%A0%D1%83%D1%81%D0%B8%20%D0%B1%D1%8B%D0%BB%D0%BE%20%D1%81%D0%B2%D1%8F%D0%B7%D0%B0%D0%BD%D0%BE%20%D1%81%20%D0%BA%D1%80%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%BC%D0%B8%20%D0%BF%D0%BE%D1%85%D0%BE%D0%B4%D0%B0%D0%BC%D0%B8.wav"
-      }
-    },
-    {
-      "id": "1776796151839-2drayp50",
-      "text": "Почему Василий II получил прозвище «Тёмный»",
-      "type": "single",
-      "options": [
-        { "text": "Жестокие методы политической борьбы с противниками", "isCorrect": false },
-        { "text": "Отсутствие в источниках достаточного количества информации о периоде его правления", "isCorrect": false },
-        { "text": "Потеря зрения во время захвата в плен", "isCorrect": true },
-        { "text": "Нет правильного варианта", "isCorrect": false }
-      ],
-      "audio": {
-        "fileName": "Почему Василий II получил прозвище «Тёмный».wav",
-        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9F%D0%BE%D1%87%D0%B5%D0%BC%D1%83%20%D0%92%D0%B0%D1%81%D0%B8%D0%BB%D0%B8%D0%B9%20II%20%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D0%BB%20%D0%BF%D1%80%D0%BE%D0%B7%D0%B2%D0%B8%D1%89%D0%B5%20%C2%AB%D0%A2%D1%91%D0%BC%D0%BD%D1%8B%D0%B9%C2%BB.wav"
+        "fileName": "Выберите верный порядок первых правителей династии Рюриковичей.wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%92%D1%8B%D0%B1%D0%B5%D1%80%D0%B8%D1%82%D0%B5%20%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B9%20%D0%BF%D0%BE%D1%80%D1%8F%D0%B4%D0%BE%D0%BA%20%D0%BF%D0%B5%D1%80%D0%B2%D1%8B%D1%85%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D1%82%D0%B5%D0%BB%D0%B5%D0%B9%20%D0%B4%D0%B8%D0%BD%D0%B0%D1%81%D1%82%D0%B8%D0%B8%20%D0%A0%D1%8E%D1%80%D0%B8%D0%BA%D0%BE%D0%B2%D0%B8%D1%87%D0%B5%D0%B9.wav"
       }
     },
     {
@@ -263,15 +248,247 @@
       "text": "Какое право давало получение в Золотой орде документа под названием «ярлык»",
       "type": "single",
       "options": [
-        { "text": "Право на великое или удельное княжение", "isCorrect": true },
-        { "text": "Право оставлять большую часть собранной дани для своих нужд", "isCorrect": false },
-        { "text": "Право освобождать крепостных крестьян от уплаты повинностей", "isCorrect": false },
-        { "text": "Право выбирать наследника в обход устоявшейся системы", "isCorrect": false }
+        {
+          "text": "Право на великое или удельное княжение",
+          "isCorrect": true
+        },
+        {
+          "text": "Право оставлять большую часть собранной дани для своих нужд",
+          "isCorrect": false
+        },
+        {
+          "text": "Право освобождать крепостных крестьян от уплаты повинностей",
+          "isCorrect": false
+        },
+        {
+          "text": "Право выбирать наследника в обход устоявшейся системы",
+          "isCorrect": false
+        }
       ],
       "audio": {
         "fileName": "Какое право давало получение в золотой орде документа под названием «ярлык».wav",
         "audioUrl": "https://github.com/MyAlterEgoMoose/Myaltereggs/raw/refs/heads/main/audios/%D0%9A%D0%B0%D0%BA%D0%BE%D0%B5%20%D0%BF%D1%80%D0%B0%D0%B2%D0%BE%20%D0%B4%D0%B0%D0%B2%D0%B0%D0%BB%D0%BE%20%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%B2%20%D0%B7%D0%BE%D0%BB%D0%BE%D1%82%D0%BE%D0%B9%20%D0%BE%D1%80%D0%B4%D0%B5%20%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%20%D0%BF%D0%BE%D0%B4%20%D0%BD%D0%B0%D0%B7%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%D0%BC%20%C2%AB%D1%8F%D1%80%D0%BB%D1%8B%D0%BA%C2%BB.wav"
       }
+    },
+    {
+      "id": "1776782903716-vxys48iw",
+      "text": "Кто из священослужителей благословил Дмитрия Донского перед Куликовской битвой?",
+      "type": "single",
+      "options": [
+        {
+          "text": "Сергий Радонежский",
+          "isCorrect": true
+        },
+        {
+          "text": "Патриарх Никон",
+          "isCorrect": false
+        },
+        {
+          "text": "монах Нестор",
+          "isCorrect": false
+        },
+        {
+          "text": "Архиепископ Спиридон",
+          "isCorrect": false
+        }
+      ],
+      "audio": {
+        "fileName": "Кто из священослужителей благословил Дмитрия Донского перед Куликовской битвой.wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9A%D1%82%D0%BE%20%D0%B8%D0%B7%20%D1%81%D0%B2%D1%8F%D1%89%D0%B5%D0%BD%D0%BE%D1%81%D0%BB%D1%83%D0%B6%D0%B8%D1%82%D0%B5%D0%BB%D0%B5%D0%B9%20%D0%B1%D0%BB%D0%B0%D0%B3%D0%BE%D1%81%D0%BB%D0%BE%D0%B2%D0%B8%D0%BB%20%D0%94%D0%BC%D0%B8%D1%82%D1%80%D0%B8%D1%8F%20%D0%94%D0%BE%D0%BD%D1%81%D0%BA%D0%BE%D0%B3%D0%BE%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B4%20%D0%9A%D1%83%D0%BB%D0%B8%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%BE%D0%B9%20%D0%B1%D0%B8%D1%82%D0%B2%D0%BE%D0%B9.wav"
+      }
+    },
+    {
+      "id": "1776782903716-1kveua5n",
+      "text": "Определите древнерусский письменный памятник по цитате: «Убьеть мужь мужа, то мьстить брату брата, или сынови отца, любо отцю сына, или братучаду, любо сестрину сынови; аще не будеть кто мьстя, то 40 гривен за голову; аще будеть русин, любо гридин, любо купчина, любо ябетник, любо мечник, аще изъгои будеть, любо словенин, то 40 гривен положите за нь.»",
+      "type": "single",
+      "options": [
+        {
+          "text": "Судебник Ивана III",
+          "isCorrect": false
+        },
+        {
+          "text": "Русская правда",
+          "isCorrect": true
+        },
+        {
+          "text": "Поучение Владимира Мономаха",
+          "isCorrect": false
+        },
+        {
+          "text": "Задонщина",
+          "isCorrect": false
+        }
+      ],
+      "audio": {
+        "fileName": "Определите древнерусский письменный памятник по цитате.wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9E%D0%BF%D1%80%D0%B5%D0%B4%D0%B5%D0%BB%D0%B8%D1%82%D0%B5%20%D0%B4%D1%80%D0%B5%D0%B2%D0%BD%D0%B5%D1%80%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9%20%D0%BF%D0%B8%D1%81%D1%8C%D0%BC%D0%B5%D0%BD%D0%BD%D1%8B%D0%B9%20%D0%BF%D0%B0%D0%BC%D1%8F%D1%82%D0%BD%D0%B8%D0%BA%20%D0%BF%D0%BE%20%D1%86%D0%B8%D1%82%D0%B0%D1%82%D0%B5.wav"
+      }
+    },
+    {
+      "id": "1776784728380-x5hlkm73",
+      "text": "Назовите имя первого правителя и основателя Золотой Орды",
+      "type": "single",
+      "options": [
+        {
+          "text": "Чингисхан",
+          "isCorrect": false
+        },
+        {
+          "text": "Батый",
+          "isCorrect": true
+        },
+        {
+          "text": "Узбек-хан",
+          "isCorrect": false
+        },
+        {
+          "text": "Берке",
+          "isCorrect": false
+        }
+      ],
+      "audio": {
+        "fileName": "Назовите имя первого правителя и основателя Золотой Орды.wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9D%D0%B0%D0%B7%D0%BE%D0%B2%D0%B8%D1%82%D0%B5%20%D0%B8%D0%BC%D1%8F%20%D0%BF%D0%B5%D1%80%D0%B2%D0%BE%D0%B3%D0%BE%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D1%82%D0%B5%D0%BB%D1%8F%20%D0%B8%20%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F%20%D0%97%D0%BE%D0%BB%D0%BE%D1%82%D0%BE%D0%B9%20%D0%9E%D1%80%D0%B4%D1%8B.wav"
+      }
+    },
+    {
+      "id": "1776796151839-2drayp50",
+      "text": "Почему Василий II получил прозвище «Тёмный»",
+      "type": "single",
+      "options": [
+        {
+          "text": "Жестокие методы политической борьбы с противниками",
+          "isCorrect": false
+        },
+        {
+          "text": "Отсутствие в источниках достаточного количества информации о периоде его правления",
+          "isCorrect": false
+        },
+        {
+          "text": "Потеря зрения во время захвата в плен",
+          "isCorrect": true
+        },
+        {
+          "text": "Нет правильного варианта",
+          "isCorrect": false
+        }
+      ],
+      "audio": {
+        "fileName": "Почему Василий II получил прозвище «Тёмный».wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9F%D0%BE%D1%87%D0%B5%D0%BC%D1%83%20%D0%92%D0%B0%D1%81%D0%B8%D0%BB%D0%B8%D0%B9%20II%20%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D0%BB%20%D0%BF%D1%80%D0%BE%D0%B7%D0%B2%D0%B8%D1%89%D0%B5%20%C2%AB%D0%A2%D1%91%D0%BC%D0%BD%D1%8B%D0%B9%C2%BB.wav"
+      }
+    },
+    {
+      "id": "1776785458690-jhz79e0w",
+      "text": "В чем состояло основное разногласие между Нестяжателями и Иосифлянами",
+      "type": "single",
+      "options": [
+        {
+          "text": "Процедура таинства крещения",
+          "isCorrect": false
+        },
+        {
+          "text": "Разночтения в церковных книгах",
+          "isCorrect": false
+        },
+        {
+          "text": "Богатства и владения Церкви",
+          "isCorrect": true
+        },
+        {
+          "text": "Церковь, в которой должно проходить венчание на царство",
+          "isCorrect": false
+        }
+      ],
+      "audio": {
+        "fileName": "В чем состояло основное разногласие между Нестяжателями и Иосифлянами.wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%92%20%D1%87%D0%B5%D0%BC%20%D1%81%D0%BE%D1%81%D1%82%D0%BE%D1%8F%D0%BB%D0%BE%20%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%BD%D0%BE%D0%B5%20%D1%80%D0%B0%D0%B7%D0%BD%D0%BE%D0%B3%D0%BB%D0%B0%D1%81%D0%B8%D0%B5%20%D0%BC%D0%B5%D0%B6%D0%B4%D1%83%20%D0%9D%D0%B5%D1%81%D1%82%D1%8F%D0%B6%D0%B0%D1%82%D0%B5%D0%BB%D1%8F%D0%BC%D0%B8%20%D0%B8%20%D0%98%D0%BE%D1%81%D0%B8%D1%84%D0%BB%D1%8F%D0%BD%D0%B0%D0%BC%D0%B8.wav"
+      }
+    },
+    {
+      "id": "1776782903716-fsu0zxb9",
+      "text": "Назовите город, который не входил в состав Московского княжества к концу правления Василия III",
+      "type": "single",
+      "options": [
+        {
+          "text": "Псков",
+          "isCorrect": false
+        },
+        {
+          "text": "Киев",
+          "isCorrect": false
+        },
+        {
+          "text": "Вязьма",
+          "isCorrect": false
+        },
+        {
+          "text": "Казань",
+          "isCorrect": true
+        }
+      ],
+      "audio": {
+        "fileName": "Назовите город, который не входил в состав Московского княжества к концу правления Василия III.wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9D%D0%B0%D0%B7%D0%BE%D0%B2%D0%B8%D1%82%D0%B5%20%D0%B3%D0%BE%D1%80%D0%BE%D0%B4%2C%20%D0%BA%D0%BE%D1%82%D0%BE%D1%80%D1%8B%D0%B9%20%D0%BD%D0%B5%20%D0%B2%D1%85%D0%BE%D0%B4%D0%B8%D0%BB%20%D0%B2%20%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2%20%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%BE%D0%B3%D0%BE%20%D0%BA%D0%BD%D1%8F%D0%B6%D0%B5%D1%81%D1%82%D0%B2%D0%B0%20%D0%BA%20%D0%BA%D0%BE%D0%BD%D1%86%D1%83%20%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%92%D0%B0%D1%81%D0%B8%D0%BB%D0%B8%D1%8F%20III.wav"
+      }
+    },
+    {
+      "id": "1776788911502-sh6utvdm",
+      "text": "Какое из событий истории Руси было связано с крестовыми походами",
+      "type": "single",
+      "options": [
+        {
+          "text": "Ледовое побоище",
+          "isCorrect": true
+        },
+        {
+          "text": "Стояние на Угре",
+          "isCorrect": false
+        },
+        {
+          "text": "Стояние на Калке",
+          "isCorrect": false
+        },
+        {
+          "text": "Битва при Креси",
+          "isCorrect": false
+        }
+      ],
+      "audio": {
+        "fileName": "Какое из событий истории Руси было связано с крестовыми походами.wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9A%D0%B0%D0%BA%D0%BE%D0%B5%20%D0%B8%D0%B7%20%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B9%20%D0%B8%D1%81%D1%82%D0%BE%D1%80%D0%B8%D0%B8%20%D0%A0%D1%83%D1%81%D0%B8%20%D0%B1%D1%8B%D0%BB%D0%BE%20%D1%81%D0%B2%D1%8F%D0%B7%D0%B0%D0%BD%D0%BE%20%D1%81%20%D0%BA%D1%80%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%BC%D0%B8%20%D0%BF%D0%BE%D1%85%D0%BE%D0%B4%D0%B0%D0%BC%D0%B8.wav"
+      }
+    },
+    {
+      "id": "1776782903716-wi9wikyw",
+      "text": "Назовите автора-иконописца, жившего в XV в.",
+      "type": "single",
+      "options": [
+        {
+          "text": "Феофан Грек",
+          "isCorrect": true
+        },
+        {
+          "text": "Андреа Ботичелли",
+          "isCorrect": false
+        },
+        {
+          "text": "Аристотель Фиораванти",
+          "isCorrect": false
+        },
+        {
+          "text": "Марко Руффо",
+          "isCorrect": false
+        }
+      ],
+      "audio": {
+        "fileName": "Назовите автора-иконописца, жившего в XV в.wav",
+        "audioUrl": "https://raw.githubusercontent.com/MyAlterEgoMoose/Myaltereggs/refs/heads/main/audios/%D0%9D%D0%B0%D0%B7%D0%BE%D0%B2%D0%B8%D1%82%D0%B5%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0-%D0%B8%D0%BA%D0%BE%D0%BD%D0%BE%D0%BF%D0%B8%D1%81%D1%86%D0%B0%2C%20%D0%B6%D0%B8%D0%B2%D1%88%D0%B5%D0%B3%D0%BE%20%D0%B2%20XV%20%D0%B2.wav"
+      }
     }
-  ]
+  ],
+  "participants": [],
+  "scoreRecords": [],
+  "uploadedImages": [],
+  "uploadedAudios": []
 }
