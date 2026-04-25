@@ -30,6 +30,25 @@
                 console.error('Failed to load GitHub config:', e);
             }
         }
+        
+        // Load uploaded images and audios from localStorage
+        const savedImages = localStorage.getItem('uploadedImages');
+        if (savedImages) {
+            try {
+                state.uploadedImages = JSON.parse(savedImages);
+            } catch (e) {
+                console.error('Failed to load uploaded images:', e);
+            }
+        }
+        
+        const savedAudios = localStorage.getItem('uploadedAudios');
+        if (savedAudios) {
+            try {
+                state.uploadedAudios = JSON.parse(savedAudios);
+            } catch (e) {
+                console.error('Failed to load uploaded audios:', e);
+            }
+        }
     }
     
     // Save GitHub config to localStorage
@@ -40,6 +59,10 @@
             branch: GITHUB_CONFIG.branch,
             token: GITHUB_CONFIG.token
         }));
+        
+        // Save uploaded images and audios to localStorage
+        localStorage.setItem('uploadedImages', JSON.stringify(state.uploadedImages));
+        localStorage.setItem('uploadedAudios', JSON.stringify(state.uploadedAudios));
     }
     function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
@@ -92,6 +115,7 @@
                         const data = await response.json();
                         const imageUrl = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${fileName}`;
                         state.uploadedImages.push({ originalName: file.name, githubUrl: imageUrl, uploadedAt: new Date().toISOString() });
+                        saveGithubConfigToStorage(); // Save to localStorage
                         resolve(imageUrl);
                     } else {
                         const err = await response.json();
@@ -133,6 +157,7 @@
                         const data = await response.json();
                         const audioUrl = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${fileName}`;
                         state.uploadedAudios.push({ originalName: file.name, githubUrl: audioUrl, uploadedAt: new Date().toISOString() });
+                        saveGithubConfigToStorage(); // Save to localStorage
                         resolve(audioUrl);
                     } else {
                         const err = await response.json();
