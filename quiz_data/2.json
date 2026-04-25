@@ -1,0 +1,221 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "text": "Призвание варягов (легендарное начало правления Рюрика в Ладоге или Новгороде)",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 2,
+      "text": "Захват Олегом Киева и объединение Новгорода и Киева (начало Киевской Руси)",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 3,
+      "text": "Поход князя Олега на Царьград (Константинополь), заключение выгодного торгового договора с Византией",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 4,
+      "text": "Убийство князя Игоря древлянами во время полюдья",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 5,
+      "text": "Крещение княгини Ольги в Константинополе (первая христианка среди правителей Руси)",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 6,
+      "text": "Гибель князя Святослава в засаде печенегов у днепровских порогов",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 7,
+      "text": "Крещение Руси (выбор православной веры, женитьба на византийской принцессе Анне)",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 8,
+      "text": "Начало усобицы",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 9,
+      "text": "Правление Ярослава Мудрого: создание «Русской правды», разгром печенегов, строительство Софийского собора",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 10,
+      "text": "Смерть Ярослава Мудрого, начало политической раздробленности (раздел земли между сыновьями)",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 11,
+      "text": "Любечский съезд князей: «каждый да держит отчину свою» (легитимизация удельной системы)",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 12,
+      "text": "Первое летописное упоминание Москвы",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 13,
+      "text": "Первые редакции Повести временных лет",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 14,
+      "text": "Битва на реке Калке",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 15,
+      "text": "Нашествие Батыя на Русь",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 16,
+      "text": "Невская битва",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 17,
+      "text": "Ледовое побоище",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 18,
+      "text": "Образование Золотой Орды",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 19,
+      "text": "Правление Дмитрия Донского",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 20,
+      "text": "Афанасий Никитин",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 21,
+      "text": "Иосиф Волоцкий",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 22,
+      "text": "Первый крестовый поход",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 23,
+      "text": "Монах Нестор",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 24,
+      "text": "Москва — Третий Рим",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 25,
+      "text": "Соломония Сабурова",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 26,
+      "text": "Чингисхан",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 27,
+      "text": "Путешествие Христофора Колумба",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 28,
+      "text": "Конец независимости Новгорода",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 29,
+      "text": "Куликовская битва",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 30,
+      "text": "Церковь вознесения в Коломенском",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    },
+    {
+      "id": 31,
+      "text": "Начало феодальной войны на Руси",
+      "type": "slider",
+      "sliderMin": 8,
+      "sliderMax": 15
+    }
+  ]
+}
