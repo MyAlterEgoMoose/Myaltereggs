@@ -1,7 +1,7 @@
 // Teacher Grading System - Quiz with Scoreboard (Refactored)
 (function() {
     'use strict';
-    const state = { questions: [], participants: [], scoreRecords: [], currentSlideIndex: 0, editingId: null, currentType: 'single', isSidebarOpen: false, uploadedImages: [], uploadedAudios: [] };
+    const state = { questions: [], participants: [], scoreRecords: [], currentSlideIndex: 0, editingId: null, currentType: 'single', isEditMode: false, uploadedImages: [], uploadedAudios: [] };
     const GITHUB_CONFIG = {
         owner: '',
         repo: '',
@@ -370,7 +370,6 @@
             renderSlideQuiz();
             saveStateToCookie();
             showMessage('Saved');
-            if (window.innerWidth <= 768) closeSidebar();
         }
     }
     function clearForm() { 
@@ -965,14 +964,26 @@
     }
     function resetAllScores() { if (confirm('Reset all scores?')) { state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderParticipantsSidebar(); renderScoreboard(); saveStateToCookie(); showMessage('All scores reset'); } }
     function resetAllQuestions() { if (confirm('Delete all questions?')) { state.questions = []; state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); saveStateToCookie(); showMessage('Questions cleared'); } }
-    function openSidebar() { document.getElementById('builderPanel').classList.add('open'); document.getElementById('overlay').classList.add('active'); state.isSidebarOpen = true; }
-    function closeSidebar() { document.getElementById('builderPanel').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); state.isSidebarOpen = false; }
-    function toggleSidebar() { state.isSidebarOpen ? closeSidebar() : openSidebar(); }
+    function openSidebar() { document.getElementById('builderPanel').classList.add('open'); document.getElementById('mainContent').classList.remove('open'); updateModeToggleUI(); }
+    function closeSidebar() { document.getElementById('builderPanel').classList.remove('open'); document.getElementById('mainContent').classList.add('open'); updateModeToggleUI(); }
+    function toggleSidebar() { state.isEditMode ? closeSidebar() : openSidebar(); }
+    function updateModeToggleUI() {
+        const playModeBtn = document.getElementById('playModeBtn');
+        const editModeBtn = document.getElementById('editModeBtn');
+        if (state.isEditMode) {
+            playModeBtn.classList.remove('active');
+            editModeBtn.classList.add('active');
+        } else {
+            playModeBtn.classList.add('active');
+            editModeBtn.classList.remove('active');
+        }
+    }
+    function setPlayMode() { state.isEditMode = false; closeSidebar(); renderSlideQuiz(); }
+    function setEditMode() { state.isEditMode = true; openSidebar(); }
     function toggleScoreboard() { let sb = document.getElementById('scoreboard'); sb.classList.toggle('open'); let io = sb.classList.contains('open'); document.getElementById('toggleScoreboardBtn').innerHTML = io ? '📊 Hide Scoreboard ✕' : '📊 Show Scoreboard 🏆'; if (io) renderScoreboard(); }
     function initEventListeners() {
-        document.getElementById('hamburgerBtn').addEventListener('click', toggleSidebar);
-        document.getElementById('closeSidebarBtn').addEventListener('click', closeSidebar);
-        document.getElementById('overlay').addEventListener('click', closeSidebar);
+        document.getElementById('playModeBtn').addEventListener('click', setPlayMode);
+        document.getElementById('editModeBtn').addEventListener('click', setEditMode);
         document.getElementById('addOptionBtn').addEventListener('click', () => { let c = document.getElementById('optionsContainer'), d = document.createElement('div'); d.className = 'option-row'; d.innerHTML = '<input type="text" class="option-text" placeholder="New option"><input type="checkbox" class="option-correct"> <span>✓</span><button type="button" class="btn-icon">✖</button>'; d.querySelector('button').addEventListener('click', () => { if (c.children.length > 1) d.remove(); else showMessage('Need at least one option', true); }); c.appendChild(d); });
         document.getElementById('saveQuestionBtn').addEventListener('click', saveQuestion);
         document.getElementById('clearFormBtn').addEventListener('click', clearForm);
@@ -1082,7 +1093,7 @@
         // Load GitHub config from localStorage on page load
         loadGithubConfig();
     }
-    function init() { renderOptionInputs(); renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); }
+    function init() { renderOptionInputs(); renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); setPlayMode(); }
     initEventListeners();
     init();
 })();

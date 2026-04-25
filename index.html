@@ -7,11 +7,12 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu">☰</button>
-<div class="overlay" id="overlay"></div>
+<div class="mode-toggle-container">
+    <button class="mode-toggle-btn active" id="playModeBtn" aria-label="Play Mode">▶️ Play Mode</button>
+    <button class="mode-toggle-btn" id="editModeBtn" aria-label="Edit Mode">✏️ Edit Mode</button>
+</div>
 
 <div class="builder-panel" id="builderPanel">
-    <button class="close-sidebar" id="closeSidebarBtn" aria-label="Close sidebar">✕</button>
     <div class="section-title">✏️ Build Test</div>
     <div class="question-form">
         <div class="input-group"><label>📌 Question Text</label><input type="text" id="questionText" placeholder="e.g., What is capital of France?"></div>
