@@ -753,13 +753,157 @@
             uploadedImages: state.uploadedImages,
             uploadedAudios: state.uploadedAudios
         };
-        let b = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
-        let a = document.createElement('a');
-        a.href = URL.createObjectURL(b);
-        a.download = 'quiz_' + Date.now() + '.json';
-        a.click();
-        URL.revokeObjectURL(a.href);
-        showMessage('✅ Exported with ' + state.uploadedImages.length + ' image(s) and ' + state.uploadedAudios.length + ' audio(s)');
+        
+        // Check if GitHub settings are configured for direct upload
+        if (GITHUB_CONFIG.owner && GITHUB_CONFIG.repo && GITHUB_CONFIG.token) {
+            // Export directly to GitHub
+            exportToGitHub(d);
+        } else {
+            // Fallback to local download
+            let b = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(b);
+            a.download = 'quiz_' + Date.now() + '.json';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showMessage('✅ Exported locally with ' + state.uploadedImages.length + ' image(s) and ' + state.uploadedAudios.length + ' audio(s)');
+        }
+    }
+    
+    // Export data directly to GitHub repository
+    async function exportToGitHub(data) {
+        try {
+            const fileName = 'quiz_data/quiz_' + Date.now() + '.json';
+            const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${fileName}`;
+            
+            // First, check if file exists to get the SHA
+            let sha = null;
+            const checkResponse = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            
+            if (checkResponse.ok) {
+                const existingData = await checkResponse.json();
+                sha = existingData.sha;
+            }
+            
+            const base64Content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+            
+            const requestBody = {
+                message: 'Export quiz data via app - ' + new Date().toISOString(),
+                content: base64Content,
+                branch: GITHUB_CONFIG.branch
+            };
+            
+            if (sha) {
+                requestBody.sha = sha;
+            }
+            
+            const response = await fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+            
+            if (response.ok) {
+                showMessage('✅ Exported to GitHub: ' + fileName);
+            } else {
+                const err = await response.json();
+                throw new Error(err.message || 'Upload to GitHub failed');
+            }
+        } catch (err) {
+            showMessage('❌ GitHub export failed: ' + err.message, true);
+        }
+    }
+    
+    // Import data from GitHub repository
+    async function importFromGitHub() {
+        if (!GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo || !GITHUB_CONFIG.token) {
+            showMessage('⚠️ Configure GitHub settings first (owner, repo, token)', true);
+            return;
+        }
+        
+        try {
+            // List files in quiz_data directory
+            const listUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/quiz_data`;
+            const listResponse = await fetch(listUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            
+            if (!listResponse.ok) {
+                throw new Error('Failed to fetch file list from GitHub');
+            }
+            
+            const files = await listResponse.json();
+            const jsonFiles = files.filter(f => f.name.endsWith('.json'));
+            
+            if (jsonFiles.length === 0) {
+                showMessage('⚠️ No quiz JSON files found in GitHub quiz_data folder', true);
+                return;
+            }
+            
+            // Show file selection dialog
+            const fileNames = jsonFiles.map(f => f.name).join('\n');
+            const selectedFileName = prompt('Available quiz files on GitHub:\n\n' + fileNames + '\n\nEnter the filename to import:', jsonFiles[jsonFiles.length - 1].name);
+            
+            if (!selectedFileName) {
+                return; // User cancelled
+            }
+            
+            const selectedFile = jsonFiles.find(f => f.name === selectedFileName);
+            if (!selectedFile) {
+                showMessage('⚠️ File not found: ' + selectedFileName, true);
+                return;
+            }
+            
+            // Fetch the selected file content
+            const fileUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/quiz_data/${selectedFileName}`;
+            const fileResponse = await fetch(fileUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            
+            if (!fileResponse.ok) {
+                throw new Error('Failed to fetch file content from GitHub');
+            }
+            
+            const fileData = await fileResponse.json();
+            const content = decodeURIComponent(escape(atob(fileData.content)));
+            const data = JSON.parse(content);
+            
+            // Load the imported data
+            if (data.questions) state.questions = data.questions;
+            if (data.participants) state.participants = data.participants;
+            if (data.scoreRecords) state.scoreRecords = data.scoreRecords;
+            if (data.uploadedImages) state.uploadedImages = data.uploadedImages;
+            if (data.uploadedAudios) state.uploadedAudios = data.uploadedAudios;
+            
+            renderQuestionsList();
+            renderSlideQuiz();
+            renderParticipantsSidebar();
+            renderScoreboard();
+            updateDatalist();
+            saveStateToCookie();
+            showMessage('✅ Imported from GitHub: ' + selectedFileName);
+            
+        } catch (err) {
+            showMessage('❌ GitHub import failed: ' + err.message, true);
+        }
     }
     
     function shuffleQuestionsInPlace() {
@@ -790,6 +934,19 @@
         document.getElementById('exportBtn').addEventListener('click', exportData);
         document.getElementById('shuffleBtn').addEventListener('click', shuffleQuestionsInPlace);
         document.getElementById('resetScoresBtn').addEventListener('click', resetAllScores);
+        
+        // Import button - show options for local or GitHub import
+        if (document.getElementById('importBtn')) {
+            document.getElementById('importBtn').addEventListener('click', () => {
+                const useGitHub = confirm('Import from GitHub?\n\nClick OK to import from GitHub.\nClick Cancel to import from local file.');
+                if (useGitHub) {
+                    importFromGitHub();
+                } else {
+                    document.getElementById('importFile').click();
+                }
+            });
+        }
+        
         document.getElementById('importFile').addEventListener('change', e => { if (e.target.files.length) importData(e.target.files[0]); e.target.value = ''; });
         document.getElementById('typeToggleGroup').addEventListener('click', e => { let t = e.target.closest('.type-option'); if (t) { state.currentType = t.dataset.type; updateTypeToggleUI(); } });
         document.getElementById('toggleScoreboardBtn').addEventListener('click', toggleScoreboard);
