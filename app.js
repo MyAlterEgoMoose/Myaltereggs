@@ -167,11 +167,6 @@
         }
         return '';
     }
-    function isAnswerCorrect(q, ans) {
-        if (q.type === 'open') { let u = (ans || '').trim(); if (!u) return false; let c = q.correctAnswers || []; let cs = q.caseSensitive || false; return c.some(x => cs ? u === x : u.toLowerCase() === x.toLowerCase()); }
-        else if (q.type === 'slider') { let userVal = parseInt(ans); return !isNaN(userVal) && userVal >= q.sliderMin && userVal <= q.sliderMax; }
-        else { let sel = ans || []; let ci = q.options.reduce((a, o, i) => { if (o.isCorrect) a.push(i); return a; }, []); if (q.type === 'single') return sel.length === 1 && ci.length === 1 && sel[0] === ci[0]; return sel.length === ci.length && sel.every(v => ci.includes(v)) && ci.every(c => sel.includes(c)); }
-    }
     function updateParticipantTotal(name) { let p = state.participants.find(p => p.name === name); if (p) { let t = state.scoreRecords.filter(r => r.participantName === name).reduce((s, r) => s + r.pointsEarned, 0); p.totalScore = t; } }
     function updateAllTotals() { state.participants.forEach(p => updateParticipantTotal(p.name)); }
     function renderParticipantsSidebar() { let c = document.getElementById('participantsList'); if (!c) return; if (!state.participants.length) { c.innerHTML = '<div style="color:#666;">No participants</div>'; return; } c.innerHTML = state.participants.map(p => '<div class="participant-item-sidebar"><span>👤 ' + escapeHtml(p.name) + '</span><span style="background:#ffc107;padding:0.2rem 0.5rem;border-radius:1rem;">' + (p.totalScore || 0) + ' pts</span><button class="delete-participant-side" data-name="' + escapeHtml(p.name) + '" style="background:#dc3545;border:none;border-radius:1rem;padding:0.2rem 0.5rem;">🗑️</button></div>').join(''); document.querySelectorAll('.delete-participant-side').forEach(b => b.addEventListener('click', () => { let n = b.dataset.name; if (confirm('Delete ' + n + '?')) { state.participants = state.participants.filter(p => p.name !== n); state.scoreRecords = state.scoreRecords.filter(r => r.participantName !== n); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); showMessage('Deleted ' + n); } })); }
@@ -352,18 +347,6 @@
                             // For multiple choice, toggle
                             input.checked = !input.checked;
                         }
-                        
-                        // Trigger answer submission after a short delay to allow visual feedback
-                        setTimeout(() => {
-                            let ans = null;
-                            let chk = [...document.querySelectorAll('.slide-option input:checked')].map(cb => parseInt(cb.value));
-                            ans = chk;
-                            
-                            if (ans && ans.length > 0) {
-                                let cf = isAnswerCorrect(q, ans);
-                                showMessage(cf ? '✅ Matches expected!' : '❌ Differs from expected.');
-                            }
-                        }, 150);
                     });
                 });
             }, 0);
@@ -390,11 +373,11 @@
                 opt.addEventListener('click', () => {
                     setTimeout(() => {
                         openGradingSection(q);
-                    }, 200);
+                    }, 300);
                 });
             });
         }
-        // For open and slider types, add listener to submit button or input change
+        // For open and slider types, add listener to input change
         if (q.type === 'open') {
             document.getElementById('userAnswerInput').addEventListener('change', () => {
                 let ans = document.getElementById('userAnswerInput').value.trim();
@@ -479,7 +462,6 @@
     }
     
     function saveScoreFromSection(participantName, points) {
-        let nt = document.getElementById('gradingNotes').value.trim();
         let qi = document.getElementById('gradingSection').dataset.questionId;
         let qt = document.getElementById('gradingSection').dataset.questionText;
         
@@ -496,7 +478,6 @@
             questionId: qi,
             questionText: qt,
             pointsEarned: points,
-            notes: nt,
             timestamp: new Date().toISOString()
         });
         
@@ -579,7 +560,6 @@
         document.getElementById('resetScoresBtn').addEventListener('click', resetAllScores);
         document.getElementById('importFile').addEventListener('change', e => { if (e.target.files.length) importData(e.target.files[0]); e.target.value = ''; });
         document.getElementById('typeToggleGroup').addEventListener('click', e => { let t = e.target.closest('.type-option'); if (t) { state.currentType = t.dataset.type; updateTypeToggleUI(); } });
-        document.getElementById('closeGradingSectionBtn').addEventListener('click', closeGradingSection);
         document.getElementById('toggleScoreboardBtn').addEventListener('click', toggleScoreboard);
         document.getElementById('closeScoreboardBtn').addEventListener('click', toggleScoreboard);
         document.querySelectorAll('.tab-btn').forEach(b => { b.addEventListener('click', () => { let t = b.dataset.tab; document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active')); b.classList.add('active'); document.getElementById(t + 'Tab').classList.add('active'); if (t === 'rankings') renderRankings(); if (t === 'details') renderParticipantSelect(); if (t === 'stats') renderStatistics(); }); });
