@@ -19,34 +19,6 @@ body {
 }
 
 
-.toolbar {
-    background: #f0f0f0;
-    padding: 0.75rem 0.5rem;
-    margin-bottom: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-    align-items: center;
-}
-
-.toolbar button, .file-input-label {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #ccc;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.85rem;
-    background: #fff;
-    white-space: nowrap;
-    flex: 0 1 auto;
-}
-
-.btn-export { background: #2c7da0; color: black; border: none; }
-.btn-import { background: #2c9e6e; color: white; border: none; }
-.btn-pdf { background: #dc3545; color: white; border: none; }
-.file-input-label { background: #5e6b7c; color: white; display: inline-block; border: none; }
-input[type="file"] { display: none; }
-
 /* Mode Toggle Buttons */
 .mode-toggle-container {
     display: flex;
@@ -745,17 +717,6 @@ input[type="file"] { display: none; }
         max-width: 100%;
     }
     
-    .toolbar {
-        padding: 0.5rem;
-        gap: 0.4rem;
-    }
-    
-    .toolbar button, .file-input-label {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.6rem;
-        flex: 1 1 40%;
-    }
-    
     .section-title {
         font-size: 1rem;
     }
@@ -836,11 +797,6 @@ input[type="file"] { display: none; }
 @media (max-width: 480px) {
     body {
         padding: 0.25rem;
-    }
-    
-    .toolbar button, .file-input-label {
-        flex: 1 1 100%;
-        font-size: 0.85rem;
     }
     
     .question-form {

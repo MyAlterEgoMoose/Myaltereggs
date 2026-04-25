@@ -991,19 +991,18 @@
         document.getElementById('resetAllQuestionsBtn').addEventListener('click', resetAllQuestions);
         document.getElementById('resetAllScoresBtn').addEventListener('click', resetAllScores);
         document.getElementById('exportBtn').addEventListener('click', exportData);
-        document.getElementById('shuffleBtn').addEventListener('click', shuffleQuestionsInPlace);
         document.getElementById('resetScoresBtn').addEventListener('click', resetAllScores);
         
-        // Import button - show options for local or GitHub import
-        if (document.getElementById('importBtn')) {
-            document.getElementById('importBtn').addEventListener('click', () => {
-                const useGitHub = confirm('Import from GitHub?\n\nClick OK to import from GitHub.\nClick Cancel to import from local file.');
-                if (useGitHub) {
-                    importFromGitHub();
-                } else {
-                    document.getElementById('importFile').click();
-                }
+        // Import Local button
+        if (document.getElementById('importLocalBtn')) {
+            document.getElementById('importLocalBtn').addEventListener('click', () => {
+                document.getElementById('importFile').click();
             });
+        }
+        
+        // Import from GitHub button
+        if (document.getElementById('importGitHubBtn')) {
+            document.getElementById('importGitHubBtn').addEventListener('click', importFromGitHub);
         }
         
         document.getElementById('importFile').addEventListener('change', e => { if (e.target.files.length) importData(e.target.files[0]); e.target.value = ''; });
