@@ -368,7 +368,7 @@
                 });
             }, 0);
         } 
-        h += '<button class="submit-answer-btn" id="submitAnswerBtn">📝 Submit & Grade</button><div style="display:flex;justify-content:space-between;margin-top:1rem;"><button class="nav-btn" id="prevBtn" ' + (state.currentSlideIndex === 0 ? 'disabled' : '') + '>← Prev</button><span>' + (state.currentSlideIndex + 1) + '/' + state.questions.length + '</span><button class="nav-btn" id="nextBtn" ' + (state.currentSlideIndex === state.questions.length - 1 ? 'disabled' : '') + '>Next →</button></div></div>'; 
+        h += '<div style="display:flex;justify-content:space-between;margin-top:1rem;"><button class="nav-btn" id="prevBtn" ' + (state.currentSlideIndex === 0 ? 'disabled' : '') + '>← Prev</button><span>' + (state.currentSlideIndex + 1) + '/' + state.questions.length + '</span><button class="nav-btn" id="nextBtn" ' + (state.currentSlideIndex === state.questions.length - 1 ? 'disabled' : '') + '>Next →</button></div></div>'; 
         c.innerHTML = h; 
         if (q.type === 'slider') { 
             let slider = document.getElementById('sliderAnswer'); 
@@ -384,21 +384,30 @@
             updateBubble(); 
             slider.addEventListener('input', updateBubble); 
         } 
-        document.getElementById('submitAnswerBtn').addEventListener('click', () => { 
-            let ans = null; 
-            if (q.type === 'open') ans = document.getElementById('userAnswerInput').value || ''; 
-            else if (q.type === 'slider') ans = parseInt(document.getElementById('sliderAnswer').value); 
-            else { 
-                let chk = [...document.querySelectorAll('.slide-option input:checked')].map(cb => parseInt(cb.value)); 
-                ans = chk; 
-            } 
-            if ((q.type !== 'open' && q.type !== 'slider' && (!ans || ans.length === 0)) || (q.type === 'open' && !ans.trim())) { 
-                showMessage('Provide answer', true); 
-                return; 
-            } 
-            let cf = isAnswerCorrect(q, ans);  
-            showMessage(cf ? '✅ Matches expected!' : '❌ Differs from expected.'); 
-        }); 
+        // Add click listeners to answer options for single/multiple choice
+        if (q.type === 'single' || q.type === 'multiple') {
+            document.querySelectorAll('.slide-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    setTimeout(() => {
+                        openGradingSection(q);
+                    }, 200);
+                });
+            });
+        }
+        // For open and slider types, add listener to submit button or input change
+        if (q.type === 'open') {
+            document.getElementById('userAnswerInput').addEventListener('change', () => {
+                let ans = document.getElementById('userAnswerInput').value.trim();
+                if (ans) {
+                    openGradingSection(q);
+                }
+            });
+        }
+        if (q.type === 'slider') {
+            document.getElementById('sliderAnswer').addEventListener('change', () => {
+                openGradingSection(q);
+            });
+        }
         document.getElementById('prevBtn').addEventListener('click', () => { 
             if (state.currentSlideIndex > 0) { 
                 state.currentSlideIndex--; 
@@ -413,8 +422,28 @@
         }); 
     }
     
-    function renderParticipantButtons() {
-        let container = document.getElementById('participantButtonsList');
+    function openGradingSection(q) {
+        let section = document.getElementById('gradingSection');
+        let info = document.getElementById('gradingSectionInfo');
+        
+        // Populate question info
+        info.innerHTML = '<div style="font-weight:600;margin-bottom:0.5rem;">' + escapeHtml(q.text) + '</div>' +
+            '<div style="font-size:0.85rem;color:#666;">Type: ' + q.type.toUpperCase() + '</div>';
+        
+        // Store current question data
+        section.dataset.questionId = q.id;
+        section.dataset.questionText = q.text;
+        
+        // Render participants with points
+        renderParticipantsPointsList();
+        
+        // Show section and scroll to it
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function renderParticipantsPointsList() {
+        let container = document.getElementById('participantsPointsList');
         if (!container) return;
         
         if (!state.participants.length) {
@@ -424,30 +453,35 @@
         
         let pointsOptions = [0.5, 1, 2, 3, 5, 7.5, 10];
         
-        container.innerHTML = state.participants.map(p => {
-            let pointsBtns = pointsOptions.map(pts => 
-                '<span class="points-badge" data-participant="' + escapeHtml(p.name) + '" data-points="' + pts + '">+' + pts + '</span>'
-            ).join('');
-            
-            return '<div class="participant-btn">' +
-                '<div class="participant-name">👤 ' + escapeHtml(p.name) + '</div>' +
-                '<div class="points-options">' + pointsBtns + '</div>' +
-                '</div>';
-        }).join('');
+        container.innerHTML = '<div class="participants-points-horizontal">' + 
+            state.participants.map(p => {
+                let pointsBtns = pointsOptions.map(pts => 
+                    '<button class="points-circle-btn" data-participant="' + escapeHtml(p.name) + '" data-points="' + pts + '">+' + pts + '</button>'
+                ).join('');
+                
+                let initials = p.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                
+                return '<div class="participant-circle-item">' +
+                    '<div class="circle-avatar">' + initials + '</div>' +
+                    '<div class="circle-name">' + escapeHtml(p.name) + '</div>' +
+                    '<div class="points-row">' + pointsBtns + '</div>' +
+                    '</div>';
+            }).join('') +
+            '</div>';
         
-        container.querySelectorAll('.points-badge').forEach(btn => {
+        container.querySelectorAll('.points-circle-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 let participantName = btn.dataset.participant;
                 let points = parseFloat(btn.dataset.points);
-                saveScore(participantName, points);
+                saveScoreFromSection(participantName, points);
             });
         });
     }
     
-    function saveScore(participantName, points) {
-        let nt = document.getElementById('modalNotes').value.trim();
-        let qi = document.getElementById('gradingModal').dataset.questionId;
-        let qt = document.getElementById('gradingModal').dataset.questionText;
+    function saveScoreFromSection(participantName, points) {
+        let nt = document.getElementById('gradingNotes').value.trim();
+        let qi = document.getElementById('gradingSection').dataset.questionId;
+        let qt = document.getElementById('gradingSection').dataset.questionText;
         
         let part = state.participants.find(x => x.name === participantName);
         if (!part) {
@@ -470,12 +504,13 @@
         renderParticipantsSidebar();
         renderScoreboard();
         showMessage('✅ Saved ' + points + ' pts for ' + participantName);
-        closeGradingModal();
+        closeGradingSection();
     }
     
-    function closeGradingModal() { 
-        document.getElementById('gradingModal').classList.remove('active'); 
+    function closeGradingSection() { 
+        document.getElementById('gradingSection').style.display = 'none'; 
     }
+    
     function renderScoreboard() { renderRankings(); renderParticipantSelect(); renderStatistics(); }
     function renderRankings() { let c = document.getElementById('rankingsList'); if (!c) return; updateAllTotals(); if (!state.scoreRecords.length) { c.innerHTML = '<div class="empty-message">No scores yet</div>'; return; } let sv = (document.getElementById('searchParticipant')?.value || '').toLowerCase(); let sb = document.getElementById('sortBySelect')?.value || 'score'; let f = state.participants.filter(p => p.name.toLowerCase().includes(sv)); if (sb === 'score') f.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)); else f.sort((a, b) => a.name.localeCompare(b.name)); c.innerHTML = f.map((p, i) => { let sc = state.scoreRecords.filter(r => r.participantName === p.name); let av = sc.length ? (p.totalScore / sc.length).toFixed(1) : 0; let rc = '', md = ''; if (i === 0 && !sv) { rc = 'top-1'; md = '👑'; } else if (i === 1 && !sv) { rc = 'top-2'; md = '🥈'; } else if (i === 2 && !sv) { rc = 'top-3'; md = '🥉'; } return '<div class="rank-card ' + rc + '" onclick="selectParticipant(\'' + escapeHtml(p.name) + '\')"><div class="rank-header"><div><strong>' + (md || (i + 1)) + '. ' + escapeHtml(p.name) + '</strong></div><div class="rank-score">' + (p.totalScore || 0) + ' pts</div></div><div style="font-size:0.8rem;">📝 ' + sc.length + ' answers | avg ' + av + ' pts</div></div>'; }).join(''); }
     window.selectParticipant = function(n) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.getElementById('detailsTab').classList.add('active'); document.querySelector('[data-tab="details"]').classList.add('active'); let s = document.getElementById('participantSelectDetail'); if (s) s.value = n; renderParticipantDetails(n); };
@@ -544,9 +579,7 @@
         document.getElementById('resetScoresBtn').addEventListener('click', resetAllScores);
         document.getElementById('importFile').addEventListener('change', e => { if (e.target.files.length) importData(e.target.files[0]); e.target.value = ''; });
         document.getElementById('typeToggleGroup').addEventListener('click', e => { let t = e.target.closest('.type-option'); if (t) { state.currentType = t.dataset.type; updateTypeToggleUI(); } });
-        document.getElementById('modalCancelBtn').addEventListener('click', closeGradingModal);
-        document.querySelector('.modal-close').addEventListener('click', closeGradingModal);
-        window.addEventListener('click', e => { if (e.target === document.getElementById('gradingModal')) closeGradingModal(); });
+        document.getElementById('closeGradingSectionBtn').addEventListener('click', closeGradingSection);
         document.getElementById('toggleScoreboardBtn').addEventListener('click', toggleScoreboard);
         document.getElementById('closeScoreboardBtn').addEventListener('click', toggleScoreboard);
         document.querySelectorAll('.tab-btn').forEach(b => { b.addEventListener('click', () => { let t = b.dataset.tab; document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active')); b.classList.add('active'); document.getElementById(t + 'Tab').classList.add('active'); if (t === 'rankings') renderRankings(); if (t === 'details') renderParticipantSelect(); if (t === 'stats') renderStatistics(); }); });
