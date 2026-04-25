@@ -19,7 +19,7 @@ venv/
 .venv/
 .env
 .env.local
-*.env.*
+.env.*
 
 # Logs and temp files
 *.log
@@ -30,8 +30,10 @@ venv/
 # Editors
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# System
+# System files
 .DS_Store
 Thumbs.db
 

@@ -382,32 +382,7 @@ input[type="file"] { display: none; }
 }
 
 .grading-section-header {
-    padding: 1rem;
-    background: linear-gradient(135deg, #2c7da0, #4a9fd8);
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.grading-section-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-}
-
-.close-grading-section {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: background 0.2s;
-}
-
-.close-grading-section:hover {
-    background: rgba(255,255,255,0.2);
+    display: none;
 }
 
 .grading-section-info {
