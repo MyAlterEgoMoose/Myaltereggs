@@ -1,7 +1,7 @@
 // Teacher Grading System - Quiz with Scoreboard (Refactored)
 (function() {
     'use strict';
-    const state = { questions: [], participants: [], scoreRecords: [], currentSlideIndex: 0, editingId: null, currentType: 'single', isSidebarOpen: false, uploadedImages: [] };
+    const state = { questions: [], participants: [], scoreRecords: [], currentSlideIndex: 0, editingId: null, currentType: 'single', isSidebarOpen: false, uploadedImages: [], uploadedAudios: [] };
     const GITHUB_CONFIG = {
         owner: '',
         repo: '',
@@ -106,15 +106,64 @@
         });
     }
 
+    // Audio upload to GitHub
+    async function uploadAudioToGitHub(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const base64Content = e.target.result.split(',')[1];
+                    const fileName = 'audios/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                    const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${fileName}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: 'Upload audio via quiz app',
+                            content: base64Content,
+                            branch: GITHUB_CONFIG.branch
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const audioUrl = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${fileName}`;
+                        state.uploadedAudios.push({ originalName: file.name, githubUrl: audioUrl, uploadedAt: new Date().toISOString() });
+                        resolve(audioUrl);
+                    } else {
+                        const err = await response.json();
+                        reject(new Error(err.message || 'Upload failed'));
+                    }
+                } catch (err) {
+                    reject(err);
+                }
+            };
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsDataURL(file);
+        });
+    }
+
     // Helper function to get question display text with image indicator
     function getQuestionDisplayText(q) {
-        return q.text + (q.image ? ' 🖼️' : '');
+        return q.text + (q.image ? ' 🖼️' : '') + (q.audio ? ' 🎵' : '');
     }
 
     // Helper function to render question image if present
     function renderQuestionImage(q) {
         if (q.image && q.image.imageUrl) {
             return '<img src="' + escapeHtml(q.image.imageUrl) + '" alt="Question image" style="max-width:100%;max-height:300px;border-radius:1rem;margin-bottom:1rem;">';
+        }
+        return '';
+    }
+
+    // Helper function to render question audio player if present
+    function renderQuestionAudio(q) {
+        if (q.audio && q.audio.audioUrl) {
+            return '<audio controls src="' + escapeHtml(q.audio.audioUrl) + '" style="width:100%;margin-bottom:1rem;"></audio>';
         }
         return '';
     }
@@ -127,7 +176,7 @@
     function updateAllTotals() { state.participants.forEach(p => updateParticipantTotal(p.name)); }
     function renderParticipantsSidebar() { let c = document.getElementById('participantsList'); if (!c) return; if (!state.participants.length) { c.innerHTML = '<div style="color:#666;">No participants</div>'; return; } c.innerHTML = state.participants.map(p => '<div class="participant-item-sidebar"><span>👤 ' + escapeHtml(p.name) + '</span><span style="background:#ffc107;padding:0.2rem 0.5rem;border-radius:1rem;">' + (p.totalScore || 0) + ' pts</span><button class="delete-participant-side" data-name="' + escapeHtml(p.name) + '" style="background:#dc3545;border:none;border-radius:1rem;padding:0.2rem 0.5rem;">🗑️</button></div>').join(''); document.querySelectorAll('.delete-participant-side').forEach(b => b.addEventListener('click', () => { let n = b.dataset.name; if (confirm('Delete ' + n + '?')) { state.participants = state.participants.filter(p => p.name !== n); state.scoreRecords = state.scoreRecords.filter(r => r.participantName !== n); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); showMessage('Deleted ' + n); } })); }
     function updateDatalist() { let d = document.getElementById('participantsDatalist'); if (d) d.innerHTML = state.participants.map(p => '<option value="' + escapeHtml(p.name) + '">').join(''); }
-    function renderQuestionsList() { let a = document.getElementById('questionsListArea'); if (!state.questions.length) { a.innerHTML = '<div style="padding:1rem;">No questions</div>'; return; } a.innerHTML = state.questions.map((q, i) => '<div class="question-card" data-idx="' + i + '"><div><strong>' + (i + 1) + '.</strong> ' + escapeHtml(q.text.substring(0, 50)) + '</div><div><button class="edit-q" data-id="' + q.id + '">✏️</button><button class="delete-q" data-id="' + q.id + '">🗑️</button></div></div>').join(''); document.querySelectorAll('.delete-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let id = b.dataset.id; if (confirm('Delete?')) { state.questions = state.questions.filter(q => q.id !== id); if (state.currentSlideIndex >= state.questions.length) state.currentSlideIndex = Math.max(0, state.questions.length - 1); renderQuestionsList(); renderSlideQuiz(); showMessage('Deleted'); } })); document.querySelectorAll('.edit-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let q = state.questions.find(q => q.id === b.dataset.id); if (q) { state.editingId = q.id; state.currentType = q.type; document.getElementById('questionText').value = q.text; updateTypeToggleUI(); if (q.type === 'open') { document.getElementById('correctAnswers').value = (q.correctAnswers || []).join('\n'); document.getElementById('caseSensitive').checked = q.caseSensitive || false; } else if (q.type === 'slider') { document.getElementById('sliderMin').value = toRoman(q.sliderMin); document.getElementById('sliderMax').value = toRoman(q.sliderMax); } else renderOptionInputs(q.options); openSidebar(); } })); document.querySelectorAll('.question-card').forEach(c => c.addEventListener('click', () => { let i = parseInt(c.dataset.idx); if (!isNaN(i)) { state.currentSlideIndex = i; renderSlideQuiz(); } })); }
+    function renderQuestionsList() { let a = document.getElementById('questionsListArea'); if (!state.questions.length) { a.innerHTML = '<div style="padding:1rem;">No questions</div>'; return; } a.innerHTML = state.questions.map((q, i) => '<div class="question-card" data-idx="' + i + '"><div><strong>' + (i + 1) + '.</strong> ' + escapeHtml(getQuestionDisplayText(q).substring(0, 50)) + '</div><div><button class="edit-q" data-id="' + q.id + '">✏️</button><button class="delete-q" data-id="' + q.id + '">🗑️</button></div></div>').join(''); document.querySelectorAll('.delete-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let id = b.dataset.id; if (confirm('Delete?')) { state.questions = state.questions.filter(q => q.id !== id); if (state.currentSlideIndex >= state.questions.length) state.currentSlideIndex = Math.max(0, state.questions.length - 1); renderQuestionsList(); renderSlideQuiz(); showMessage('Deleted'); } })); document.querySelectorAll('.edit-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let q = state.questions.find(q => q.id === b.dataset.id); if (q) { state.editingId = q.id; state.currentType = q.type; document.getElementById('questionText').value = q.text; updateTypeToggleUI(); if (q.type === 'open') { document.getElementById('correctAnswers').value = (q.correctAnswers || []).join('\n'); document.getElementById('caseSensitive').checked = q.caseSensitive || false; } else if (q.type === 'slider') { document.getElementById('sliderMin').value = toRoman(q.sliderMin); document.getElementById('sliderMax').value = toRoman(q.sliderMax); } else renderOptionInputs(q.options); openSidebar(); } })); document.querySelectorAll('.question-card').forEach(c => c.addEventListener('click', () => { let i = parseInt(c.dataset.idx); if (!isNaN(i)) { state.currentSlideIndex = i; renderSlideQuiz(); } })); }
     function renderOptionInputs(opts = null) { let c = document.getElementById('optionsContainer'); let arr = opts || [{ text: '', isCorrect: false }, { text: '', isCorrect: false }]; c.innerHTML = ''; arr.forEach((o, i) => { let d = document.createElement('div'); d.className = 'option-row'; d.innerHTML = '<input type="text" class="option-text" value="' + escapeHtml(o.text) + '" placeholder="Option ' + (i + 1) + '"><input type="checkbox" class="option-correct" ' + (o.isCorrect ? 'checked' : '') + '> <span>✓</span><button type="button" class="btn-icon">✖</button>'; d.querySelector('button').addEventListener('click', () => { if (c.children.length > 1) d.remove(); else showMessage('Need at least one option', true); }); c.appendChild(d); }); }
     function updateTypeToggleUI() { document.querySelectorAll('.type-option').forEach(o => { if (o.dataset.type === state.currentType) o.classList.add('active'); else o.classList.remove('active'); }); document.getElementById('optionsGroup').style.display = state.currentType === 'open' || state.currentType === 'slider' ? 'none' : 'block'; document.getElementById('openAnswerGroup').style.display = state.currentType === 'open' ? 'block' : 'none'; document.getElementById('sliderRangeGroup').style.display = state.currentType === 'slider' ? 'block' : 'none'; }
     function gatherFormData() { 
@@ -141,10 +190,18 @@
             imageData = { fileName: imageInput.files[0].name, file: imageInput.files[0] };
         }
         
+        // Handle audio file
+        let audioData = null;
+        let audioInput = document.getElementById('questionAudio');
+        if (audioInput && audioInput.files && audioInput.files[0]) {
+            audioData = { fileName: audioInput.files[0].name, file: audioInput.files[0] };
+        }
+        
         if (state.currentType === 'open') { 
             let c = document.getElementById('correctAnswers').value.trim().split('\n').map(l => l.trim()).filter(l => l); 
             let result = { text: t, type: 'open', correctAnswers: c, caseSensitive: document.getElementById('caseSensitive').checked };
             if (imageData) result.image = imageData;
+            if (audioData) result.audio = audioData;
             return result;
         } else if (state.currentType === 'slider') { 
             let minVal = parseInt(document.getElementById('sliderMin').value); 
@@ -154,6 +211,7 @@
             if (minVal >= maxVal) { showMessage('Min must be less than max', true); return null; } 
             let result = { text: t, type: 'slider', sliderMin: minVal, sliderMax: maxVal };
             if (imageData) result.image = imageData;
+            if (audioData) result.audio = audioData;
             return result;
         } else { 
             let rows = document.querySelectorAll('#optionsContainer .option-row'); 
@@ -168,6 +226,7 @@
             if (state.currentType === 'multiple' && !opts.some(o => o.isCorrect)) { showMessage('Select at least one correct', true); return null; } 
             let result = { text: t, options: opts, type: state.currentType };
             if (imageData) result.image = imageData;
+            if (audioData) result.audio = audioData;
             return result;
         } 
     }
@@ -175,25 +234,34 @@
         let d = gatherFormData();
         if (!d) return;
 
-        // Handle image upload if present
+        // Handle image and audio uploads
+        let uploadPromises = [];
+        
         if (d.image && d.image.file) {
-            (async () => {
-                try {
-                    showMessage('⏳ Uploading image...');
-                    let imageUrl = await uploadImageToGitHub(d.image.file);
-                    d.image = { fileName: d.image.fileName, imageUrl: imageUrl };
-                    completeSave(d);
-                } catch (err) {
-                    showMessage('⚠️ Image upload failed: ' + err.message, true);
-                    d.image = null;
-                    completeSave(d);
-                }
-            })();
+            uploadPromises.push(
+                uploadImageToGitHub(d.image.file)
+                    .then(imageUrl => { d.image = { fileName: d.image.fileName, imageUrl: imageUrl }; })
+                    .catch(err => { showMessage('⚠️ Image upload failed: ' + err.message, true); d.image = null; })
+            );
+        }
+        
+        if (d.audio && d.audio.file) {
+            uploadPromises.push(
+                uploadAudioToGitHub(d.audio.file)
+                    .then(audioUrl => { d.audio = { fileName: d.audio.fileName, audioUrl: audioUrl }; })
+                    .catch(err => { showMessage('⚠️ Audio upload failed: ' + err.message, true); d.audio = null; })
+            );
+        }
+        
+        if (uploadPromises.length > 0) {
+            showMessage('⏳ Uploading media...');
+            Promise.all(uploadPromises).then(() => completeSave(d));
         } else if (state.editingId) {
-            // Preserve existing image when editing without new image
+            // Preserve existing media when editing without new files
             let existingQ = state.questions.find(q => q.id === state.editingId);
-            if (existingQ && existingQ.image) {
-                d.image = existingQ.image;
+            if (existingQ) {
+                if (existingQ.image && !d.image) d.image = existingQ.image;
+                if (existingQ.audio && !d.audio) d.audio = existingQ.audio;
             }
             completeSave(d);
         } else {
@@ -243,6 +311,11 @@
         if (imgInput) imgInput.value = '';
         let preview = document.getElementById('imagePreviewContainer');
         if (preview) preview.innerHTML = '';
+        // Clear audio input and preview
+        let audioInput = document.getElementById('questionAudio');
+        if (audioInput) audioInput.value = '';
+        let audioPreview = document.getElementById('audioPreviewContainer');
+        if (audioPreview) audioPreview.innerHTML = '';
     }
     function renderSlideQuiz() { 
         let c = document.getElementById('slideQuizContainer'); 
@@ -254,6 +327,8 @@
         let h = '<div class="slide-card"><div class="slide-header"><span>Q' + (state.currentSlideIndex + 1) + '/' + state.questions.length + '</span><span>⭐ Teacher decides points</span></div><div class="slide-question-text">' + escapeHtml(q.text) + '</div>'; 
         // Render image if present
         h += renderQuestionImage(q);
+        // Render audio player if present
+        h += renderQuestionAudio(q);
         if (q.type === 'open') h += '<textarea id="userAnswerInput" rows="4" style="width:100%;padding:0.8rem;border-radius:1rem;"></textarea>'; 
         else if (q.type === 'slider') { 
             h += '<div style="margin:2rem 0;position:relative;"><input type="range" id="sliderAnswer" min="' + q.sliderMin + '" max="' + q.sliderMax + '" value="' + q.sliderMin + '" style="width:100%;"><div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:1.2rem;"><span>Min: <strong>' + toRoman(q.sliderMin) + '</strong></span><div id="sliderValueDisplay" class="slider-bubble">' + toRoman(q.sliderMin) + '</div><span>Max: <strong>' + toRoman(q.sliderMax) + '</strong></span></div></div>'; 
@@ -394,8 +469,8 @@
     }
     
     function exportData() {
-        // Upload any images associated with questions to GitHub
-        if (state.uploadedImages.length > 0 && (!GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo || !GITHUB_CONFIG.token)) {
+        // Upload any images or audios associated with questions to GitHub
+        if ((state.uploadedImages.length > 0 || state.uploadedAudios.length > 0) && (!GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo || !GITHUB_CONFIG.token)) {
             showMessage('⚠️ Configure GitHub settings first (owner, repo, token)', true);
             return;
         }
@@ -405,7 +480,8 @@
             questions: shuffledQuestions, 
             participants: state.participants, 
             scoreRecords: state.scoreRecords,
-            uploadedImages: state.uploadedImages
+            uploadedImages: state.uploadedImages,
+            uploadedAudios: state.uploadedAudios
         };
         let b = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
         let a = document.createElement('a');
@@ -413,7 +489,7 @@
         a.download = 'quiz_' + Date.now() + '.json';
         a.click();
         URL.revokeObjectURL(a.href);
-        showMessage('✅ Exported with ' + state.uploadedImages.length + ' image(s)');
+        showMessage('✅ Exported with ' + state.uploadedImages.length + ' image(s) and ' + state.uploadedAudios.length + ' audio(s)');
     }
     
     function shuffleQuestionsInPlace() {
@@ -424,7 +500,7 @@
         showMessage('Questions shuffled');
     }
     
-    function importData(f) { let r = new FileReader(); r.onload = e => { try { let d = JSON.parse(e.target.result); if (d.questions) state.questions = d.questions; if (d.participants) state.participants = d.participants; if (d.scoreRecords) state.scoreRecords = d.scoreRecords; renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); showMessage('Imported'); } catch (err) { showMessage('Invalid file', true); } }; r.readAsText(f); }
+    function importData(f) { let r = new FileReader(); r.onload = e => { try { let d = JSON.parse(e.target.result); if (d.questions) state.questions = d.questions; if (d.participants) state.participants = d.participants; if (d.scoreRecords) state.scoreRecords = d.scoreRecords; if (d.uploadedImages) state.uploadedImages = d.uploadedImages; if (d.uploadedAudios) state.uploadedAudios = d.uploadedAudios; renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); showMessage('Imported'); } catch (err) { showMessage('Invalid file', true); } }; r.readAsText(f); }
     function resetAllScores() { if (confirm('Reset all scores?')) { state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderParticipantsSidebar(); renderScoreboard(); showMessage('All scores reset'); } }
     function resetAllQuestions() { if (confirm('Delete all questions?')) { state.questions = []; state.scoreRecords = []; state.participants.forEach(p => p.totalScore = 0); renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); showMessage('Questions cleared'); } }
     function openSidebar() { document.getElementById('builderPanel').classList.add('open'); document.getElementById('overlay').classList.add('active'); state.isSidebarOpen = true; }
@@ -478,6 +554,35 @@
         if (document.getElementById('uploadImageBtn')) {
             document.getElementById('uploadImageBtn').addEventListener('click', () => {
                 let fileInput = document.getElementById('questionImage');
+                if (fileInput) {
+                    fileInput.click();
+                }
+            });
+        }
+        
+        // Audio preview handler
+        if (document.getElementById('questionAudio')) {
+            document.getElementById('questionAudio').addEventListener('change', e => {
+                let file = e.target.files[0];
+                let preview = document.getElementById('audioPreviewContainer');
+                if (preview) {
+                    if (file) {
+                        let reader = new FileReader();
+                        reader.onload = ev => {
+                            preview.innerHTML = '<audio controls src="' + ev.target.result + '" style="max-width:300px;margin-top:0.5rem;"></audio>';
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        preview.innerHTML = '';
+                    }
+                }
+            });
+        }
+        
+        // Upload audio button handler - trigger file input click
+        if (document.getElementById('uploadAudioBtn')) {
+            document.getElementById('uploadAudioBtn').addEventListener('click', () => {
+                let fileInput = document.getElementById('questionAudio');
                 if (fileInput) {
                     fileInput.click();
                 }

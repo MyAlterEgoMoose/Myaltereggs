@@ -214,6 +214,8 @@ input[type="file"] { display: none; }
 .btn-upload:active { transform: translateY(0); }
 .image-upload-wrapper { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.5rem; }
 .image-input { flex: 1; min-width: 200px; }
+.audio-upload-wrapper { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.5rem; }
+.audio-input { flex: 1; min-width: 200px; }
 
 .questions-list {
     max-height: 300px;

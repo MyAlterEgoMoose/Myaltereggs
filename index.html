@@ -16,6 +16,7 @@
     <div class="question-form">
         <div class="input-group"><label>📌 Question Text</label><input type="text" id="questionText" placeholder="e.g., What is capital of France?"></div>
         <div class="input-group"><label>🖼️ Attach Image (optional)</label><div class="image-upload-wrapper"><input type="file" id="questionImage" accept="image/*" class="image-input"><button type="button" id="uploadImageBtn" class="btn-upload">📤 Upload Image</button></div><div id="imagePreviewContainer"></div></div>
+        <div class="input-group"><label>🎵 Attach Audio (optional)</label><div class="audio-upload-wrapper"><input type="file" id="questionAudio" accept="audio/*" class="audio-input"><button type="button" id="uploadAudioBtn" class="btn-upload">📤 Upload Audio</button></div><div id="audioPreviewContainer"></div></div>
         <div id="optionsGroup"><label>🔘 Options</label><div id="optionsContainer"></div><button type="button" class="btn-icon" id="addOptionBtn">+ Add Option</button></div>
         <div id="openAnswerGroup" style="display:none;"><label>✏️ Correct Answers (reference)</label><textarea id="correctAnswers" rows="2"></textarea><div><input type="checkbox" id="caseSensitive"> <label>Case sensitive</label></div></div>
         <div id="sliderRangeGroup" style="display:none;"><label>📊 Slider Range (integers)</label><div style="display:flex;gap:0.5rem;align-items:center;"><input type="number" id="sliderMin" placeholder="Min" style="flex:1;"><span>to</span><input type="number" id="sliderMax" placeholder="Max" style="flex:1;"></div></div>
