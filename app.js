@@ -956,6 +956,9 @@
                 updateDatalist(); 
                 saveStateToCookie(); 
                 showMessage('Imported: ' + f.name); 
+                
+                // Automatically switch to play mode after import to see the quiz
+                setPlayMode();
             } catch (err) { 
                 showMessage('Invalid file', true); 
             } 
