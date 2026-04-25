@@ -361,8 +361,7 @@
                             
                             if (ans && ans.length > 0) {
                                 let cf = isAnswerCorrect(q, ans);
-                                showMessage(cf ? '✅ Matches expected! Open grading panel.' : '❌ Differs from expected. Open grading panel.');
-                                openGradingPanel(q, ans);
+                                showMessage(cf ? '✅ Matches expected!' : '❌ Differs from expected.');
                             }
                         }, 150);
                     });
@@ -398,8 +397,7 @@
                 return; 
             } 
             let cf = isAnswerCorrect(q, ans);  
-            showMessage(cf ? '✅ Matches expected! Open grading panel.' : '❌ Differs from expected. Open grading panel.'); 
-            openGradingPanel(q, ans); 
+            showMessage(cf ? '✅ Matches expected!' : '❌ Differs from expected.'); 
         }); 
         document.getElementById('prevBtn').addEventListener('click', () => { 
             if (state.currentSlideIndex > 0) { 
@@ -413,96 +411,6 @@
                 renderSlideQuiz(); 
             } 
         }); 
-    }
-    function openGradingPanel(q, ua) { 
-        let panel = document.getElementById('gradingPanel');
-        let infoDiv = document.getElementById('gradingPanelInfo');
-        let participantsContainer = document.getElementById('gradingPanelParticipants');
-        
-        // Populate question info
-        infoDiv.innerHTML = '<strong>Question:</strong> ' + escapeHtml(q.text) + '<br><strong>Your Answer:</strong> ' + escapeHtml(JSON.stringify(ua));
-        
-        // Store current question data
-        panel.dataset.questionId = q.id;
-        panel.dataset.questionText = q.text;
-        
-        // Render participant circles
-        renderParticipantCircles(participantsContainer);
-        
-        // Show panel
-        panel.style.display = 'block';
-        
-        // Scroll to panel
-        setTimeout(() => {
-            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-    }
-    
-    function renderParticipantCircles(container) {
-        if (!container) return;
-        
-        if (!state.participants.length) {
-            container.innerHTML = '<div style="color:#666;text-align:center;padding:2rem;">No participants yet. Add participants from the sidebar.</div>';
-            return;
-        }
-        
-        let pointsOptions = [0.5, 1, 2, 3, 5, 7.5, 10];
-        
-        container.innerHTML = state.participants.map(p => {
-            let initials = p.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-            let pointsBtns = pointsOptions.map(pts => 
-                '<button class="points-circle-btn" data-participant="' + escapeHtml(p.name) + '" data-points="' + pts + '">+' + pts + '</button>'
-            ).join('');
-            
-            return '<div class="participant-circle" data-participant="' + escapeHtml(p.name) + '">' +
-                '<div class="circle-avatar">' + escapeHtml(initials) + '</div>' +
-                '<div class="circle-name">' + escapeHtml(p.name) + '</div>' +
-                '<div class="points-selector">' + pointsBtns + '</div>' +
-                '</div>';
-        }).join('');
-        
-        // Add event listeners to point buttons
-        container.querySelectorAll('.points-circle-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                let participantName = btn.dataset.participant;
-                let points = parseFloat(btn.dataset.points);
-                saveScoreFromPanel(participantName, points);
-            });
-        });
-    }
-    
-    function saveScoreFromPanel(participantName, points) {
-        let nt = document.getElementById('gradingPanelNotes').value.trim();
-        let qi = document.getElementById('gradingPanel').dataset.questionId;
-        let qt = document.getElementById('gradingPanel').dataset.questionText;
-        
-        let part = state.participants.find(x => x.name === participantName);
-        if (!part) {
-            state.participants.push({ id: generateId(), name: participantName, totalScore: 0 });
-            renderParticipantsSidebar();
-            part = state.participants.find(x => x.name === participantName);
-        }
-        
-        state.scoreRecords.push({
-            id: generateId(),
-            participantName: participantName,
-            questionId: qi,
-            questionText: qt,
-            pointsEarned: points,
-            notes: nt,
-            timestamp: new Date().toISOString()
-        });
-        
-        updateParticipantTotal(participantName);
-        renderParticipantsSidebar();
-        renderScoreboard();
-        showMessage('✅ Saved ' + points + ' pts for ' + participantName);
-        closeGradingPanel();
-    }
-    
-    function closeGradingPanel() {
-        document.getElementById('gradingPanel').style.display = 'none';
     }
     
     function renderParticipantButtons() {
@@ -636,8 +544,6 @@
         document.getElementById('resetScoresBtn').addEventListener('click', resetAllScores);
         document.getElementById('importFile').addEventListener('change', e => { if (e.target.files.length) importData(e.target.files[0]); e.target.value = ''; });
         document.getElementById('typeToggleGroup').addEventListener('click', e => { let t = e.target.closest('.type-option'); if (t) { state.currentType = t.dataset.type; updateTypeToggleUI(); } });
-        // Grading panel close button
-        document.getElementById('closeGradingPanelBtn').addEventListener('click', closeGradingPanel);
         document.getElementById('modalCancelBtn').addEventListener('click', closeGradingModal);
         document.querySelector('.modal-close').addEventListener('click', closeGradingModal);
         window.addEventListener('click', e => { if (e.target === document.getElementById('gradingModal')) closeGradingModal(); });
