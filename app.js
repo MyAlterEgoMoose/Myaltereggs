@@ -235,7 +235,21 @@
     // Helper function to render question audio player if present
     function renderQuestionAudio(q) {
         if (q.audio && q.audio.audioUrl) {
-            return '<audio controls src="' + escapeHtml(q.audio.audioUrl) + '" style="width:100%;margin-bottom:1rem;"></audio>';
+            const audioId = 'audio-' + (q.id || Date.now());
+            return '<div class="audio-player-container" data-audio-id="' + audioId + '">' +
+                '<audio id="' + audioId + '" src="' + escapeHtml(q.audio.audioUrl) + '"></audio>' +
+                '<div class="circular-audio-control">' +
+                    '<svg class="circular-progress" viewBox="0 0 120 120">' +
+                        '<circle class="progress-bg" cx="60" cy="60" r="52" />' +
+                        '<circle class="progress-bar" cx="60" cy="60" r="52" />' +
+                    '</svg>' +
+                    '<button class="play-pause-btn" aria-label="Play/Pause">' +
+                        '<svg class="play-icon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>' +
+                        '<svg class="pause-icon" viewBox="0 0 24 24" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>' +
+                    '</button>' +
+                    '<div class="audio-time-display"><span class="current-time">0:00</span><span class="duration-time">0:00</span></div>' +
+                '</div>' +
+            '</div>';
         }
         return '';
     }
@@ -459,6 +473,78 @@
                 renderSlideQuiz(); 
             } 
         }); 
+        
+        // Initialize circular audio player controls
+        initAudioPlayer();
+    }
+    
+    function initAudioPlayer() {
+        const audioContainer = document.querySelector('.audio-player-container');
+        if (!audioContainer) return;
+        
+        const audio = audioContainer.querySelector('audio');
+        const playPauseBtn = audioContainer.querySelector('.play-pause-btn');
+        const playIcon = audioContainer.querySelector('.play-icon');
+        const pauseIcon = audioContainer.querySelector('.pause-icon');
+        const progressBar = audioContainer.querySelector('.progress-bar');
+        const currentTimeEl = audioContainer.querySelector('.current-time');
+        const durationTimeEl = audioContainer.querySelector('.duration-time');
+        
+        // Calculate circumference for progress circle
+        const radius = 52;
+        const circumference = 2 * Math.PI * radius;
+        
+        // Set up progress bar
+        progressBar.style.strokeDasharray = circumference;
+        progressBar.style.strokeDashoffset = circumference;
+        progressBar.style.transition = 'stroke-dash-offset 0.1s linear';
+        
+        let isPlaying = false;
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+        
+        function updateProgress() {
+            if (audio.duration) {
+                const percent = audio.currentTime / audio.duration;
+                const offset = circumference - (percent * circumference);
+                progressBar.style.strokeDashoffset = offset;
+                currentTimeEl.textContent = formatTime(audio.currentTime);
+            }
+        }
+        
+        function togglePlay() {
+            if (isPlaying) {
+                audio.pause();
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+            } else {
+                audio.play();
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+            }
+            isPlaying = !isPlaying;
+        }
+        
+        // Event listeners
+        playPauseBtn.addEventListener('click', togglePlay);
+        
+        audio.addEventListener('timeupdate', updateProgress);
+        
+        audio.addEventListener('loadedmetadata', () => {
+            durationTimeEl.textContent = formatTime(audio.duration);
+        });
+        
+        audio.addEventListener('ended', () => {
+            isPlaying = false;
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+            progressBar.style.strokeDashoffset = circumference;
+            currentTimeEl.textContent = '0:00';
+        });
     }
     
     function openGradingSection(q) {

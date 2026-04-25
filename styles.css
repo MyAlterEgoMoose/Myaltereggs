@@ -949,3 +949,96 @@ input[type="file"] { display: none; }
         max-height: 100px;
     }
 }
+
+/* Circular Audio Player Styles */
+.audio-player-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1.5rem 0;
+}
+
+.circular-audio-control {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.circular-progress {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    transform: rotate(-90deg);
+}
+
+.circular-progress .progress-bg {
+    fill: none;
+    stroke: #e0e0e0;
+    stroke-width: 8;
+}
+
+.circular-progress .progress-bar {
+    fill: none;
+    stroke: #2c7da0;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.1s linear;
+}
+
+.play-pause-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2c7da0 0%, #1a5f7a 100%);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(44, 125, 160, 0.4);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.play-pause-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(44, 125, 160, 0.6);
+}
+
+.play-pause-btn:active {
+    transform: scale(0.95);
+}
+
+.play-pause-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: white;
+}
+
+.play-icon, .pause-icon {
+    transition: opacity 0.2s ease;
+}
+
+.audio-time-display {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.audio-time-display .current-time {
+    color: #2c7da0;
+}
+
+.audio-time-display .duration-time {
+    color: #999;
+}
