@@ -50,21 +50,36 @@
             params.append('client_id', CONFIG.CLIENT_ID);
             params.append('scope', CONFIG.SCOPE);
 
+            console.log('Requesting device code from GitHub...');
+            console.log('Client ID:', CONFIG.CLIENT_ID);
+            
             const response = await fetch('https://github.com/login/device/code', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'Accept': 'application/json' 
                 },
-                body: params.toString()
+                body: params.toString(),
+                mode: 'cors',
+                credentials: 'omit'
             });
 
+            console.log('Response status:', response.status, response.statusText);
+
             if (!response.ok) {
-                const error = await response.json();
+                const errorText = await response.text();
+                console.error('GitHub API error response:', errorText);
+                let error;
+                try {
+                    error = JSON.parse(errorText);
+                } catch (e) {
+                    error = { error_description: errorText || 'Failed to get device code' };
+                }
                 throw new Error(error.error_description || error.error || 'Failed to get device code');
             }
 
             const data = await response.json();
+            console.log('Device code received successfully');
             
             // Store device code and state
             sessionStorage.setItem(STORAGE_KEYS.DEVICE_CODE, data.device_code);
@@ -107,16 +122,23 @@
                     params.append('device_code', deviceCode);
                     params.append('grant_type', 'urn:ietf:params:oauth:grant-type:device_code');
 
+                    console.log('Polling for token...');
+                    
                     const response = await fetch('https://github.com/login/oauth/access_token', {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/x-www-form-urlencoded',
                             'Accept': 'application/json' 
                         },
-                        body: params.toString()
+                        body: params.toString(),
+                        mode: 'cors',
+                        credentials: 'omit'
                     });
 
+                    console.log('Poll response status:', response.status, response.statusText);
+
                     const data = await response.json();
+                    console.log('Poll response data:', data.error || 'success');
 
                     if (data.access_token) {
                         clearInterval(pollInterval);
@@ -136,6 +158,7 @@
                         reject(new Error(data.error_description || data.error));
                     }
                 } catch (err) {
+                    console.error('Error during polling:', err);
                     clearInterval(pollInterval);
                     reject(err);
                 }
