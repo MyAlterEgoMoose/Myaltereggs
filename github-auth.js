@@ -6,7 +6,7 @@
     'use strict';
 
     const CONFIG = {
-        CLIENT_ID: 'Ov23li9AVIOvpSq9diYX',
+        CLIENT_ID: '',
         SCOPE: 'repo,user:email',
         REDIRECT_URI: window.location.origin + window.location.pathname,
         AUTH_URL: 'https://github.com/login/oauth/authorize',
