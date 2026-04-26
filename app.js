@@ -180,8 +180,13 @@
     // Get file content from GitHub
     async function getGithubFile(path) {
         const data = await githubAPI(`/repos/${githubConfig.username}/${githubConfig.repo}/contents/${path}`);
-        // Decode base64 content
-        const content = atob(data.content.replace(/\s/g, ''));
+        // Decode base64 content with proper UTF-8 handling
+        const binaryString = atob(data.content.replace(/\s/g, ''));
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        const content = new TextDecoder('utf-8').decode(bytes);
         return { content, sha: data.sha };
     }
     
