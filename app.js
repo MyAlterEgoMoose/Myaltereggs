@@ -13,6 +13,61 @@
         return sessionStorage.getItem('github_access_token') || localStorage.getItem('github_access_token') || '';
     }
     
+    // Save GitHub token to sessionStorage and localStorage
+    function saveToken(token) {
+        sessionStorage.setItem('github_access_token', token);
+        localStorage.setItem('github_access_token', token);
+    }
+    
+    // Clear GitHub token from storage
+    function clearToken() {
+        sessionStorage.removeItem('github_access_token');
+        localStorage.removeItem('github_access_token');
+    }
+    
+    // Verify GitHub token by fetching user info
+    async function verifyToken(token) {
+        if (!token) return null;
+        try {
+            const response = await fetch('https://api.github.com/user', {
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            
+            if (response.ok) {
+                return await response.json();
+            } else {
+                return null;
+            }
+        } catch (err) {
+            console.error('Token verification failed:', err);
+            return null;
+        }
+    }
+    
+    // Update authentication UI based on token status
+    function updateAuthUI() {
+        const token = getGithubToken();
+        const statusDiv = document.getElementById('tokenStatus');
+        
+        if (token) {
+            verifyToken(token).then(user => {
+                if (user) {
+                    statusDiv.textContent = '✅ Logged in as: ' + user.login;
+                    statusDiv.style.color = '#28a745';
+                } else {
+                    statusDiv.textContent = '⚠️ Invalid token';
+                    statusDiv.style.color = '#dc3545';
+                }
+            });
+        } else {
+            statusDiv.textContent = '❌ Not authenticated';
+            statusDiv.style.color = '#666';
+        }
+    }
+    
     let lastImportedFileName = null;
     
     // Load GitHub config from localStorage on startup
@@ -1097,6 +1152,53 @@
                 GITHUB_CONFIG.repo = repo;
                 saveGithubConfigToStorage(); // Save to localStorage
                 showMessage('✅ GitHub settings saved!');
+            });
+        }
+        
+        // Token auth handlers
+        const tokenInput = document.getElementById('githubTokenInput');
+        const saveBtn = document.getElementById('saveTokenBtn');
+        const clearBtn = document.getElementById('clearTokenBtn');
+        const toggleBtn = document.getElementById('toggleAuthBtn');
+        const authContainer = document.getElementById('tokenAuthContainer');
+        
+        // Load existing token
+        const existingToken = getGithubToken();
+        if (existingToken && tokenInput) {
+            tokenInput.value = existingToken;
+        }
+        
+        updateAuthUI();
+        
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const token = tokenInput ? tokenInput.value.trim() : '';
+                if (token) {
+                    saveToken(token);
+                    updateAuthUI();
+                    alert('Token saved successfully!');
+                } else {
+                    alert('Please enter a valid token');
+                }
+            });
+        }
+        
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function() {
+                clearToken();
+                if (tokenInput) tokenInput.value = '';
+                updateAuthUI();
+                alert('Token cleared');
+            });
+        }
+        
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                if (authContainer.style.display === 'none') {
+                    authContainer.style.display = 'block';
+                } else {
+                    authContainer.style.display = 'none';
+                }
             });
         }
         

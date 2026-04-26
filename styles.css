@@ -970,3 +970,154 @@ body {
 .audio-time-display .duration-time {
     color: #999;
 }
+
+/* GitHub Token Auth Section */
+#authSection {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+#toggleAuthBtn {
+    background: #24292e;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+}
+
+#tokenAuthContainer {
+    background: white;
+    padding: 1rem;
+    border-radius: 0.3rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#tokenAuthContainer label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+#githubTokenInput {
+    width: 200px;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.3rem;
+}
+
+#tokenStatus {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+}
+
+/* Auth container button styles */
+#saveTokenBtn {
+    background: #24292e;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+#clearTokenBtn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+/* Close scoreboard button */
+.close-scoreboard {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Participant select detail */
+#participantSelectDetail {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 1rem;
+}
+
+/* Reset scores button in scoreboard footer */
+#resetScoresBtn {
+    background: #dc3545;
+}
+
+/* Builder panel section titles */
+.section-title.large {
+    font-size: 1.2rem;
+    margin-top: 1rem;
+}
+
+/* Save GitHub settings button */
+#saveGithubSettingsBtn {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+/* Export/Import buttons */
+#exportBtn,
+#importLocalBtn,
+#importGitHubBtn {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+/* Import file input */
+#importFile {
+    display: none;
+}
+
+/* Grading section */
+#gradingSection {
+    display: none;
+}
+
+/* Slider range group */
+#sliderRangeGroup {
+    display: none;
+}
+
+#sliderRangeGroup .range-inputs {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+#sliderRangeGroup .range-inputs input {
+    flex: 1;
+}
+
+/* Open answer group */
+#openAnswerGroup {
+    display: none;
+}
+
+/* Reset all scores button */
+#resetAllScoresBtn {
+    margin-top: 0.5rem;
+    background: #dc3545;
+}
+
+/* Participant management section title */
+.participant-management .section-title {
+    font-size: 1.2rem;
+}
+
+/* Participant name input wrapper */
+.participant-input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+}
