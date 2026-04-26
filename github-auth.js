@@ -64,7 +64,7 @@
         sessionStorage.removeItem(STORAGE_KEYS.PKCE_STATE);
     }
     
-    // Handle OAuth callback
+    // Handle OAuth callback using Netlify Function
     async function handleCallback(code, state) {
         try {
             // Verify state matches
@@ -79,31 +79,22 @@
                 throw new Error('Code verifier not found');
             }
             
-            // Exchange code for token
-            const tokenResponse = await fetch(CONFIG.TOKEN_URL, {
+            // Exchange code for token using Netlify Function (server-side)
+            const tokenResponse = await fetch('/.netlify/functions/github-callback', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json'
+                    'Content-Type': 'application/json'
                 },
-                body: new URLSearchParams({
-                    client_id: CONFIG.CLIENT_ID,
+                body: JSON.stringify({
                     code: code,
-                    redirect_uri: CONFIG.REDIRECT_URI,
-                    grant_type: 'authorization_code',
-                    code_verifier: codeVerifier
-                }).toString()
+                    state: state,
+                    redirect_uri: CONFIG.REDIRECT_URI
+                })
             });
             
             if (!tokenResponse.ok) {
-                const errorText = await tokenResponse.text();
-                let error;
-                try {
-                    error = JSON.parse(errorText);
-                } catch (e) {
-                    error = { error_description: errorText || 'Failed to get access token' };
-                }
-                throw new Error(error.error_description || error.error || 'Failed to get access token');
+                const errorData = await tokenResponse.json();
+                throw new Error(errorData.error_description || errorData.error || 'Failed to get access token');
             }
             
             const data = await tokenResponse.json();

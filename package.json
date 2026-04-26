@@ -1,0 +1,14 @@
+{
+  "name": "github-oauth-app",
+  "version": "1.0.0",
+  "description": "GitHub OAuth with Netlify Functions",
+  "scripts": {
+    "netlify:dev": "netlify dev"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}
