@@ -5,9 +5,13 @@
     const GITHUB_CONFIG = {
         owner: '',
         repo: '',
-        branch: 'main',
-        token: ''
+        branch: 'main'
     };
+    
+    // Get OAuth token from sessionStorage
+    function getGithubToken() {
+        return sessionStorage.getItem('github_access_token') || '';
+    }
     
     let lastImportedFileName = null;
     
@@ -20,14 +24,11 @@
                 GITHUB_CONFIG.owner = config.owner || '';
                 GITHUB_CONFIG.repo = config.repo || '';
                 GITHUB_CONFIG.branch = config.branch || 'main';
-                GITHUB_CONFIG.token = config.token || '';
                 // Pre-fill the form fields if they exist
                 const ownerInput = document.getElementById('githubOwner');
                 const repoInput = document.getElementById('githubRepo');
-                const tokenInput = document.getElementById('githubToken');
                 if (ownerInput) ownerInput.value = GITHUB_CONFIG.owner;
                 if (repoInput) repoInput.value = GITHUB_CONFIG.repo;
-                if (tokenInput) tokenInput.value = GITHUB_CONFIG.token;
             } catch (e) {
                 console.error('Failed to load GitHub config:', e);
             }
@@ -67,8 +68,7 @@
         localStorage.setItem('githubConfig', JSON.stringify({
             owner: GITHUB_CONFIG.owner,
             repo: GITHUB_CONFIG.repo,
-            branch: GITHUB_CONFIG.branch,
-            token: GITHUB_CONFIG.token
+            branch: GITHUB_CONFIG.branch
         }));
         
         // Save uploaded images and audios to localStorage
@@ -145,6 +145,10 @@
 
     // Image upload to GitHub
     async function uploadImageToGitHub(file) {
+        const token = getGithubToken();
+        if (!token) {
+            throw new Error('Not authenticated. Please login with GitHub first.');
+        }
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = async (e) => {
@@ -156,7 +160,7 @@
                     const response = await fetch(apiUrl, {
                         method: 'PUT',
                         headers: {
-                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
@@ -187,6 +191,10 @@
 
     // Audio upload to GitHub
     async function uploadAudioToGitHub(file) {
+        const token = getGithubToken();
+        if (!token) {
+            throw new Error('Not authenticated. Please login with GitHub first.');
+        }
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = async (e) => {
@@ -198,7 +206,7 @@
                     const response = await fetch(apiUrl, {
                         method: 'PUT',
                         headers: {
-                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
@@ -746,9 +754,10 @@
     }
     
     function exportData() {
-        // Upload any images or audios associated with questions to GitHub
-        if ((state.uploadedImages.length > 0 || state.uploadedAudios.length > 0) && (!GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo || !GITHUB_CONFIG.token)) {
-            showMessage('⚠️ Configure GitHub settings first (owner, repo, token)', true);
+        // Check if user is authenticated with OAuth
+        const token = getGithubToken();
+        if ((state.uploadedImages.length > 0 || state.uploadedAudios.length > 0) && (!GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo || !token)) {
+            showMessage('⚠️ Please login with GitHub and configure owner/repo settings first', true);
             return;
         }
         
@@ -762,9 +771,9 @@
         };
         
         // Check if GitHub settings are configured for direct upload
-        if (GITHUB_CONFIG.owner && GITHUB_CONFIG.repo && GITHUB_CONFIG.token) {
+        if (GITHUB_CONFIG.owner && GITHUB_CONFIG.repo && token) {
             // Export directly to GitHub
-            exportToGitHub(d);
+            exportToGitHub(d, token);
         } else {
             // Fallback to local download
             let b = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
@@ -778,7 +787,7 @@
     }
     
     // Export data directly to GitHub repository
-    async function exportToGitHub(data) {
+    async function exportToGitHub(data, token) {
         try {
             // Use the last imported filename if available, otherwise generate a new one
             let fileName;
@@ -797,7 +806,7 @@
             const checkResponse = await fetch(apiUrl, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             });
@@ -822,7 +831,7 @@
             const response = await fetch(apiUrl, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/vnd.github.v3+json'
                 },
@@ -842,8 +851,9 @@
     
     // Import data from GitHub repository
     async function importFromGitHub() {
-        if (!GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo || !GITHUB_CONFIG.token) {
-            showMessage('⚠️ Configure GitHub settings first (owner, repo, token)', true);
+        const token = getGithubToken();
+        if (!GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo || !token) {
+            showMessage('⚠️ Please login with GitHub and configure owner/repo settings first', true);
             return;
         }
         
@@ -853,7 +863,7 @@
             const listResponse = await fetch(listUrl, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             });
@@ -889,7 +899,7 @@
             const fileResponse = await fetch(fileUrl, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             });
@@ -1079,14 +1089,12 @@
             document.getElementById('saveGithubSettingsBtn').addEventListener('click', () => {
                 let owner = document.getElementById('githubOwner').value.trim();
                 let repo = document.getElementById('githubRepo').value.trim();
-                let token = document.getElementById('githubToken').value.trim();
-                if (!owner || !repo || !token) {
-                    showMessage('⚠️ Please fill in all GitHub settings', true);
+                if (!owner || !repo) {
+                    showMessage('⚠️ Please fill in GitHub owner and repo', true);
                     return;
                 }
                 GITHUB_CONFIG.owner = owner;
                 GITHUB_CONFIG.repo = repo;
-                GITHUB_CONFIG.token = token;
                 saveGithubConfigToStorage(); // Save to localStorage
                 showMessage('✅ GitHub settings saved!');
             });
