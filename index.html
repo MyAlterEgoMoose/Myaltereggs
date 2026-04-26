@@ -70,6 +70,7 @@
     </div>
 </div>
 
+<script src="github-auth.js"></script>
 <script>
   // GitHub OAuth PKCE Configuration
   const CLIENT_ID = 'Ov23li9AVIOvpSq9diYX';
@@ -184,18 +185,22 @@
     showUserInfo();
   }
 
-  // Initialize on page load
-  window.addEventListener('load', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('code')) {
-      handleCallback();
-    } else {
-      showUserInfo();
-    }
+  // Update UI based on auth state
+  function updateAuthUI() {
+    const user = window.GitHubAuth.getUser();
+    const loginBtn = document.getElementById('githubLoginBtn');
+    const userInfo = document.getElementById('userInfo');
+    const userName = document.getElementById('userName');
 
-    document.getElementById('githubLoginBtn').addEventListener('click', loginWithGitHub);
-    document.getElementById('logoutBtn').addEventListener('click', logout);
-  });
+    if (user) {
+      userName.textContent = '👤 ' + user.login;
+      loginBtn.style.display = 'none';
+      userInfo.style.display = 'block';
+    } else {
+      loginBtn.style.display = 'block';
+      userInfo.style.display = 'none';
+    }
+  }
 </script>
 
 <script src="app.js"></script>
