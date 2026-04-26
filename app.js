@@ -8,9 +8,9 @@
         branch: 'main'
     };
     
-    // Get OAuth token from sessionStorage
+    // Get OAuth token from GitHubAuth module
     function getGithubToken() {
-        return sessionStorage.getItem('github_access_token') || '';
+        return window.GitHubAuth ? window.GitHubAuth.getToken() : (sessionStorage.getItem('github_access_token') || '');
     }
     
     let lastImportedFileName = null;
