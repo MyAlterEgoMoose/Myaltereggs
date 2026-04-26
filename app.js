@@ -185,6 +185,13 @@
         return { content, sha: data.sha };
     }
     
+    // Get list of files in a directory from GitHub
+    async function getGithubDirectoryContents(path) {
+        const data = await githubAPI(`/repos/${githubConfig.username}/${githubConfig.repo}/contents/${path}`);
+        // Return array of files (filter out directories if needed)
+        return Array.isArray(data) ? data : [data];
+    }
+    
     // Upload file to GitHub
     async function uploadToGithub(path, content, message, sha = null) {
         const body = {
@@ -792,21 +799,16 @@
             };
             
             const content = JSON.stringify(d, null, 2);
-            const filename = 'quiz_data.json';
+            const filename = 'quiz_data/quiz_export_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
             
-            // Try to get existing file to update it
-            let existingFile = null;
-            try {
-                existingFile = await getGithubFile(filename);
-            } catch (e) {
-                // File doesn't exist, that's ok
-            }
+            // Try to get existing file to update it (we'll always create a new file instead)
+            // No need to check for existing file since we're using timestamp in filename
             
             await uploadToGithub(
                 filename, 
                 content, 
                 `Update quiz data - ${new Date().toLocaleString()}`,
-                existingFile ? existingFile.sha : null
+                null
             );
             
             statusDiv.textContent = '✅ Exported to GitHub successfully!';
@@ -820,7 +822,7 @@
         }
     }
     
-    // Import data from GitHub repository
+    // Import data from GitHub repository - fetch list of files and let user choose
     async function importFromGitHub() {
         if (!githubConfig.isLoggedIn) {
             showMessage('⚠️ Please login to GitHub first', true);
@@ -829,10 +831,42 @@
         
         try {
             const statusDiv = document.getElementById('githubStatus');
-            statusDiv.textContent = '🔄 Importing from GitHub...';
+            statusDiv.textContent = '🔄 Fetching file list from GitHub...';
             statusDiv.className = '';
             
-            const fileData = await getGithubFile('quiz_data.json');
+            // Fetch the list of files in the quiz_data directory
+            const dirContents = await getGithubDirectoryContents('quiz_data');
+            
+            // Filter for JSON files only
+            const jsonFiles = dirContents.filter(item => item.type === 'file' && item.name.endsWith('.json'));
+            
+            if (jsonFiles.length === 0) {
+                throw new Error('No JSON files found in quiz_data directory');
+            }
+            
+            // Show file selection dialog
+            const fileNames = jsonFiles.map(f => f.name);
+            const selectedFileName = prompt(
+                'Available quiz files:\n' + fileNames.join('\n') + '\n\nType the filename you want to import:',
+                fileNames[0]
+            );
+            
+            if (!selectedFileName) {
+                statusDiv.textContent = '⚠️ Import cancelled';
+                statusDiv.className = 'error';
+                return;
+            }
+            
+            // Verify the selected file exists
+            const selectedFile = jsonFiles.find(f => f.name === selectedFileName);
+            if (!selectedFile) {
+                throw new Error('File not found: ' + selectedFileName);
+            }
+            
+            statusDiv.textContent = '🔄 Importing ' + selectedFileName + ' from GitHub...';
+            
+            // Fetch the selected file content
+            const fileData = await getGithubFile('quiz_data/' + selectedFileName);
             const d = JSON.parse(fileData.content);
             
             if (d.questions) state.questions = d.questions;
@@ -841,7 +875,7 @@
             if (d.uploadedImages) state.uploadedImages = d.uploadedImages;
             if (d.uploadedAudios) state.uploadedAudios = d.uploadedAudios;
             
-            lastImportedFileName = 'quiz_data.json (from GitHub)';
+            lastImportedFileName = selectedFileName + ' (from GitHub)';
             localStorage.setItem('lastImportedFileName', lastImportedFileName);
             
             renderQuestionsList();
@@ -851,7 +885,7 @@
             updateDatalist();
             saveStateToCookie();
             
-            statusDiv.textContent = '✅ Imported from GitHub successfully!';
+            statusDiv.textContent = '✅ Imported ' + selectedFileName + ' from GitHub successfully!';
             statusDiv.className = 'success';
             showMessage('✅ Imported from GitHub: ' + state.questions.length + ' questions');
             
