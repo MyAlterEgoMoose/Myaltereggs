@@ -59,77 +59,110 @@
 <div id="scoreboard" class="scoreboard" aria-label="Scoreboard"><div class="scoreboard-header"><h3>🏆 LIVE SCOREBOARD</h3><button id="closeScoreboardBtn" class="close-scoreboard" style="background:none; border:none; color:white; font-size:1.5rem;" aria-label="Close scoreboard">✕</button></div><div class="scoreboard-tabs" role="tablist"><button class="tab-btn active" data-tab="rankings" role="tab">🏅 Rankings</button><button class="tab-btn" data-tab="details" role="tab">📊 Details</button><button class="tab-btn" data-tab="stats" role="tab">📈 Stats</button></div><div id="rankingsTab" class="tab-content active" role="tabpanel"><div style="display:flex; gap:0.5rem; margin-bottom:1rem;"><input type="text" id="searchParticipant" placeholder="🔍 Search"><select id="sortBySelect"><option value="score">Sort by Score</option><option value="name">Sort by Name</option></select></div><div id="rankingsList"></div></div><div id="detailsTab" class="tab-content" role="tabpanel"><select id="participantSelectDetail" style="width:100%; padding:0.5rem; border-radius:1rem;"><option value="">Select Participant</option></select><div id="participantDetailView"></div></div><div id="statsTab" class="tab-content" role="tabpanel"><div id="statsContent"></div></div><div class="scoreboard-footer"><button id="resetScoresBtn" class="btn-sm" style="background:#dc3545;">Reset Scores</button></div></div>
 <button id="toggleScoreboardBtn" class="scoreboard-toggle">📊 Show Scoreboard 🏆</button>
 
-<!-- GitHub OAuth Login Section -->
+<!-- GitHub Token Auth Section -->
 <div id="authSection" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
-    <button id="githubLoginBtn" class="btn-primary" style="background: #24292e; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.3rem; cursor: pointer;">
-        🔐 Login with GitHub
-    </button>
-    <div id="userInfo" style="display: none; background: white; padding: 0.5rem 1rem; border-radius: 0.3rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <span id="userName"></span>
-        <button id="logoutBtn" style="background: none; border: none; color: #dc3545; cursor: pointer; margin-left: 0.5rem;">Logout</button>
+    <div id="tokenAuthContainer" style="background: white; padding: 1rem; border-radius: 0.3rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <label for="githubTokenInput" style="display:block; margin-bottom:0.5rem; font-weight:bold;">🔑 GitHub Token:</label>
+        <input type="password" id="githubTokenInput" placeholder="ghp_..." style="width:200px; padding:0.5rem; border:1px solid #ccc; border-radius:0.3rem;">
+        <button id="saveTokenBtn" class="btn-primary" style="background: #24292e; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.3rem; cursor: pointer; margin-left:0.5rem;">💾 Save</button>
+        <button id="clearTokenBtn" style="background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.3rem; cursor: pointer; margin-left:0.5rem;">🚪 Clear</button>
+        <div id="tokenStatus" style="margin-top:0.5rem; font-size:0.85rem;"></div>
     </div>
 </div>
 
-<script src="github-auth.js"></script>
 <script>
-  // Initialize GitHub Device Flow authentication on page load
-  async function initializeAuth() {
-    if (window.GitHubAuth) {
-      await window.GitHubAuth.init();
-      updateAuthUI();
+  // Token-based GitHub authentication
+  const TOKEN_STORAGE_KEY = 'github_access_token';
+  
+  function getGithubToken() {
+    return sessionStorage.getItem(TOKEN_STORAGE_KEY) || localStorage.getItem(TOKEN_STORAGE_KEY) || '';
+  }
+  
+  function saveToken(token) {
+    sessionStorage.setItem(TOKEN_STORAGE_KEY, token);
+    localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  }
+  
+  function clearToken() {
+    sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+  }
+  
+  async function verifyToken(token) {
+    if (!token) return null;
+    try {
+      const response = await fetch('https://api.github.com/user', {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      
+      if (response.ok) {
+        return await response.json();
+      } else {
+        return null;
+      }
+    } catch (err) {
+      console.error('Token verification failed:', err);
+      return null;
     }
   }
-
-  // Update UI based on auth state
+  
   function updateAuthUI() {
-    const user = window.GitHubAuth ? window.GitHubAuth.getUser() : null;
-    const loginBtn = document.getElementById('githubLoginBtn');
-    const userInfo = document.getElementById('userInfo');
-    const userName = document.getElementById('userName');
-
-    if (user) {
-      userName.textContent = '👤 ' + user.login;
-      loginBtn.style.display = 'none';
-      userInfo.style.display = 'block';
+    const token = getGithubToken();
+    const statusDiv = document.getElementById('tokenStatus');
+    
+    if (token) {
+      verifyToken(token).then(user => {
+        if (user) {
+          statusDiv.textContent = '✅ Logged in as: ' + user.login;
+          statusDiv.style.color = '#28a745';
+        } else {
+          statusDiv.textContent = '⚠️ Invalid token';
+          statusDiv.style.color = '#dc3545';
+        }
+      });
     } else {
-      loginBtn.style.display = 'block';
-      userInfo.style.display = 'none';
+      statusDiv.textContent = '❌ Not authenticated';
+      statusDiv.style.color = '#666';
     }
   }
-
-  // Handle login button click
+  
   document.addEventListener('DOMContentLoaded', function() {
-    const loginBtn = document.getElementById('githubLoginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    if (loginBtn) {
-      loginBtn.addEventListener('click', async function() {
-        try {
-          if (window.GitHubAuth) {
-            await window.GitHubAuth.login();
-            updateAuthUI();
-          } else {
-            console.error('GitHubAuth module not loaded');
-            alert('Authentication module not available');
-          }
-        } catch (err) {
-          console.error('Login failed:', err);
-          alert('Login failed: ' + err.message);
-        }
-      });
+    const tokenInput = document.getElementById('githubTokenInput');
+    const saveBtn = document.getElementById('saveTokenBtn');
+    const clearBtn = document.getElementById('clearTokenBtn');
+    
+    // Load existing token
+    const existingToken = getGithubToken();
+    if (existingToken) {
+      tokenInput.value = existingToken;
     }
-
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', function() {
-        if (window.GitHubAuth) {
-          window.GitHubAuth.logout();
+    
+    updateAuthUI();
+    
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function() {
+        const token = tokenInput.value.trim();
+        if (token) {
+          saveToken(token);
           updateAuthUI();
+          alert('Token saved successfully!');
+        } else {
+          alert('Please enter a valid token');
         }
       });
     }
-
-    // Initialize auth state
-    initializeAuth();
+    
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function() {
+        clearToken();
+        tokenInput.value = '';
+        updateAuthUI();
+        alert('Token cleared');
+      });
+    }
   });
 </script>
 
