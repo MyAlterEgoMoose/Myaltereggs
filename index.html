@@ -30,15 +30,9 @@
     <button id="resetAllQuestionsBtn" class="btn-danger">🗑️ Reset All Questions</button>
     <button id="resetAllScoresBtn" class="btn-danger">🔄 Reset All Scores</button>
     
-    <div class="section-title large">⚙️ Settings</div>
-    <div class="input-group"><label>GitHub Owner</label><input type="text" id="githubOwner" placeholder="your-username"></div>
-    <div class="input-group"><label>GitHub Repo</label><input type="text" id="githubRepo" placeholder="your-repo-name"></div>
-    <button id="saveGithubSettingsBtn" class="btn-primary">💾 Save GitHub Settings</button>
-    
     <div class="section-title large">💾 Data Management</div>
     <button id="exportBtn" class="btn-primary">💾 Export Quiz</button>
     <button id="importLocalBtn" class="btn-secondary">📂 Import Local File</button>
-    <button id="importGitHubBtn" class="btn-secondary">☁️ Import from GitHub</button>
     <input type="file" id="importFile" accept=".json">
 </div>
 
@@ -58,18 +52,6 @@
 
 <div id="scoreboard" class="scoreboard" aria-label="Scoreboard"><div class="scoreboard-header"><h3>🏆 LIVE SCOREBOARD</h3><button id="closeScoreboardBtn" class="close-scoreboard" aria-label="Close scoreboard">✕</button></div><div class="scoreboard-tabs" role="tablist"><button class="tab-btn active" data-tab="rankings" role="tab">🏅 Rankings</button><button class="tab-btn" data-tab="details" role="tab">📊 Details</button><button class="tab-btn" data-tab="stats" role="tab">📈 Stats</button></div><div id="rankingsTab" class="tab-content active" role="tabpanel"><div class="search-wrapper"><input type="text" id="searchParticipant" placeholder="🔍 Search"><select id="sortBySelect"><option value="score">Sort by Score</option><option value="name">Sort by Name</option></select></div><div id="rankingsList"></div></div><div id="detailsTab" class="tab-content" role="tabpanel"><select id="participantSelectDetail"><option value="">Select Participant</option></select><div id="participantDetailView"></div></div><div id="statsTab" class="tab-content" role="tabpanel"><div id="statsContent"></div></div><div class="scoreboard-footer"><button id="resetScoresBtn" class="btn-sm">Reset Scores</button></div></div>
 <button id="toggleScoreboardBtn" class="scoreboard-toggle">📊 Show Scoreboard 🏆</button>
-
-<!-- GitHub Token Auth Section -->
-<div id="authSection">
-    <button id="toggleAuthBtn">🔑 Toggle Auth</button>
-    <div id="tokenAuthContainer">
-        <label for="githubTokenInput">🔑 GitHub Token:</label>
-        <input type="password" id="githubTokenInput" placeholder="ghp_...">
-        <button id="saveTokenBtn" class="btn-primary">💾 Save</button>
-        <button id="clearTokenBtn">🚪 Clear</button>
-        <div id="tokenStatus"></div>
-    </div>
-</div>
 
 <script src="app.js"></script>
 </body>
