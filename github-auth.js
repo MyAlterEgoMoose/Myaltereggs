@@ -46,16 +46,17 @@
     // Request device code from GitHub
     async function requestDeviceCode() {
         try {
+            const params = new URLSearchParams();
+            params.append('client_id', CONFIG.CLIENT_ID);
+            params.append('scope', CONFIG.SCOPE);
+
             const response = await fetch('https://github.com/login/device/code', {
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json', 
+                    'Content-Type': 'application/x-www-form-urlencoded',
                     'Accept': 'application/json' 
                 },
-                body: JSON.stringify({
-                    client_id: CONFIG.CLIENT_ID,
-                    scope: CONFIG.SCOPE
-                })
+                body: params.toString()
             });
 
             if (!response.ok) {
@@ -101,17 +102,18 @@
                 }
 
                 try {
+                    const params = new URLSearchParams();
+                    params.append('client_id', CONFIG.CLIENT_ID);
+                    params.append('device_code', deviceCode);
+                    params.append('grant_type', 'urn:ietf:params:oauth:grant-type:device_code');
+
                     const response = await fetch('https://github.com/login/oauth/access_token', {
                         method: 'POST',
                         headers: { 
-                            'Content-Type': 'application/json', 
+                            'Content-Type': 'application/x-www-form-urlencoded',
                             'Accept': 'application/json' 
                         },
-                        body: JSON.stringify({
-                            client_id: CONFIG.CLIENT_ID,
-                            device_code: deviceCode,
-                            grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
-                        })
+                        body: params.toString()
                     });
 
                     const data = await response.json();
