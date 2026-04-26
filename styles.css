@@ -614,6 +614,48 @@ body {
 }
 .modal-footer { padding: 0.75rem 1rem; display: flex; gap: 0.5rem; justify-content: flex-end; border-top: 1px solid #ccc; flex-wrap: wrap; }
 
+/* GitHub Login Modal Styles */
+#githubLoginModal .modal-content {
+    max-width: 500px;
+    margin: 10% auto;
+}
+
+#githubLoginModal .modal-body p {
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+#githubTokenInput {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: monospace;
+}
+
+#githubTokenInput:focus {
+    outline: none;
+    border-color: #2c7da0;
+    box-shadow: 0 0 0 3px rgba(44, 125, 160, 0.2);
+}
+
+#githubStatus {
+    padding: 0.5rem;
+    border-radius: 4px;
+    background: #f0f0f0;
+}
+
+#githubStatus.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+#githubStatus.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
 
 .scoreboard {
     position: fixed;

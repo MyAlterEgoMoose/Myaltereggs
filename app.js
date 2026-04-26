@@ -4,8 +4,27 @@
     const state = { questions: [], participants: [], scoreRecords: [], currentSlideIndex: 0, editingId: null, currentType: 'single', isEditMode: false, uploadedImages: [], uploadedAudios: [] };
     let lastImportedFileName = null;
     
+    // GitHub configuration
+    let githubConfig = {
+        token: null,
+        username: null,
+        repo: 'quiz-data',
+        isLoggedIn: false
+    };
+    
     // Load configuration from localStorage on startup
     function loadGithubConfig() {
+        // Load GitHub auth from localStorage
+        const savedConfig = localStorage.getItem('githubConfig');
+        if (savedConfig) {
+            try {
+                githubConfig = JSON.parse(savedConfig);
+                updateGithubUI();
+            } catch (e) {
+                console.error('Failed to load GitHub config:', e);
+            }
+        }
+        
         // Load last imported filename from localStorage
         const lastImported = localStorage.getItem('lastImportedFileName');
         if (lastImported) {
@@ -35,9 +54,10 @@
         }
     }
     
-    // Save uploaded images and audios to localStorage
+    // Save GitHub config to localStorage
     function saveGithubConfigToStorage() {
-        // Save uploaded images and audios to localStorage
+        localStorage.setItem('githubConfig', JSON.stringify(githubConfig));
+        // Also save uploaded images and audios to localStorage
         localStorage.setItem('uploadedImages', JSON.stringify(state.uploadedImages));
         localStorage.setItem('uploadedAudios', JSON.stringify(state.uploadedAudios));
     }
@@ -109,9 +129,78 @@
     }
     function showMessage(msg, isError = false) { let d = document.querySelector('.status-msg'); if (d) d.remove(); let div = document.createElement('div'); div.className = 'status-msg'; div.style.background = isError ? '#b91c1c' : '#2c7da0'; div.textContent = msg; document.body.appendChild(div); setTimeout(() => div.remove(), 3000); }
 
+    // GitHub API helper functions
+    async function githubAPI(endpoint, method = 'GET', body = null) {
+        const url = `https://api.github.com${endpoint}`;
+        const headers = {
+            'Authorization': `token ${githubConfig.token}`,
+            'Accept': 'application/vnd.github.v3+json'
+        };
+        
+        const options = { method, headers };
+        if (body) {
+            headers['Content-Type'] = 'application/json';
+            options.body = JSON.stringify(body);
+        }
+        
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(error.message || `GitHub API error: ${response.status}`);
+        }
+        return response.json();
+    }
+    
+    // Get current user from GitHub
+    async function getGithubUser() {
+        const user = await githubAPI('/user');
+        return user.login;
+    }
+    
+    // Get or create repository
+    async function getOrCreateRepo() {
+        try {
+            // Try to get existing repo
+            await githubAPI(`/repos/${githubConfig.username}/${githubConfig.repo}`);
+            return true;
+        } catch (e) {
+            if (e.message.includes('404')) {
+                // Repo doesn't exist, create it
+                await githubAPI('/user/repos', 'POST', {
+                    name: githubConfig.repo,
+                    private: false,
+                    description: 'Quiz data storage'
+                });
+                return true;
+            }
+            throw e;
+        }
+    }
+    
+    // Get file content from GitHub
+    async function getGithubFile(path) {
+        const data = await githubAPI(`/repos/${githubConfig.username}/${githubConfig.repo}/contents/${path}`);
+        // Decode base64 content
+        const content = atob(data.content.replace(/\s/g, ''));
+        return { content, sha: data.sha };
+    }
+    
+    // Upload file to GitHub
+    async function uploadToGithub(path, content, message, sha = null) {
+        const body = {
+            message: message,
+            content: btoa(unescape(encodeURIComponent(content))),
+            branch: 'main'
+        };
+        if (sha) {
+            body.sha = sha;
+        }
+        
+        await githubAPI(`/repos/${githubConfig.username}/${githubConfig.repo}/contents/${path}`, 'PUT', body);
+    }
+    
     // Image upload to GitHub
     async function uploadImageToGitHub(file) {
-        showMessage('⚠️ GitHub upload functionality has been removed. Images are stored locally in the export file.', true);
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -127,7 +216,6 @@
 
     // Audio upload - store as DataURL locally
     async function uploadAudioToGitHub(file) {
-        showMessage('⚠️ GitHub upload functionality has been removed. Audios are stored locally in the export file.', true);
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -679,9 +767,102 @@
         showMessage('✅ Exported locally with ' + state.uploadedImages.length + ' image(s) and ' + state.uploadedAudios.length + ' audio(s)');
     }
     
+    // Export data to GitHub
+    async function exportToGitHub() {
+        if (!githubConfig.isLoggedIn) {
+            showMessage('⚠️ Please login to GitHub first', true);
+            return;
+        }
+        
+        try {
+            const statusDiv = document.getElementById('githubStatus');
+            statusDiv.textContent = '🔄 Exporting to GitHub...';
+            statusDiv.className = '';
+            
+            await getOrCreateRepo();
+            
+            let shuffledQuestions = shuffleArray([...state.questions]);
+            let d = { 
+                questions: shuffledQuestions, 
+                participants: state.participants, 
+                scoreRecords: state.scoreRecords,
+                uploadedImages: state.uploadedImages,
+                uploadedAudios: state.uploadedAudios,
+                exportedAt: new Date().toISOString()
+            };
+            
+            const content = JSON.stringify(d, null, 2);
+            const filename = 'quiz_data.json';
+            
+            // Try to get existing file to update it
+            let existingFile = null;
+            try {
+                existingFile = await getGithubFile(filename);
+            } catch (e) {
+                // File doesn't exist, that's ok
+            }
+            
+            await uploadToGithub(
+                filename, 
+                content, 
+                `Update quiz data - ${new Date().toLocaleString()}`,
+                existingFile ? existingFile.sha : null
+            );
+            
+            statusDiv.textContent = '✅ Exported to GitHub successfully!';
+            statusDiv.className = 'success';
+            showMessage('✅ Exported to GitHub repository');
+        } catch (err) {
+            const statusDiv = document.getElementById('githubStatus');
+            statusDiv.textContent = '❌ Export failed: ' + err.message;
+            statusDiv.className = 'error';
+            showMessage('❌ Export to GitHub failed: ' + err.message, true);
+        }
+    }
+    
     // Import data from GitHub repository
     async function importFromGitHub() {
-        showMessage('⚠️ GitHub import functionality has been removed. Please use local import instead.', true);
+        if (!githubConfig.isLoggedIn) {
+            showMessage('⚠️ Please login to GitHub first', true);
+            return;
+        }
+        
+        try {
+            const statusDiv = document.getElementById('githubStatus');
+            statusDiv.textContent = '🔄 Importing from GitHub...';
+            statusDiv.className = '';
+            
+            const fileData = await getGithubFile('quiz_data.json');
+            const d = JSON.parse(fileData.content);
+            
+            if (d.questions) state.questions = d.questions;
+            if (d.participants) state.participants = d.participants;
+            if (d.scoreRecords) state.scoreRecords = d.scoreRecords;
+            if (d.uploadedImages) state.uploadedImages = d.uploadedImages;
+            if (d.uploadedAudios) state.uploadedAudios = d.uploadedAudios;
+            
+            lastImportedFileName = 'quiz_data.json (from GitHub)';
+            localStorage.setItem('lastImportedFileName', lastImportedFileName);
+            
+            renderQuestionsList();
+            renderSlideQuiz();
+            renderParticipantsSidebar();
+            renderScoreboard();
+            updateDatalist();
+            saveStateToCookie();
+            
+            statusDiv.textContent = '✅ Imported from GitHub successfully!';
+            statusDiv.className = 'success';
+            showMessage('✅ Imported from GitHub: ' + state.questions.length + ' questions');
+            
+            // Automatically switch to play mode after import to see the quiz
+            setPlayMode();
+        } catch (err) {
+            const statusDiv = document.getElementById('githubStatus');
+            statusDiv.textContent = '❌ Import failed: ' + err.message;
+            statusDiv.className = 'error';
+            showMessage('❌ Import from GitHub failed: ' + err.message, true);
+        }
     }
     
     function shuffleQuestionsInPlace() {
@@ -742,6 +923,83 @@
     function setPlayMode() { state.isEditMode = false; closeSidebar(); renderSlideQuiz(); }
     function setEditMode() { state.isEditMode = true; openSidebar(); }
     function toggleScoreboard() { let sb = document.getElementById('scoreboard'); sb.classList.toggle('open'); let io = sb.classList.contains('open'); document.getElementById('toggleScoreboardBtn').innerHTML = io ? '📊 Hide Scoreboard ✕' : '📊 Show Scoreboard 🏆'; if (io) renderScoreboard(); }
+    // Update GitHub UI based on login state
+    function updateGithubUI() {
+        const loginBtn = document.getElementById('githubLoginBtn');
+        const exportBtn = document.getElementById('exportGithubBtn');
+        const importBtn = document.getElementById('importGithubBtn');
+        const statusDiv = document.getElementById('githubStatus');
+        
+        if (!loginBtn || !exportBtn || !importBtn || !statusDiv) return;
+        
+        if (githubConfig.isLoggedIn && githubConfig.username) {
+            loginBtn.textContent = '🔑 Logged in as ' + githubConfig.username;
+            loginBtn.style.background = '#28a745';
+            exportBtn.style.display = 'inline-block';
+            importBtn.style.display = 'inline-block';
+            statusDiv.textContent = '✅ Connected to GitHub';
+            statusDiv.className = 'success';
+        } else {
+            loginBtn.textContent = '🔑 Login with GitHub Token';
+            loginBtn.style.background = '#2c7da0';
+            exportBtn.style.display = 'none';
+            importBtn.style.display = 'none';
+            statusDiv.textContent = '';
+            statusDiv.className = '';
+        }
+    }
+    
+    // GitHub login handler
+    async function handleGithubLogin() {
+        const tokenInput = document.getElementById('githubTokenInput');
+        const token = tokenInput ? tokenInput.value.trim() : '';
+        
+        if (!token) {
+            showMessage('⚠️ Please enter a GitHub token', true);
+            return;
+        }
+        
+        try {
+            // Temporarily set token to test it
+            githubConfig.token = token;
+            
+            // Get username from GitHub
+            const username = await getGithubUser();
+            githubConfig.username = username;
+            githubConfig.isLoggedIn = true;
+            
+            // Save to localStorage
+            saveGithubConfigToStorage();
+            
+            // Update UI
+            updateGithubUI();
+            
+            // Close modal
+            const modal = document.getElementById('githubLoginModal');
+            if (modal) modal.style.display = 'none';
+            
+            // Clear input
+            if (tokenInput) tokenInput.value = '';
+            
+            showMessage('✅ Logged in as ' + username);
+        } catch (err) {
+            showMessage('❌ Login failed: ' + err.message, true);
+            githubConfig.token = null;
+            githubConfig.username = null;
+            githubConfig.isLoggedIn = false;
+        }
+    }
+    
+    // GitHub logout handler
+    function handleGithubLogout() {
+        githubConfig.token = null;
+        githubConfig.username = null;
+        githubConfig.isLoggedIn = false;
+        saveGithubConfigToStorage();
+        updateGithubUI();
+        showMessage('👋 Logged out from GitHub');
+    }
+    
     function initEventListeners() {
         document.getElementById('playModeBtn').addEventListener('click', setPlayMode);
         document.getElementById('editModeBtn').addEventListener('click', setEditMode);
@@ -762,6 +1020,52 @@
         }
         
         document.getElementById('importFile').addEventListener('change', e => { if (e.target.files.length) importData(e.target.files[0]); e.target.value = ''; });
+        
+        // GitHub buttons
+        if (document.getElementById('githubLoginBtn')) {
+            document.getElementById('githubLoginBtn').addEventListener('click', () => {
+                const modal = document.getElementById('githubLoginModal');
+                if (modal) {
+                    if (githubConfig.isLoggedIn) {
+                        // If already logged in, ask for logout confirmation
+                        if (confirm('Do you want to logout from GitHub?')) {
+                            handleGithubLogout();
+                        }
+                    } else {
+                        modal.style.display = 'block';
+                    }
+                }
+            });
+        }
+        
+        if (document.getElementById('exportGithubBtn')) {
+            document.getElementById('exportGithubBtn').addEventListener('click', exportToGitHub);
+        }
+        
+        if (document.getElementById('importGithubBtn')) {
+            document.getElementById('importGithubBtn').addEventListener('click', importFromGitHub);
+        }
+        
+        // Modal close handlers
+        if (document.getElementById('closeGithubModalBtn')) {
+            document.getElementById('closeGithubModalBtn').addEventListener('click', () => {
+                const modal = document.getElementById('githubLoginModal');
+                if (modal) modal.style.display = 'none';
+            });
+        }
+        
+        if (document.getElementById('confirmGithubLoginBtn')) {
+            document.getElementById('confirmGithubLoginBtn').addEventListener('click', handleGithubLogin);
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('githubLoginModal');
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
         document.getElementById('typeToggleGroup').addEventListener('click', e => { let t = e.target.closest('.type-option'); if (t) { state.currentType = t.dataset.type; updateTypeToggleUI(); } });
         document.getElementById('toggleScoreboardBtn').addEventListener('click', toggleScoreboard);
         document.getElementById('closeScoreboardBtn').addEventListener('click', toggleScoreboard);
