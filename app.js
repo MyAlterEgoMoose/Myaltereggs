@@ -935,20 +935,68 @@
                 return;
             }
             
-            // Show file selection dialog
-            const fileNames = jsonFiles.map(f => f.name).join('\n');
-            const selectedFileName = prompt('Available quiz files on GitHub:\n\n' + fileNames + '\n\nEnter the filename to import:', jsonFiles[jsonFiles.length - 1].name);
+            // Show file selection UI with buttons
+            showFileSelectionUI(jsonFiles);
             
-            if (!selectedFileName) {
-                return; // User cancelled
-            }
-            
-            const selectedFile = jsonFiles.find(f => f.name === selectedFileName);
-            if (!selectedFile) {
-                showMessage('⚠️ File not found: ' + selectedFileName, true);
-                return;
-            }
-            
+        } catch (err) {
+            showMessage('❌ GitHub import failed: ' + err.message, true);
+        }
+    }
+    
+    // Show file selection UI with buttons
+    function showFileSelectionUI(jsonFiles) {
+        // Remove existing file selection container if present
+        const existingContainer = document.getElementById('fileSelectionContainer');
+        if (existingContainer) {
+            existingContainer.remove();
+        }
+        
+        // Create file selection container
+        const container = document.createElement('div');
+        container.id = 'fileSelectionContainer';
+        container.className = 'file-selection-container';
+        
+        const title = document.createElement('div');
+        title.className = 'file-selection-title';
+        title.textContent = '📂 Select a Quiz File to Import:';
+        
+        const fileList = document.createElement('div');
+        fileList.className = 'file-selection-list';
+        
+        jsonFiles.forEach(file => {
+            const btn = document.createElement('button');
+            btn.className = 'file-selection-btn';
+            btn.textContent = '📄 ' + file.name;
+            btn.addEventListener('click', () => selectFileFromGitHub(file));
+            fileList.appendChild(btn);
+        });
+        
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'file-selection-cancel';
+        cancelBtn.textContent = '❌ Cancel';
+        cancelBtn.addEventListener('click', () => {
+            container.remove();
+        });
+        
+        container.appendChild(title);
+        container.appendChild(fileList);
+        container.appendChild(cancelBtn);
+        
+        // Insert after the import buttons in the builder panel
+        const dataManagementSection = document.querySelector('.section-title.large');
+        if (dataManagementSection && dataManagementSection.textContent.includes('Data Management')) {
+            dataManagementSection.parentNode.insertBefore(container, dataManagementSection.nextSibling);
+        } else {
+            document.body.appendChild(container);
+        }
+    }
+    
+    // Handle file selection from GitHub
+    async function selectFileFromGitHub(selectedFile) {
+        const token = getGithubToken();
+        const selectedFileName = selectedFile.name;
+        
+        try {
             // Fetch the selected file content
             const fileUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/quiz_data/${selectedFileName}`;
             const fileResponse = await fetch(fileUrl, {
@@ -977,6 +1025,12 @@
             // Save the last imported filename
             lastImportedFileName = selectedFileName;
             localStorage.setItem('lastImportedFileName', selectedFileName);
+            
+            // Remove file selection UI
+            const container = document.getElementById('fileSelectionContainer');
+            if (container) {
+                container.remove();
+            }
             
             renderQuestionsList();
             renderSlideQuiz();
