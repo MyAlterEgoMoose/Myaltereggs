@@ -61,6 +61,7 @@
 
 <!-- GitHub Token Auth Section -->
 <div id="authSection" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+    <button id="toggleAuthBtn" style="background: #24292e; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.3rem; cursor: pointer; margin-bottom: 0.5rem;">🔑 Toggle Auth</button>
     <div id="tokenAuthContainer" style="background: white; padding: 1rem; border-radius: 0.3rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <label for="githubTokenInput" style="display:block; margin-bottom:0.5rem; font-weight:bold;">🔑 GitHub Token:</label>
         <input type="password" id="githubTokenInput" placeholder="ghp_..." style="width:200px; padding:0.5rem; border:1px solid #ccc; border-radius:0.3rem;">
@@ -133,6 +134,8 @@
     const tokenInput = document.getElementById('githubTokenInput');
     const saveBtn = document.getElementById('saveTokenBtn');
     const clearBtn = document.getElementById('clearTokenBtn');
+    const toggleBtn = document.getElementById('toggleAuthBtn');
+    const authContainer = document.getElementById('tokenAuthContainer');
     
     // Load existing token
     const existingToken = getGithubToken();
@@ -161,6 +164,16 @@
         tokenInput.value = '';
         updateAuthUI();
         alert('Token cleared');
+      });
+    }
+    
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function() {
+        if (authContainer.style.display === 'none') {
+          authContainer.style.display = 'block';
+        } else {
+          authContainer.style.display = 'none';
+        }
       });
     }
   });
