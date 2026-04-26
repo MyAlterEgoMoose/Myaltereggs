@@ -1,11 +1,8 @@
 {
-  "name": "github-oauth-app",
+  "name": "quiz-app",
   "version": "1.0.0",
-  "description": "GitHub OAuth with Netlify Functions",
+  "description": "Teacher Grading System - Quiz with Scoreboard",
   "scripts": {
-    "netlify:dev": "netlify dev"
-  },
-  "devDependencies": {
-    "netlify-cli": "^17.0.0"
+    "start": "npx http-server -p 8080"
   }
 }

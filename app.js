@@ -8,9 +8,9 @@
         branch: 'main'
     };
     
-    // Get OAuth token from GitHubAuth module
+    // Get GitHub token from sessionStorage or localStorage
     function getGithubToken() {
-        return window.GitHubAuth ? window.GitHubAuth.getToken() : (sessionStorage.getItem('github_access_token') || '');
+        return sessionStorage.getItem('github_access_token') || localStorage.getItem('github_access_token') || '';
     }
     
     let lastImportedFileName = null;
@@ -754,7 +754,7 @@
     }
     
     function exportData() {
-        // Check if user is authenticated with OAuth
+        // Check if user is authenticated with token
         const token = getGithubToken();
         if ((state.uploadedImages.length > 0 || state.uploadedAudios.length > 0) && (!GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo || !token)) {
             showMessage('⚠️ Please login with GitHub and configure owner/repo settings first', true);

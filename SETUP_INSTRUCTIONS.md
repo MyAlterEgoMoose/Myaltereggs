@@ -1,96 +1,87 @@
-# GitHub OAuth Setup Instructions
+# Quiz App Setup Instructions
 
-## Prerequisites
-- A GitHub account
-- Your app deployed on Netlify (or running locally with Netlify Dev)
+## Overview
 
-## Step 1: Create GitHub OAuth App
+This is a Teacher Grading System - Quiz with Scoreboard application that allows you to:
+- Create and manage quiz questions (Single choice, Multiple choice, Open answer, Slider)
+- Manage participants and track scores
+- Upload images and audio files to GitHub
+- Export/Import quiz data
 
-1. Go to https://github.com/settings/developers
-2. Click "New OAuth App" or "Register a new application"
-3. Fill in the following:
-   - **Application name**: Your app name (e.g., "My Alter Ego")
-   - **Homepage URL**: `https://your-app.netlify.app` (or your production URL)
-   - **Authorization callback URL**: `https://your-app.netlify.app` 
-     - For local development: `http://localhost:8888`
-   - **Note**: The callback URL should be your main app URL, NOT the function URL. The function handles the token exchange internally.
-4. Click "Register application"
-5. Copy the **Client ID** shown
-6. Click "Generate a new client secret" and copy the **Client Secret**
+## Authentication
 
-## Step 2: Configure Environment Variables
+The app uses **GitHub Personal Access Token** for authentication. This allows the app to upload files to your GitHub repository.
 
-### For Production (Netlify Dashboard):
-1. Go to your site on Netlify dashboard
-2. Navigate to Site settings → Build & deploy → Environment
-3. Add these environment variables:
-   - `GITHUB_CLIENT_ID`: Your GitHub OAuth Client ID
-   - `GITHUB_CLIENT_SECRET`: Your GitHub OAuth Client Secret
+### Step 1: Generate GitHub Personal Access Token
 
-### For Local Development:
-Create a `.env` file in the root directory:
-```
-GITHUB_CLIENT_ID=your_client_id_here
-GITHUB_CLIENT_SECRET=your_client_secret_here
-```
+1. Go to https://github.com/settings/tokens
+2. Click "Generate new token" → "Generate new token (classic)"
+3. Give it a descriptive name (e.g., "Quiz App")
+4. Select the following scopes:
+   - `repo` (Full control of private repositories)
+5. Click "Generate token" at the bottom
+6. **Copy the token immediately** - you won't be able to see it again!
 
-## Step 3: Install Dependencies
+### Step 2: Configure GitHub Repository
 
-```bash
-npm install
-```
+1. Create a new repository on GitHub (or use an existing one)
+2. In the app, enter:
+   - **GitHub Owner**: Your GitHub username
+   - **GitHub Repo**: The repository name
+3. Click "Save GitHub Settings"
 
-## Step 4: Update Your Code
+### Step 3: Enter Your Token
 
-The `CLIENT_ID` in `github-auth.js` is still used for the initial authorization redirect. Make sure your `REDIRECT_URI` matches what you configured in GitHub:
-- Production: `https://your-app.netlify.app`
-- Local: `http://localhost:8888`
+1. In the top-right corner of the app, you'll see the authentication section
+2. Paste your GitHub token in the input field
+3. Click "Save" to store the token
+4. The status will show "✅ Logged in as: [your username]" if successful
 
-The code will automatically detect the OAuth callback and use the Netlify function for token exchange.
-
-## Step 5: Run Locally (Optional)
+## Running Locally
 
 ```bash
-npm run netlify:dev
+npm start
 ```
 
-This will start the Netlify dev server at `http://localhost:8888`
+Then open http://localhost:8080 in your browser.
 
-## Step 6: Deploy to Netlify
+## Features
 
-1. Push your code to GitHub
-2. Connect your repo to Netlify
-3. Set the build command: Leave blank (already configured in netlify.toml)
-4. Set the publish directory: `.` (current directory)
-5. Set the functions directory: `netlify/functions` (already configured in netlify.toml)
-6. Add the environment variables in Netlify dashboard (GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET)
-7. Deploy
+### Question Types
+- **Single Choice**: One correct answer
+- **Multiple Choice**: Multiple correct answers
+- **Open Answer**: Text-based answers (with optional case sensitivity)
+- **Slider**: Numeric range answers
+
+### Media Support
+- Upload images to GitHub (stored in `images/` folder)
+- Upload audio files to GitHub (stored in `audios/` folder)
+
+### Data Management
+- **Export Quiz**: Save quiz data to GitHub or download locally
+- **Import from GitHub**: Load quiz data from your repository
+- **Import Local File**: Load quiz data from a JSON file
 
 ## Important Notes
 
-- **Never commit your client secret** to version control
-- The callback URL in GitHub settings must match your app's main URL (not the function URL)
-- PKCE is used for additional security
-- The Netlify function handles the sensitive token exchange, keeping your client secret secure
-- Node.js 18+ is required for native fetch (Netlify uses Node 18+ by default)
+- Keep your GitHub token secure and never share it
+- The token is stored in browser sessionStorage and localStorage
+- You can clear the token anytime using the "Clear" button
+- Uploaded files are stored in your GitHub repository under `images/` and `audios/` folders
+- Quiz data is exported to the `quiz_data/` folder in your repository
 
 ## Troubleshooting
 
-### CORS Errors
-- Make sure you're calling the Netlify function endpoint (`/.netlify/functions/github-callback`)
-- Don't call GitHub's token endpoint directly from the browser
-- Check that the function is deployed correctly
+### Token Invalid Error
+- Make sure your token hasn't expired
+- Verify the token has the `repo` scope enabled
+- Generate a new token if needed
 
-### redirect_uri_mismatch
-- Verify the callback URL in GitHub settings exactly matches your app's main URL
-- The redirect_uri in your code should match the GitHub OAuth app setting
+### Upload Failed
+- Ensure GitHub Owner and Repo are correctly configured
+- Check that your token is valid and has proper permissions
+- Verify the repository exists and you have write access
 
-### Invalid client_secret or Server configuration error
-- Ensure environment variables are set correctly in Netlify dashboard
-- Check that there are no extra spaces or characters
-- Redeploy after setting environment variables
-
-### Function not found (404)
-- Verify netlify.toml is in your project root
-- Check that the function file exists at `netlify/functions/github-callback.js`
-- Make sure you pushed the netlify folder to your repository
+### Files Not Appearing
+- Check the `images/`, `audios/`, or `quiz_data/` folders in your GitHub repository
+- Refresh the page to reload uploaded media lists
