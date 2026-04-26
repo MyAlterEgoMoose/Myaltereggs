@@ -72,19 +72,118 @@
 
 <script src="github-auth.js"></script>
 <script>
-  // Initialize authentication on page load
-  window.addEventListener('load', async () => {
-    await window.GitHubAuth.init();
-    updateAuthUI();
+  // GitHub OAuth PKCE Configuration
+  const CLIENT_ID = 'Ov23li9AVIOvpSq9diYX';
+  const REDIRECT_URI = window.location.origin + window.location.pathname;
+  const SCOPE = 'user:email';
 
-    document.getElementById('githubLoginBtn').addEventListener('click', () => {
-      window.GitHubAuth.login();
-    });
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      window.GitHubAuth.logout();
-      updateAuthUI();
-    });
-  });
+  function generateRandomString(length) {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    for (let i = 0; i < length; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+  }
+
+  async function createCodeChallenge(codeVerifier) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(codeVerifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return btoa(String.fromCharCode(...new Uint8Array(digest)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+  }
+
+  async function loginWithGitHub() {
+    const codeVerifier = generateRandomString(32);
+    const codeChallenge = await createCodeChallenge(codeVerifier);
+    sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+
+    const authUrl = new URL('https://github.com/login/oauth/authorize');
+    authUrl.searchParams.append('client_id', CLIENT_ID);
+    authUrl.searchParams.append('redirect_uri', REDIRECT_URI);
+    authUrl.searchParams.append('scope', SCOPE);
+    authUrl.searchParams.append('code_challenge_method', 'S256');
+    authUrl.searchParams.append('code_challenge', codeChallenge);
+
+    window.location.href = authUrl.toString();
+  }
+
+  async function handleCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+
+    if (code) {
+      const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+      if (!codeVerifier) {
+        console.error('No code verifier found');
+        return;
+      }
+
+      try {
+        const response = await fetch('https://github.com/login/oauth/access_token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            client_id: CLIENT_ID,
+            client_secret: 9aa2c2a0c26f0727b30078fb2b5ee929d31f4606,
+            code: code,
+            redirect_uri: REDIRECT_URI,
+            code_verifier: codeVerifier
+          })
+        });
+
+        const data = await response.json();
+        if (data.access_token) {
+          sessionStorage.setItem('github_access_token', data.access_token);
+          window.history.replaceState({}, document.title, window.location.pathname);
+          showUserInfo();
+        } else if (data.error) {
+          console.error('OAuth error:', data.error_description || data.error);
+          alert('Authentication failed: ' + (data.error_description || data.error));
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Authentication failed. Please try again.');
+      }
+    }
+  }
+
+  async function showUserInfo() {
+    const token = sessionStorage.getItem('github_access_token');
+    if (!token) {
+      document.getElementById('githubLoginBtn').style.display = 'block';
+      document.getElementById('userInfo').style.display = 'none';
+      return;
+    }
+
+    try {
+      const response = await fetch('https://api.github.com/user', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const user = await response.json();
+        document.getElementById('userName').textContent = `👤 ${user.login}`;
+        document.getElementById('githubLoginBtn').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'block';
+      } else {
+        // Token might be expired
+        sessionStorage.removeItem('github_access_token');
+        showUserInfo();
+      }
+    } catch (err) {
+      console.error('Error fetching user info:', err);
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('github_access_token');
+    sessionStorage.removeItem('pkce_code_verifier');
+    showUserInfo();
+  }
 
   // Update UI based on auth state
   function updateAuthUI() {
