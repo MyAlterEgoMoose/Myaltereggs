@@ -34,6 +34,32 @@
     <button id="exportBtn" class="btn-primary">💾 Export Quiz</button>
     <button id="importLocalBtn" class="btn-secondary">📂 Import Local File</button>
     <input type="file" id="importFile" accept=".json">
+    
+    <div class="section-title large">☁️ GitHub Sync</div>
+    <button id="githubLoginBtn" class="btn-primary">🔑 Login with GitHub Token</button>
+    <button id="exportGithubBtn" class="btn-secondary" style="display:none;">📤 Export to GitHub</button>
+    <button id="importGithubBtn" class="btn-secondary" style="display:none;">📥 Import from GitHub</button>
+    <div id="githubStatus" style="margin-top:0.5rem;font-size:0.9rem;color:#666;"></div>
+</div>
+
+<!-- GitHub Login Modal -->
+<div id="githubLoginModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🔑 GitHub Login</h3>
+            <button class="modal-close" id="closeGithubModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Enter your GitHub Personal Access Token to sync quiz data.</p>
+            <p style="font-size:0.85rem;color:#666;">The app will automatically detect your username and create/use a repository named "quiz-data".</p>
+            <div class="input-group">
+                <label>GitHub Token</label>
+                <input type="password" id="githubTokenInput" placeholder="ghp_... or github_pat_...">
+            </div>
+            <button id="confirmGithubLoginBtn" class="btn-primary" style="width:100%;margin-top:1rem;">Login</button>
+            <p style="font-size:0.75rem;color:#999;margin-top:1rem;">Token is stored locally in your browser. Make sure your token has <code>repo</code> scope.</p>
+        </div>
+    </div>
 </div>
 
 <div class="main-content" id="mainContent">
