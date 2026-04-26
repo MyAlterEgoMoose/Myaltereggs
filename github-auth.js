@@ -1,215 +1,186 @@
-// GitHub Device Flow Authentication Module
-// Implements GitHub Device Flow for public clients (SPA, native apps)
-// This avoids exposing client secrets in frontend code and doesn't require redirects
+// GitHub OAuth 2.0 Authorization Code Flow with PKCE
+// Designed for Single Page Applications (SPAs) without a backend
+// Uses PKCE (Proof Key for Code Exchange) for security without client secret
 
 (function() {
     'use strict';
 
     const CONFIG = {
         CLIENT_ID: 'Ov23li9AVIOvpSq9diYX',
-        SCOPE: 'repo,user:email'
+        SCOPE: 'repo,user:email',
+        REDIRECT_URI: window.location.origin + window.location.pathname,
+        AUTH_URL: 'https://github.com/login/oauth/authorize',
+        TOKEN_URL: 'https://github.com/login/oauth/access_token'
     };
-
+    
     // Storage keys
     const STORAGE_KEYS = {
         ACCESS_TOKEN: 'github_access_token',
-        DEVICE_CODE: 'github_device_code',
         USER_INFO: 'github_user_info',
-        DEVICE_FLOW_STATE: 'github_device_flow_state'
+        PKCE_CODE_VERIFIER: 'github_pkce_code_verifier',
+        PKCE_STATE: 'github_pkce_state'
     };
-
+    
     // State management
     let authState = {
         isAuthenticated: false,
         user: null,
         token: null
     };
-
+    
+    // Generate cryptographically random string for PKCE
+    function generateRandomString(length) {
+        const array = new Uint8Array(length);
+        crypto.getRandomValues(array);
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+    
+    // Generate code challenge for PKCE
+    async function generateCodeChallenge(codeVerifier) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(codeVerifier);
+        const digest = await crypto.subtle.digest('SHA-256', data);
+        return btoa(String.fromCharCode(...new Uint8Array(digest)))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+    }
+    
     // Get token from sessionStorage
     function getGithubToken() {
         return sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN) || '';
     }
-
+    
     // Save token to sessionStorage
     function saveToken(token) {
         sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
     }
-
+    
     // Clear all auth data
     function clearAuthData() {
         sessionStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-        sessionStorage.removeItem(STORAGE_KEYS.DEVICE_CODE);
         sessionStorage.removeItem(STORAGE_KEYS.USER_INFO);
-        sessionStorage.removeItem(STORAGE_KEYS.DEVICE_FLOW_STATE);
+        sessionStorage.removeItem(STORAGE_KEYS.PKCE_CODE_VERIFIER);
+        sessionStorage.removeItem(STORAGE_KEYS.PKCE_STATE);
     }
-
-    // Request device code from GitHub
-    async function requestDeviceCode() {
+    
+    // Handle OAuth callback
+    async function handleCallback(code, state) {
         try {
-            const params = new URLSearchParams();
-            params.append('client_id', CONFIG.CLIENT_ID);
-            params.append('scope', CONFIG.SCOPE);
-
-            console.log('Requesting device code from GitHub...');
-            console.log('Client ID:', CONFIG.CLIENT_ID);
+            // Verify state matches
+            const savedState = sessionStorage.getItem(STORAGE_KEYS.PKCE_STATE);
+            if (!savedState || savedState !== state) {
+                throw new Error('State mismatch - possible CSRF attack');
+            }
             
-            const response = await fetch('https://github.com/login/device/code', {
+            // Get code verifier
+            const codeVerifier = sessionStorage.getItem(STORAGE_KEYS.PKCE_CODE_VERIFIER);
+            if (!codeVerifier) {
+                throw new Error('Code verifier not found');
+            }
+            
+            // Exchange code for token
+            const tokenResponse = await fetch(CONFIG.TOKEN_URL, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json' 
+                    'Accept': 'application/json'
                 },
-                body: params.toString(),
-                mode: 'cors',
-                credentials: 'omit'
+                body: new URLSearchParams({
+                    client_id: CONFIG.CLIENT_ID,
+                    code: code,
+                    redirect_uri: CONFIG.REDIRECT_URI,
+                    grant_type: 'authorization_code',
+                    code_verifier: codeVerifier
+                }).toString()
             });
-
-            console.log('Response status:', response.status, response.statusText);
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('GitHub API error response:', errorText);
+            
+            if (!tokenResponse.ok) {
+                const errorText = await tokenResponse.text();
                 let error;
                 try {
                     error = JSON.parse(errorText);
                 } catch (e) {
-                    error = { error_description: errorText || 'Failed to get device code' };
+                    error = { error_description: errorText || 'Failed to get access token' };
                 }
-                throw new Error(error.error_description || error.error || 'Failed to get device code');
+                throw new Error(error.error_description || error.error || 'Failed to get access token');
             }
-
-            const data = await response.json();
-            console.log('Device code received successfully');
             
-            // Store device code and state
-            sessionStorage.setItem(STORAGE_KEYS.DEVICE_CODE, data.device_code);
-            sessionStorage.setItem(STORAGE_KEYS.DEVICE_FLOW_STATE, JSON.stringify({
-                deviceCode: data.device_code,
-                userCode: data.user_code,
-                verificationUri: data.verification_uri,
-                expiresIn: data.expires_in,
-                interval: data.interval,
-                startTime: Date.now()
-            }));
-
-            return {
-                deviceCode: data.device_code,
-                userCode: data.user_code,
-                verificationUri: data.verification_uri,
-                verificationUriComplete: data.verification_uri_complete,
-                expiresIn: data.expires_in,
-                interval: data.interval
-            };
+            const data = await tokenResponse.json();
+            
+            if (data.access_token) {
+                saveToken(data.access_token);
+                sessionStorage.removeItem(STORAGE_KEYS.PKCE_CODE_VERIFIER);
+                sessionStorage.removeItem(STORAGE_KEYS.PKCE_STATE);
+                
+                // Clean URL without reload
+                const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+                
+                // Fetch and store user info
+                await fetchUserInfo(data.access_token);
+                return true;
+            } else {
+                throw new Error(data.error_description || data.error || 'No access token received');
+            }
         } catch (err) {
-            console.error('Error requesting device code:', err);
+            console.error('Error handling OAuth callback:', err);
+            clearAuthData();
             throw err;
         }
     }
-
-    // Poll for access token using device code
-    async function pollForToken(deviceCode, interval, expiresAt) {
-        return new Promise((resolve, reject) => {
-            const checkToken = async () => {
-                if (Date.now() >= expiresAt) {
-                    clearInterval(pollInterval);
-                    reject(new Error('Device code expired. Please try again.'));
-                    return;
-                }
-
-                try {
-                    const params = new URLSearchParams();
-                    params.append('client_id', CONFIG.CLIENT_ID);
-                    params.append('device_code', deviceCode);
-                    params.append('grant_type', 'urn:ietf:params:oauth:grant-type:device_code');
-
-                    console.log('Polling for token...');
-                    
-                    const response = await fetch('https://github.com/login/oauth/access_token', {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'Accept': 'application/json' 
-                        },
-                        body: params.toString(),
-                        mode: 'cors',
-                        credentials: 'omit'
-                    });
-
-                    console.log('Poll response status:', response.status, response.statusText);
-
-                    const data = await response.json();
-                    console.log('Poll response data:', data.error || 'success');
-
-                    if (data.access_token) {
-                        clearInterval(pollInterval);
-                        resolve(data.access_token);
-                    } else if (data.error === 'authorization_pending') {
-                        // User hasn't authorized yet, continue polling
-                        return;
-                    } else if (data.error === 'slow_down') {
-                        // GitHub is asking us to slow down polling
-                        clearInterval(pollInterval);
-                        pollInterval = setInterval(checkToken, (data.interval || interval + 5) * 1000);
-                    } else if (data.error === 'expired_token') {
-                        clearInterval(pollInterval);
-                        reject(new Error('Device code expired. Please try again.'));
-                    } else if (data.error) {
-                        clearInterval(pollInterval);
-                        reject(new Error(data.error_description || data.error));
-                    }
-                } catch (err) {
-                    console.error('Error during polling:', err);
-                    clearInterval(pollInterval);
-                    reject(err);
-                }
-            };
-
-            const pollInterval = setInterval(checkToken, interval * 1000);
-            // Start first check immediately
-            checkToken();
-        });
+    
+    // Check for OAuth callback on page load
+    async function checkForCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        const error = urlParams.get('error');
+        
+        if (error) {
+            console.error('OAuth error:', urlParams.get('error_description') || error);
+            clearAuthData();
+            return false;
+        }
+        
+        if (code && state) {
+            return await handleCallback(code, state);
+        }
+        
+        return false;
     }
-
-    // Login with GitHub using Device Flow
+    
+    // Login with GitHub using OAuth 2.0 PKCE
     async function loginWithGitHub() {
         try {
-            // Request device code
-            const deviceInfo = await requestDeviceCode();
+            // Generate PKCE parameters
+            const codeVerifier = generateRandomString(32);
+            const codeChallenge = await generateCodeChallenge(codeVerifier);
+            const state = generateRandomString(16);
             
-            // Show user the verification code and URL
-            const message = `To complete authentication:\n\n1. Visit: ${deviceInfo.verificationUri}\n2. Enter code: ${deviceInfo.userCode}\n\nClick OK after you've entered the code on GitHub.`;
+            // Store for callback verification
+            sessionStorage.setItem(STORAGE_KEYS.PKCE_CODE_VERIFIER, codeVerifier);
+            sessionStorage.setItem(STORAGE_KEYS.PKCE_STATE, state);
             
-            if (confirm(message)) {
-                // Open verification URI in new window for convenience
-                window.open(deviceInfo.verificationUriComplete, '_blank');
-                
-                // Start polling for token
-                const expiresAt = Date.now() + (deviceInfo.expiresIn * 1000);
-                
-                try {
-                    const token = await pollForToken(deviceInfo.deviceCode, deviceInfo.interval, expiresAt);
-                    saveToken(token);
-                    sessionStorage.removeItem(STORAGE_KEYS.DEVICE_CODE);
-                    sessionStorage.removeItem(STORAGE_KEYS.DEVICE_FLOW_STATE);
-                    
-                    // Fetch and store user info
-                    await fetchUserInfo(token);
-                    return true;
-                } catch (err) {
-                    console.error('Device flow failed:', err);
-                    clearAuthData();
-                    throw err;
-                }
-            } else {
-                clearAuthData();
-                throw new Error('Authentication cancelled by user');
-            }
+            // Build authorization URL
+            const authUrl = new URL(CONFIG.AUTH_URL);
+            authUrl.searchParams.set('client_id', CONFIG.CLIENT_ID);
+            authUrl.searchParams.set('redirect_uri', CONFIG.REDIRECT_URI);
+            authUrl.searchParams.set('scope', CONFIG.SCOPE);
+            authUrl.searchParams.set('state', state);
+            authUrl.searchParams.set('code_challenge', codeChallenge);
+            authUrl.searchParams.set('code_challenge_method', 'S256');
+            
+            // Redirect to GitHub for authorization
+            window.location.href = authUrl.toString();
+            
         } catch (err) {
-            console.error('Error initiating GitHub Device Flow:', err);
+            console.error('Error initiating GitHub OAuth:', err);
+            clearAuthData();
             throw err;
         }
     }
-
+    
     // Fetch current user info from GitHub API
     async function fetchUserInfo(token = null) {
         const accessToken = token || getGithubToken();
@@ -254,7 +225,7 @@
             return null;
         }
     }
-
+    
     // Get cached user info
     function getCachedUserInfo() {
         const cached = sessionStorage.getItem(STORAGE_KEYS.USER_INFO);
@@ -267,7 +238,7 @@
         }
         return null;
     }
-
+    
     // Logout
     function logout() {
         clearAuthData();
@@ -275,15 +246,22 @@
         authState.user = null;
         authState.token = null;
     }
-
+    
     // Check if user is authenticated
     function isAuthenticated() {
         return authState.isAuthenticated && !!getGithubToken();
     }
-
+    
     // Initialize authentication state on page load
     async function initAuth() {
-        // Load user info
+        // First check for OAuth callback
+        const handledCallback = await checkForCallback();
+        
+        if (handledCallback) {
+            return authState;
+        }
+        
+        // Load user info from existing token
         const token = getGithubToken();
         if (token) {
             await fetchUserInfo(token);
@@ -297,7 +275,7 @@
         
         return authState;
     }
-
+    
     // Expose public API
     window.GitHubAuth = {
         login: loginWithGitHub,
