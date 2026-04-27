@@ -912,6 +912,14 @@
         showMessage('Questions shuffled');
     }
     
+    // Shuffle questions for play mode only (doesn't modify the original order permanently)
+    function shuffleForPlayMode() {
+        state.questions = shuffleArray([...state.questions]);
+        state.currentSlideIndex = 0;
+        renderSlideQuiz();
+        showMessage('Questions shuffled for play mode');
+    }
+    
     function importData(f) { 
         let r = new FileReader(); 
         r.onload = e => { 
@@ -1042,6 +1050,7 @@
     function initEventListeners() {
         document.getElementById('playModeBtn').addEventListener('click', setPlayMode);
         document.getElementById('editModeBtn').addEventListener('click', setEditMode);
+        document.getElementById('shuffleBtn').addEventListener('click', shuffleForPlayMode);
         document.getElementById('addOptionBtn').addEventListener('click', () => { let c = document.getElementById('optionsContainer'), d = document.createElement('div'); d.className = 'option-row'; d.innerHTML = '<input type="text" class="option-text" placeholder="New option"><input type="checkbox" class="option-correct"> <span>✓</span><button type="button" class="btn-icon">✖</button>'; d.querySelector('button').addEventListener('click', () => { if (c.children.length > 1) d.remove(); else showMessage('Need at least one option', true); }); c.appendChild(d); });
         document.getElementById('saveQuestionBtn').addEventListener('click', saveQuestion);
         document.getElementById('clearFormBtn').addEventListener('click', clearForm);
