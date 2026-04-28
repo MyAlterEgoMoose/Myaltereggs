@@ -4,210 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hide the Image - Interactive Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .quiz-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            padding: 40px;
-            max-width: 800px;
-            width: 100%;
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 2rem;
-        }
-
-        .instructions {
-            color: #666;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 1rem;
-        }
-
-        .question-card {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border-left: 4px solid #667eea;
-        }
-
-        .question-text {
-            font-size: 1.2rem;
-            color: #333;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .image-wrapper {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .image-wrapper:hover {
-            transform: scale(1.02);
-        }
-
-        .historical-image {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
         .image-hidden {
             opacity: 0;
             visibility: hidden;
         }
-
-        .click-hint {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(102, 126, 234, 0.9);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-
         .image-wrapper:hover .click-hint {
             opacity: 1;
         }
-
-        .status-indicator {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .status-visible {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-hidden {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .reset-button {
-            display: block;
-            margin: 20px auto 0;
-            padding: 12px 30px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .reset-button:hover {
-            background: #5568d3;
-        }
-
-        .score-section {
-            text-align: center;
-            margin-top: 30px;
-            padding: 20px;
-            background: #e9ecef;
-            border-radius: 10px;
-        }
-
-        .score-text {
-            font-size: 1.1rem;
-            color: #333;
-        }
     </style>
 </head>
-<body>
-    <div class="quiz-container">
-        <h1>🎯 Hide the Historical Figure</h1>
-        <p class="instructions">Click on each image to hide it. Test your knowledge by identifying who disappears!</p>
+<body class="bg-gradient-to-br from-indigo-500 to-purple-700 min-h-screen flex items-center justify-center p-5 font-sans">
+    <div class="quiz-container bg-white rounded-2xl shadow-2xl p-10 max-w-3xl w-full">
+        <h1 class="text-3xl text-gray-800 text-center mb-3 font-bold">🎯 Hide the Historical Figure</h1>
+        <p class="instructions text-gray-600 text-center mb-8">Click on each image to hide it. Test your knowledge by identifying who disappears!</p>
 
-        <div class="question-card" data-id="1">
-            <p class="question-text">Question 1: Click the image to reveal the answer (hide the image)</p>
-            <div class="image-wrapper" onclick="toggleImage(this)">
-                <img src="images/Vladimir_I_of_Kiev.PNG" alt="Historical Figure 1" class="historical-image">
-                <div class="click-hint">Click to hide</div>
+        <div class="question-card bg-gray-50 rounded-xl p-6 mb-5 border-l-4 border-indigo-500" data-id="1">
+            <p class="question-text text-xl text-gray-800 mb-5 font-semibold">Question 1: Click the image to reveal the answer (hide the image)</p>
+            <div class="image-wrapper inline-block relative cursor-pointer transition-transform duration-300 hover:scale-105" onclick="toggleImage(this)">
+                <img src="images/Vladimir_I_of_Kiev.PNG" alt="Historical Figure 1" class="historical-image max-w-full max-h-[300px] rounded-lg shadow-lg transition-opacity duration-500">
+                <div class="click-hint absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-500/90 text-white px-4 py-2 rounded-md text-sm opacity-0 transition-opacity duration-300 pointer-events-none">Click to hide</div>
             </div>
-            <div class="status-indicator status-visible">Image is visible</div>
-            <button class="reset-button" onclick="resetImage(this)">Show Image Again</button>
+            <div class="status-indicator status-visible mt-4 p-3 rounded-md text-sm text-center bg-green-100 text-green-800">Image is visible</div>
+            <button class="reset-button block mx-auto mt-5 px-6 py-3 bg-indigo-500 text-white border-none rounded-md text-base cursor-pointer hover:bg-indigo-600 transition-colors" onclick="resetImage(this)">Show Image Again</button>
         </div>
 
-        <div class="question-card" data-id="2">
-            <p class="question-text">Question 2: Click the image to reveal the answer (hide the image)</p>
-            <div class="image-wrapper" onclick="toggleImage(this)">
-                <img src="images/YuanEmperorAlbumGenghisPortrait.jpg" alt="Historical Figure 2" class="historical-image">
-                <div class="click-hint">Click to hide</div>
+        <div class="question-card bg-gray-50 rounded-xl p-6 mb-5 border-l-4 border-indigo-500" data-id="2">
+            <p class="question-text text-xl text-gray-800 mb-5 font-semibold">Question 2: Click the image to reveal the answer (hide the image)</p>
+            <div class="image-wrapper inline-block relative cursor-pointer transition-transform duration-300 hover:scale-105" onclick="toggleImage(this)">
+                <img src="images/YuanEmperorAlbumGenghisPortrait.jpg" alt="Historical Figure 2" class="historical-image max-w-full max-h-[300px] rounded-lg shadow-lg transition-opacity duration-500">
+                <div class="click-hint absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-500/90 text-white px-4 py-2 rounded-md text-sm opacity-0 transition-opacity duration-300 pointer-events-none">Click to hide</div>
             </div>
-            <div class="status-indicator status-visible">Image is visible</div>
-            <button class="reset-button" onclick="resetImage(this)">Show Image Again</button>
+            <div class="status-indicator status-visible mt-4 p-3 rounded-md text-sm text-center bg-green-100 text-green-800">Image is visible</div>
+            <button class="reset-button block mx-auto mt-5 px-6 py-3 bg-indigo-500 text-white border-none rounded-md text-base cursor-pointer hover:bg-indigo-600 transition-colors" onclick="resetImage(this)">Show Image Again</button>
         </div>
 
-        <div class="question-card" data-id="3">
-            <p class="question-text">Question 3: Click the image to reveal the answer (hide the image)</p>
-            <div class="image-wrapper" onclick="toggleImage(this)">
-                <img src="images/Joan_of_Arc_miniature_graded.jpg" alt="Historical Figure 3" class="historical-image">
-                <div class="click-hint">Click to hide</div>
+        <div class="question-card bg-gray-50 rounded-xl p-6 mb-5 border-l-4 border-indigo-500" data-id="3">
+            <p class="question-text text-xl text-gray-800 mb-5 font-semibold">Question 3: Click the image to reveal the answer (hide the image)</p>
+            <div class="image-wrapper inline-block relative cursor-pointer transition-transform duration-300 hover:scale-105" onclick="toggleImage(this)">
+                <img src="images/Joan_of_Arc_miniature_graded.jpg" alt="Historical Figure 3" class="historical-image max-w-full max-h-[300px] rounded-lg shadow-lg transition-opacity duration-500">
+                <div class="click-hint absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-500/90 text-white px-4 py-2 rounded-md text-sm opacity-0 transition-opacity duration-300 pointer-events-none">Click to hide</div>
             </div>
-            <div class="status-indicator status-visible">Image is visible</div>
-            <button class="reset-button" onclick="resetImage(this)">Show Image Again</button>
+            <div class="status-indicator status-visible mt-4 p-3 rounded-md text-sm text-center bg-green-100 text-green-800">Image is visible</div>
+            <button class="reset-button block mx-auto mt-5 px-6 py-3 bg-indigo-500 text-white border-none rounded-md text-base cursor-pointer hover:bg-indigo-600 transition-colors" onclick="resetImage(this)">Show Image Again</button>
         </div>
 
-        <div class="question-card" data-id="4">
-            <p class="question-text">Question 4: Click the image to reveal the answer (hide the image)</p>
-            <div class="image-wrapper" onclick="toggleImage(this)">
-                <img src="images/vsevolod_iii_the_big_nest.jpg" alt="Historical Figure 4" class="historical-image">
-                <div class="click-hint">Click to hide</div>
+        <div class="question-card bg-gray-50 rounded-xl p-6 mb-5 border-l-4 border-indigo-500" data-id="4">
+            <p class="question-text text-xl text-gray-800 mb-5 font-semibold">Question 4: Click the image to reveal the answer (hide the image)</p>
+            <div class="image-wrapper inline-block relative cursor-pointer transition-transform duration-300 hover:scale-105" onclick="toggleImage(this)">
+                <img src="images/vsevolod_iii_the_big_nest.jpg" alt="Historical Figure 4" class="historical-image max-w-full max-h-[300px] rounded-lg shadow-lg transition-opacity duration-500">
+                <div class="click-hint absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-500/90 text-white px-4 py-2 rounded-md text-sm opacity-0 transition-opacity duration-300 pointer-events-none">Click to hide</div>
             </div>
-            <div class="status-indicator status-visible">Image is visible</div>
-            <button class="reset-button" onclick="resetImage(this)">Show Image Again</button>
+            <div class="status-indicator status-visible mt-4 p-3 rounded-md text-sm text-center bg-green-100 text-green-800">Image is visible</div>
+            <button class="reset-button block mx-auto mt-5 px-6 py-3 bg-indigo-500 text-white border-none rounded-md text-base cursor-pointer hover:bg-indigo-600 transition-colors" onclick="resetImage(this)">Show Image Again</button>
         </div>
 
-        <div class="question-card" data-id="5">
-            <p class="question-text">Question 5: Click the image to reveal the answer (hide the image)</p>
-            <div class="image-wrapper" onclick="toggleImage(this)">
-                <img src="images/genghis_portrait.webp" alt="Historical Figure 5" class="historical-image">
-                <div class="click-hint">Click to hide</div>
+        <div class="question-card bg-gray-50 rounded-xl p-6 mb-5 border-l-4 border-indigo-500" data-id="5">
+            <p class="question-text text-xl text-gray-800 mb-5 font-semibold">Question 5: Click the image to reveal the answer (hide the image)</p>
+            <div class="image-wrapper inline-block relative cursor-pointer transition-transform duration-300 hover:scale-105" onclick="toggleImage(this)">
+                <img src="images/genghis_portrait.webp" alt="Historical Figure 5" class="historical-image max-w-full max-h-[300px] rounded-lg shadow-lg transition-opacity duration-500">
+                <div class="click-hint absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-500/90 text-white px-4 py-2 rounded-md text-sm opacity-0 transition-opacity duration-300 pointer-events-none">Click to hide</div>
             </div>
-            <div class="status-indicator status-visible">Image is visible</div>
-            <button class="reset-button" onclick="resetImage(this)">Show Image Again</button>
+            <div class="status-indicator status-visible mt-4 p-3 rounded-md text-sm text-center bg-green-100 text-green-800">Image is visible</div>
+            <button class="reset-button block mx-auto mt-5 px-6 py-3 bg-indigo-500 text-white border-none rounded-md text-base cursor-pointer hover:bg-indigo-600 transition-colors" onclick="resetImage(this)">Show Image Again</button>
         </div>
 
-        <div class="score-section">
-            <p class="score-text">Images Hidden: <span id="hidden-count">0</span> / 5</p>
+        <div class="score-section text-center mt-8 p-5 bg-gray-200 rounded-xl">
+            <p class="score-text text-lg text-gray-800">Images Hidden: <span id="hidden-count">0</span> / 5</p>
         </div>
     </div>
 
