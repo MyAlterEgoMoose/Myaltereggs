@@ -22,7 +22,8 @@
         <div id="optionsGroup"><label>🔘 Options</label><div id="optionsContainer"></div><button type="button" class="btn-icon" id="addOptionBtn">+ Add Option</button></div>
         <div id="openAnswerGroup"><label>✏️ Correct Answers (reference)</label><textarea id="correctAnswers" rows="2"></textarea><div><input type="checkbox" id="caseSensitive"> <label>Case sensitive</label></div></div>
         <div id="sliderRangeGroup"><label>📊 Slider Range (integers)</label><div class="range-inputs"><input type="number" id="sliderMin" placeholder="Min"><span>to</span><input type="number" id="sliderMax" placeholder="Max"></div></div>
-        <div class="type-toggle" id="typeToggleGroup"><div data-type="single" class="type-option active">Single</div><div data-type="multiple" class="type-option">Multiple</div><div data-type="open" class="type-option">Open</div><div data-type="slider" class="type-option">Slider</div></div>
+        <div id="hideImageGroup"><label>🖼️ Hide Image Question</label><div class="image-upload-wrapper"><input type="file" id="hideImageInput" accept="image/*" class="image-input"><button type="button" id="uploadHideImageBtn" class="btn-upload">📤 Upload Image</button></div><div id="hideImagePreviewContainer"></div><p style="font-size:0.85rem;color:#666;margin-top:0.5rem;">Students click to hide the image</p></div>
+        <div class="type-toggle" id="typeToggleGroup"><div data-type="single" class="type-option active">Single</div><div data-type="multiple" class="type-option">Multiple</div><div data-type="open" class="type-option">Open</div><div data-type="slider" class="type-option">Slider</div><div data-type="hide-image" class="type-option">Hide Image</div></div>
         <div class="form-actions"><button class="btn-primary" id="saveQuestionBtn">➕ Save</button><button class="btn-secondary" id="clearFormBtn">🗑️ Clear</button></div>
     </div>
     <div class="questions-list-header">📋 Questions</div>

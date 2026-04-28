@@ -281,16 +281,32 @@
     function updateDatalist() { let d = document.getElementById('participantsDatalist'); if (d) d.innerHTML = state.participants.map(p => '<option value="' + escapeHtml(p.name) + '">').join(''); }
     function renderQuestionsList() { let a = document.getElementById('questionsListArea'); if (!state.questions.length) { a.innerHTML = '<div style="padding:1rem;">No questions</div>'; return; } a.innerHTML = state.questions.map((q, i) => '<div class="question-card" data-idx="' + i + '"><div><strong>' + (i + 1) + '.</strong> ' + escapeHtml(getQuestionDisplayText(q).substring(0, 50)) + '</div><div><button class="edit-q" data-id="' + q.id + '">✏️</button><button class="delete-q" data-id="' + q.id + '">🗑️</button></div></div>').join(''); document.querySelectorAll('.delete-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let id = b.dataset.id; if (confirm('Delete?')) { state.questions = state.questions.filter(q => q.id !== id); if (state.currentSlideIndex >= state.questions.length) state.currentSlideIndex = Math.max(0, state.questions.length - 1); renderQuestionsList(); renderSlideQuiz(); saveStateToCookie(); showMessage('Deleted'); } })); document.querySelectorAll('.edit-q').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); let q = state.questions.find(q => q.id === b.dataset.id); if (q) { state.editingId = q.id; state.currentType = q.type; document.getElementById('questionText').value = q.text; updateTypeToggleUI(); if (q.type === 'open') { document.getElementById('correctAnswers').value = (q.correctAnswers || []).join('\n'); document.getElementById('caseSensitive').checked = q.caseSensitive || false; } else if (q.type === 'slider') { document.getElementById('sliderMin').value = q.sliderMin; document.getElementById('sliderMax').value = q.sliderMax; } else renderOptionInputs(q.options); openSidebar(); } })); document.querySelectorAll('.question-card').forEach(c => c.addEventListener('click', () => { let i = parseInt(c.dataset.idx); if (!isNaN(i)) { state.currentSlideIndex = i; renderSlideQuiz(); } })); }
     function renderOptionInputs(opts = null) { let c = document.getElementById('optionsContainer'); let arr = opts || [{ text: '', isCorrect: false }, { text: '', isCorrect: false }]; c.innerHTML = ''; arr.forEach((o, i) => { let d = document.createElement('div'); d.className = 'option-row'; d.innerHTML = '<input type="text" class="option-text" value="' + escapeHtml(o.text) + '" placeholder="Option ' + (i + 1) + '"><input type="checkbox" class="option-correct" ' + (o.isCorrect ? 'checked' : '') + '> <span>✓</span><button type="button" class="btn-icon">✖</button>'; d.querySelector('button').addEventListener('click', () => { if (c.children.length > 1) d.remove(); else showMessage('Need at least one option', true); }); c.appendChild(d); }); }
-    function updateTypeToggleUI() { document.querySelectorAll('.type-option').forEach(o => { if (o.dataset.type === state.currentType) o.classList.add('active'); else o.classList.remove('active'); }); document.getElementById('optionsGroup').style.display = state.currentType === 'open' || state.currentType === 'slider' ? 'none' : 'block'; document.getElementById('openAnswerGroup').style.display = state.currentType === 'open' ? 'block' : 'none'; document.getElementById('sliderRangeGroup').style.display = state.currentType === 'slider' ? 'block' : 'none'; }
+    function updateTypeToggleUI() { 
+        document.querySelectorAll('.type-option').forEach(o => { 
+            if (o.dataset.type === state.currentType) o.classList.add('active'); 
+            else o.classList.remove('active'); 
+        }); 
+        document.getElementById('optionsGroup').style.display = state.currentType === 'open' || state.currentType === 'slider' || state.currentType === 'hide-image' ? 'none' : 'block'; 
+        document.getElementById('openAnswerGroup').style.display = state.currentType === 'open' ? 'block' : 'none'; 
+        document.getElementById('sliderRangeGroup').style.display = state.currentType === 'slider' ? 'block' : 'none'; 
+        document.getElementById('hideImageGroup').style.display = state.currentType === 'hide-image' ? 'block' : 'none'; 
+    }
     function gatherFormData() { 
         let t = document.getElementById('questionText').value.trim(); 
         if (!t) { showMessage('Enter text', true); return null; } 
         
-        // Handle image file
+        // Handle image file for regular questions
         let imageData = null;
         let imageInput = document.getElementById('questionImage');
         if (imageInput && imageInput.files && imageInput.files[0]) {
             imageData = { fileName: imageInput.files[0].name, file: imageInput.files[0] };
+        }
+        
+        // Handle hide-image specific file
+        let hideImageData = null;
+        let hideImageInput = document.getElementById('hideImageInput');
+        if (hideImageInput && hideImageInput.files && hideImageInput.files[0]) {
+            hideImageData = { fileName: hideImageInput.files[0].name, file: hideImageInput.files[0] };
         }
         
         // Handle audio file
@@ -315,6 +331,10 @@
             let result = { text: t, type: 'slider', sliderMin: minVal, sliderMax: maxVal };
             if (imageData) result.image = imageData;
             if (audioData) result.audio = audioData;
+            return result;
+        } else if (state.currentType === 'hide-image') {
+            if (!hideImageData) { showMessage('Upload an image for hide-image question', true); return null; }
+            let result = { text: t, type: 'hide-image', hideImage: hideImageData };
             return result;
         } else { 
             let rows = document.querySelectorAll('#optionsContainer .option-row'); 
@@ -356,6 +376,14 @@
             );
         }
         
+        if (d.hideImage && d.hideImage.file) {
+            uploadPromises.push(
+                uploadImageToGitHub(d.hideImage.file)
+                    .then(imageUrl => { d.hideImage = { fileName: d.hideImage.fileName, imageUrl: imageUrl }; })
+                    .catch(err => { showMessage('⚠️ Hide image upload failed: ' + err.message, true); d.hideImage = null; })
+            );
+        }
+        
         if (uploadPromises.length > 0) {
             showMessage('⏳ Uploading media...');
             Promise.all(uploadPromises).then(() => completeSave(d));
@@ -365,6 +393,7 @@
             if (existingQ) {
                 if (existingQ.image && !d.image) d.image = existingQ.image;
                 if (existingQ.audio && !d.audio) d.audio = existingQ.audio;
+                if (existingQ.hideImage && !d.hideImage) d.hideImage = existingQ.hideImage;
             }
             completeSave(d);
         } else {
@@ -406,6 +435,11 @@
         if (audioInput) audioInput.value = '';
         let audioPreview = document.getElementById('audioPreviewContainer');
         if (audioPreview) audioPreview.innerHTML = '';
+        // Clear hide-image input and preview
+        let hideImgInput = document.getElementById('hideImageInput');
+        if (hideImgInput) hideImgInput.value = '';
+        let hidePreview = document.getElementById('hideImagePreviewContainer');
+        if (hidePreview) hidePreview.innerHTML = '';
     }
     function renderSlideQuiz() { 
         let c = document.getElementById('slideQuizContainer'); 
@@ -419,8 +453,20 @@
         h += renderQuestionImage(q);
         // Render audio player if present
         h += renderQuestionAudio(q);
-        if (q.type === 'open') h += '<textarea id="userAnswerInput" rows="4" style="width:100%;padding:0.8rem;border-radius:1rem;"></textarea>'; 
-        else if (q.type === 'slider') { 
+        
+        if (q.type === 'hide-image') {
+            // Render hide-image question type
+            if (q.hideImage && q.hideImage.imageUrl) {
+                h += '<div class="hide-image-wrapper" style="position:relative;display:inline-block;cursor:pointer;transition:transform 0.3s ease;" onclick="toggleHideImage(this)">';
+                h += '<img src="' + escapeHtml(q.hideImage.imageUrl) + '" alt="Hide image question" class="hide-image-element" style="max-width:100%;max-height:300px;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.15);transition:opacity 0.5s ease,visibility 0.5s ease;">';
+                h += '<div class="hide-image-hint" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(102,126,234,0.9);color:white;padding:10px 20px;border-radius:5px;font-size:0.9rem;opacity:0;transition:opacity 0.3s ease;pointer-events:none;">Click to hide</div>';
+                h += '</div>';
+                h += '<div class="hide-image-status" style="margin-top:15px;padding:10px;border-radius:5px;background:#d4edda;color:#155724;font-size:0.9rem;text-align:center;">Image is visible</div>';
+                h += '<button class="hide-image-reset" style="display:block;margin:20px auto 0;padding:12px 30px;background:#667eea;color:white;border:none;border-radius:5px;font-size:1rem;cursor:pointer;transition:background 0.3s ease;" onclick="resetHideImage(this)">Show Image Again</button>';
+            }
+        } else if (q.type === 'open') {
+            h += '<textarea id="userAnswerInput" rows="4" style="width:100%;padding:0.8rem;border-radius:1rem;"></textarea>'; 
+        } else if (q.type === 'slider') { 
             h += '<div class="slider-question-container"><input type="range" id="sliderAnswer" min="' + q.sliderMin + '" max="' + q.sliderMax + '" value="' + q.sliderMin + '"><div class="slider-labels"><span>Min: <strong>' + toRoman(q.sliderMin) + '</strong></span><div id="sliderValueDisplay" class="slider-value-display">' + toRoman(q.sliderMin) + '</div><span>Max: <strong>' + toRoman(q.sliderMax) + '</strong></span></div></div>'; 
         } else { 
             let it = q.type === 'single' ? 'radio' : 'checkbox'; 
@@ -969,6 +1015,41 @@
     }
     function setPlayMode() { state.isEditMode = false; closeSidebar(); renderSlideQuiz(); }
     function setEditMode() { state.isEditMode = true; openSidebar(); }
+    
+    // Global functions for hide-image question type (called from inline onclick handlers)
+    window.toggleHideImage = function(wrapper) {
+        const img = wrapper.querySelector('.hide-image-element');
+        const statusIndicator = wrapper.parentElement.querySelector('.hide-image-status');
+        
+        if (img.classList.contains('image-hidden')) {
+            // Show image
+            img.classList.remove('image-hidden');
+            statusIndicator.textContent = 'Image is visible';
+            statusIndicator.style.background = '#d4edda';
+            statusIndicator.style.color = '#155724';
+        } else {
+            // Hide image - set display to none as requested
+            img.classList.add('image-hidden');
+            statusIndicator.textContent = 'Image is hidden';
+            statusIndicator.style.background = '#f8d7da';
+            statusIndicator.style.color = '#721c24';
+        }
+    };
+    
+    window.resetHideImage = function(button) {
+        const wrapper = button.parentElement.querySelector('.hide-image-wrapper');
+        const img = wrapper.querySelector('.hide-image-element');
+        const statusIndicator = wrapper.parentElement.querySelector('.hide-image-status');
+        
+        // Only reset if image is currently hidden
+        if (img.classList.contains('image-hidden')) {
+            img.classList.remove('image-hidden');
+            statusIndicator.textContent = 'Image is visible';
+            statusIndicator.style.background = '#d4edda';
+            statusIndicator.style.color = '#155724';
+        }
+    };
+    
     function toggleScoreboard() { let sb = document.getElementById('scoreboard'); sb.classList.toggle('open'); let io = sb.classList.contains('open'); document.getElementById('toggleScoreboardBtn').innerHTML = io ? '📊 Hide Scoreboard ✕' : '📊 Show Scoreboard 🏆'; if (io) renderScoreboard(); }
     // Update GitHub UI based on login state
     function updateGithubUI() {
@@ -1173,6 +1254,39 @@
         if (document.getElementById('uploadAudioBtn')) {
             document.getElementById('uploadAudioBtn').addEventListener('click', () => {
                 let fileInput = document.getElementById('questionAudio');
+                if (fileInput) {
+                    fileInput.click();
+                }
+            });
+        }
+        
+        // Load configuration from localStorage on page load
+        loadGithubConfig();
+    }
+
+        // Hide Image input preview handler
+        if (document.getElementById('hideImageInput')) {
+            document.getElementById('hideImageInput').addEventListener('change', e => {
+                let file = e.target.files[0];
+                let preview = document.getElementById('hideImagePreviewContainer');
+                if (preview) {
+                    if (file) {
+                        let reader = new FileReader();
+                        reader.onload = ev => {
+                            preview.innerHTML = '<img src="' + ev.target.result + '" alt="Preview" style="max-width:200px;max-height:150px;border-radius:0.5rem;margin-top:0.5rem;">';
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        preview.innerHTML = '';
+                    }
+                }
+            });
+        }
+        
+        // Upload hide image button handler - trigger file input click
+        if (document.getElementById('uploadHideImageBtn')) {
+            document.getElementById('uploadHideImageBtn').addEventListener('click', () => {
+                let fileInput = document.getElementById('hideImageInput');
                 if (fileInput) {
                     fileInput.click();
                 }
