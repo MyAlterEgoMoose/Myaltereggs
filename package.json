@@ -6,11 +6,5 @@
     "start": "npx http-server -p 8080",
     "build": "npx @tailwindcss/cli -i ./src/styles.css -o ./dist/output.css",
     "watch": "npx @tailwindcss/cli -i ./src/styles.css -o ./dist/output.css --watch"
-  },
-  "devDependencies": {
-    "@tailwindcss/cli": "^4.2.4",
-    "autoprefixer": "^10.5.0",
-    "postcss": "^8.5.12",
-    "tailwindcss": "^4.2.4"
   }
 }
