@@ -70,6 +70,24 @@
     </div>
 </div>
 
+<!-- Hide Image Question Grid Section -->
+<div id="hideImageGridSection" class="hide-image-grid-section" style="display:none;">
+    <div class="hide-image-container">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h1>🎯 Hide the Historical Figure</h1>
+            <button class="mode-toggle-btn" onclick="exitHideImageGrid()" aria-label="Exit Grid View">✕ Exit</button>
+        </div>
+        <p class="hide-instructions">Click on each image to hide it. Test your knowledge by identifying who disappears!</p>
+        <div class="image-grid-4x4" id="hideImageGrid">
+            <!-- Images will be dynamically inserted here -->
+        </div>
+        <div class="score-section">
+            <p class="score-text">Images Hidden: <span id="hiddenCount">0</span> / <span id="totalCount">0</span></p>
+            <button class="reset-all-btn" onclick="resetAllImages()">Show All Images Again</button>
+        </div>
+    </div>
+</div>
+
 <div id="gradingSection" class="grading-section">
     <div id="gradingSectionInfo" class="grading-section-info"></div>
     <div class="grading-section-body">

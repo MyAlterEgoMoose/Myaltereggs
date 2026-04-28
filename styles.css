@@ -1303,3 +1303,153 @@ body {
 .hide-image-reset:hover {
     background: #5568d3;
 }
+
+/* Hide Image Grid Section Styles */
+.hide-image-grid-section {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.hide-image-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    padding: 40px;
+}
+
+.hide-image-container h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 2rem;
+}
+
+.hide-instructions {
+    color: #666;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1rem;
+}
+
+.image-grid-4x4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 1200px) {
+    .image-grid-4x4 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .image-grid-4x4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .image-grid-4x4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.grid-image-wrapper {
+    position: relative;
+    aspect-ratio: 1;
+    cursor: pointer;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #f8f9fa;
+}
+
+.grid-image-wrapper:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.grid-historical-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.grid-image-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.grid-click-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(102, 126, 234, 0.9);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    text-align: center;
+}
+
+.grid-image-wrapper:hover .grid-click-hint {
+    opacity: 1;
+}
+
+.grid-status-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px;
+    font-size: 0.8rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.grid-status-visible {
+    background: rgba(212, 237, 218, 0.95);
+    color: #155724;
+}
+
+.grid-status-hidden {
+    background: rgba(248, 215, 218, 0.95);
+    color: #721c24;
+}
+
+.score-section {
+    text-align: center;
+    padding: 20px;
+    background: #e9ecef;
+    border-radius: 10px;
+}
+
+.score-text {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.reset-all-btn {
+    padding: 12px 30px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.reset-all-btn:hover {
+    background: #5568d3;
+}

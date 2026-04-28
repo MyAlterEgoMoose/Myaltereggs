@@ -1050,6 +1050,141 @@
         }
     };
     
+    // Global functions for 4x4 grid hide image feature
+    let gridHiddenCount = 0;
+    let gridTotalCount = 0;
+    
+    // Function to get all available images from the images folder
+    function getAvailableImages() {
+        // Default historical images
+        const defaultImages = [
+            'images/Vladimir_I_of_Kiev.PNG',
+            'images/YuanEmperorAlbumGenghisPortrait.jpg',
+            'images/Joan_of_Arc_miniature_graded.jpg',
+            'images/vsevolod_iii_the_big_nest.jpg',
+            'images/genghis_portrait.webp'
+        ];
+        
+        // Get stored images from localStorage
+        const storedImages = localStorage.getItem('gridImages');
+        let knownImages = [];
+        if (storedImages) {
+            try {
+                knownImages = JSON.parse(storedImages);
+            } catch (e) {
+                console.error('Failed to parse stored images:', e);
+            }
+        }
+        
+        // Combine default images with any stored ones, removing duplicates
+        const allImages = [...defaultImages];
+        knownImages.forEach(img => {
+            if (!allImages.includes(img)) {
+                allImages.push(img);
+            }
+        });
+        
+        return allImages;
+    }
+    
+    // Function to save current image list to localStorage
+    function saveImageList(images) {
+        localStorage.setItem('gridImages', JSON.stringify(images));
+    }
+    
+    window.initHideImageGrid = function(imageUrls) {
+        const gridContainer = document.getElementById('hideImageGrid');
+        const hideSection = document.getElementById('hideImageGridSection');
+        const mainContent = document.getElementById('mainContent');
+        
+        if (!gridContainer || !hideSection) return;
+        
+        // If no imageUrls provided, use dynamically detected images
+        if (!imageUrls || imageUrls.length === 0) {
+            imageUrls = getAvailableImages();
+        }
+        
+        // Save the current list of images for future reference
+        saveImageList(imageUrls);
+        
+        gridTotalCount = imageUrls.length;
+        gridHiddenCount = 0;
+        
+        // Hide main content, show grid section
+        if (mainContent) mainContent.style.display = 'none';
+        hideSection.style.display = 'block';
+        
+        // Update total count display
+        document.getElementById('totalCount').textContent = gridTotalCount;
+        document.getElementById('hiddenCount').textContent = 0;
+        
+        // Generate grid items
+        let html = '';
+        imageUrls.forEach((url, index) => {
+            html += '<div class="grid-image-wrapper" onclick="toggleGridImage(this)" data-index="' + index + '">';
+            html += '<img src="' + escapeHtml(url) + '" alt="Historical Figure ' + (index + 1) + '" class="grid-historical-image">';
+            html += '<div class="grid-click-hint">Click to hide</div>';
+            html += '<div class="grid-status-indicator grid-status-visible">Visible</div>';
+            html += '</div>';
+        });
+        
+        gridContainer.innerHTML = html;
+    };
+    
+    window.toggleGridImage = function(wrapper) {
+        const img = wrapper.querySelector('.grid-historical-image');
+        const statusIndicator = wrapper.querySelector('.grid-status-indicator');
+        
+        if (img.classList.contains('grid-image-hidden')) {
+            // Show image
+            img.classList.remove('grid-image-hidden');
+            statusIndicator.textContent = 'Visible';
+            statusIndicator.className = 'grid-status-indicator grid-status-visible';
+            gridHiddenCount--;
+        } else {
+            // Hide image - set display to none as requested
+            img.classList.add('grid-image-hidden');
+            statusIndicator.textContent = 'Hidden';
+            statusIndicator.className = 'grid-status-indicator grid-status-hidden';
+            gridHiddenCount++;
+        }
+        
+        // Update score display
+        document.getElementById('hiddenCount').textContent = gridHiddenCount;
+        
+        // Check if all images are hidden
+        if (gridHiddenCount === gridTotalCount) {
+            setTimeout(() => {
+                alert('🎉 Congratulations! You\'ve hidden all the historical figures!');
+            }, 500);
+        }
+    };
+    
+    window.resetAllImages = function() {
+        const wrappers = document.querySelectorAll('.grid-image-wrapper');
+        wrappers.forEach(wrapper => {
+            const img = wrapper.querySelector('.grid-historical-image');
+            const statusIndicator = wrapper.querySelector('.grid-status-indicator');
+            
+            if (img.classList.contains('grid-image-hidden')) {
+                img.classList.remove('grid-image-hidden');
+                statusIndicator.textContent = 'Visible';
+                statusIndicator.className = 'grid-status-indicator grid-status-visible';
+            }
+        });
+        
+        gridHiddenCount = 0;
+        document.getElementById('hiddenCount').textContent = 0;
+    };
+    
+    window.exitHideImageGrid = function() {
+        const hideSection = document.getElementById('hideImageGridSection');
+        const mainContent = document.getElementById('mainContent');
+        
+        if (hideSection) hideSection.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'block';
+    };
+    
     function toggleScoreboard() { let sb = document.getElementById('scoreboard'); sb.classList.toggle('open'); let io = sb.classList.contains('open'); document.getElementById('toggleScoreboardBtn').innerHTML = io ? '📊 Hide Scoreboard ✕' : '📊 Show Scoreboard 🏆'; if (io) renderScoreboard(); }
     // Update GitHub UI based on login state
     function updateGithubUI() {
@@ -1132,6 +1267,28 @@
         document.getElementById('playModeBtn').addEventListener('click', setPlayMode);
         document.getElementById('editModeBtn').addEventListener('click', setEditMode);
         document.getElementById('shuffleBtn').addEventListener('click', shuffleForPlayMode);
+        
+        // Add button to launch 4x4 hide image grid with the 5 historical images
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        if (shuffleBtn) {
+            const gridBtn = document.createElement('button');
+            gridBtn.className = 'mode-toggle-btn';
+            gridBtn.id = 'gridModeBtn';
+            gridBtn.setAttribute('aria-label', '4x4 Grid Mode');
+            gridBtn.innerHTML = '🖼️ 4x4 Grid';
+            gridBtn.addEventListener('click', () => {
+                const historicalImages = [
+                    'images/Vladimir_I_of_Kiev.PNG',
+                    'images/YuanEmperorAlbumGenghisPortrait.jpg',
+                    'images/Joan_of_Arc_miniature_graded.jpg',
+                    'images/vsevolod_iii_the_big_nest.jpg',
+                    'images/genghis_portrait.webp'
+                ];
+                window.initHideImageGrid(historicalImages);
+            });
+            shuffleBtn.parentNode.insertBefore(gridBtn, shuffleBtn.nextSibling);
+        }
+        
         document.getElementById('addOptionBtn').addEventListener('click', () => { let c = document.getElementById('optionsContainer'), d = document.createElement('div'); d.className = 'option-row'; d.innerHTML = '<input type="text" class="option-text" placeholder="New option"><input type="checkbox" class="option-correct"> <span>✓</span><button type="button" class="btn-icon">✖</button>'; d.querySelector('button').addEventListener('click', () => { if (c.children.length > 1) d.remove(); else showMessage('Need at least one option', true); }); c.appendChild(d); });
         document.getElementById('saveQuestionBtn').addEventListener('click', saveQuestion);
         document.getElementById('clearFormBtn').addEventListener('click', clearForm);
@@ -1295,7 +1452,64 @@
         
         // Load configuration from localStorage on page load
         loadGithubConfig();
+        
+        // Check for new images in the images folder on page refresh
+        checkForNewImages();
     }
+    
+    // Function to check for new images and add them to the grid
+    function checkForNewImages() {
+        // This function attempts to detect new images by trying to load common image formats
+        // Since we can't directly scan the filesystem from browser JS, we use a predefined list
+        // of potential image paths and check if they exist
+        
+        const potentialImagePaths = [
+            'images/Vladimir_I_of_Kiev.PNG',
+            'images/YuanEmperorAlbumGenghisPortrait.jpg',
+            'images/Joan_of_Arc_miniature_graded.jpg',
+            'images/vsevolod_iii_the_big_nest.jpg',
+            'images/genghis_portrait.webp'
+        ];
+        
+        // Get currently known images
+        const storedImages = localStorage.getItem('gridImages');
+        let knownImages = [];
+        if (storedImages) {
+            try {
+                knownImages = JSON.parse(storedImages);
+            } catch (e) {
+                console.error('Failed to parse stored images:', e);
+            }
+        }
+        
+        // Track how many images we've checked
+        let checkedCount = 0;
+        const totalToCheck = potentialImagePaths.length;
+        
+        // Check each potential image path
+        potentialImagePaths.forEach(path => {
+            const img = new Image();
+            img.onload = function() {
+                // Image exists, add it if not already known
+                if (!knownImages.includes(path)) {
+                    knownImages.push(path);
+                    saveImageList(knownImages);
+                    console.log('New image detected and added:', path);
+                }
+                checkedCount++;
+                // If all images checked and we have new ones, log summary
+                if (checkedCount === totalToCheck && knownImages.length > 0) {
+                    console.log('Total images available for grid:', knownImages.length);
+                }
+            };
+            img.onerror = function() {
+                // Image doesn't exist, ignore
+                checkedCount++;
+            };
+            img.src = path + '?t=' + Date.now(); // Add timestamp to prevent caching
+        });
+    }
+    
     function init() { renderOptionInputs(); renderQuestionsList(); renderSlideQuiz(); renderParticipantsSidebar(); renderScoreboard(); updateDatalist(); setPlayMode(); }
     initEventListeners();
     init();
