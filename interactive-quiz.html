@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hide the Image - Interactive Quiz</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .instructions {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .image-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .image-wrapper:hover {
+            transform: scale(1.02);
+        }
+
+        .historical-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .image-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .click-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .image-wrapper:hover .click-hint {
+            opacity: 1;
+        }
+
+        .status-indicator {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .status-visible {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-hidden {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .reset-button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .reset-button:hover {
+            background: #5568d3;
+        }
+
+        .score-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+        }
+
+        .score-text {
+            font-size: 1.1rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>🎯 Hide the Historical Figure</h1>
+        <p class="instructions">Click on each image to hide it. Test your knowledge by identifying who disappears!</p>
+
+        <div class="question-card" data-id="1">
+            <p class="question-text">Question 1: Click the image to reveal the answer (hide the image)</p>
+            <div class="image-wrapper" onclick="toggleImage(this)">
+                <img src="images/Vladimir_I_of_Kiev.PNG" alt="Historical Figure 1" class="historical-image">
+                <div class="click-hint">Click to hide</div>
+            </div>
+            <div class="status-indicator status-visible">Image is visible</div>
+            <button class="reset-button" onclick="resetImage(this)">Show Image Again</button>
+        </div>
+
+        <div class="question-card" data-id="2">
+            <p class="question-text">Question 2: Click the image to reveal the answer (hide the image)</p>
+            <div class="image-wrapper" onclick="toggleImage(this)">
+                <img src="images/YuanEmperorAlbumGenghisPortrait.jpg" alt="Historical Figure 2" class="historical-image">
+                <div class="click-hint">Click to hide</div>
+            </div>
+            <div class="status-indicator status-visible">Image is visible</div>
+            <button class="reset-button" onclick="resetImage(this)">Show Image Again</button>
+        </div>
+
+        <div class="question-card" data-id="3">
+            <p class="question-text">Question 3: Click the image to reveal the answer (hide the image)</p>
+            <div class="image-wrapper" onclick="toggleImage(this)">
+                <img src="images/Joan_of_Arc_miniature_graded.jpg" alt="Historical Figure 3" class="historical-image">
+                <div class="click-hint">Click to hide</div>
+            </div>
+            <div class="status-indicator status-visible">Image is visible</div>
+            <button class="reset-button" onclick="resetImage(this)">Show Image Again</button>
+        </div>
+
+        <div class="question-card" data-id="4">
+            <p class="question-text">Question 4: Click the image to reveal the answer (hide the image)</p>
+            <div class="image-wrapper" onclick="toggleImage(this)">
+                <img src="images/vsevolod_iii_the_big_nest.jpg" alt="Historical Figure 4" class="historical-image">
+                <div class="click-hint">Click to hide</div>
+            </div>
+            <div class="status-indicator status-visible">Image is visible</div>
+            <button class="reset-button" onclick="resetImage(this)">Show Image Again</button>
+        </div>
+
+        <div class="question-card" data-id="5">
+            <p class="question-text">Question 5: Click the image to reveal the answer (hide the image)</p>
+            <div class="image-wrapper" onclick="toggleImage(this)">
+                <img src="images/genghis_portrait.webp" alt="Historical Figure 5" class="historical-image">
+                <div class="click-hint">Click to hide</div>
+            </div>
+            <div class="status-indicator status-visible">Image is visible</div>
+            <button class="reset-button" onclick="resetImage(this)">Show Image Again</button>
+        </div>
+
+        <div class="score-section">
+            <p class="score-text">Images Hidden: <span id="hidden-count">0</span> / 5</p>
+        </div>
+    </div>
+
+    <script>
+        let hiddenCount = 0;
+
+        function toggleImage(wrapper) {
+            const img = wrapper.querySelector('.historical-image');
+            const statusIndicator = wrapper.parentElement.querySelector('.status-indicator');
+            
+            if (img.classList.contains('image-hidden')) {
+                // Show image
+                img.classList.remove('image-hidden');
+                statusIndicator.textContent = 'Image is visible';
+                statusIndicator.className = 'status-indicator status-visible';
+                hiddenCount--;
+            } else {
+                // Hide image
+                img.classList.add('image-hidden');
+                statusIndicator.textContent = 'Image is hidden';
+                statusIndicator.className = 'status-indicator status-hidden';
+                hiddenCount++;
+            }
+
+            // Update score
+            document.getElementById('hidden-count').textContent = hiddenCount;
+
+            // Check if all images are hidden
+            if (hiddenCount === 5) {
+                setTimeout(() => {
+                    alert('🎉 Congratulations! You\'ve hidden all the historical figures!');
+                }, 500);
+            }
+        }
+
+        function resetImage(button) {
+            const wrapper = button.parentElement.querySelector('.image-wrapper');
+            const img = wrapper.querySelector('.historical-image');
+            const statusIndicator = wrapper.parentElement.querySelector('.status-indicator');
+            
+            // Only reset if image is currently hidden
+            if (img.classList.contains('image-hidden')) {
+                img.classList.remove('image-hidden');
+                statusIndicator.textContent = 'Image is visible';
+                statusIndicator.className = 'status-indicator status-visible';
+                hiddenCount--;
+                document.getElementById('hidden-count').textContent = hiddenCount;
+            }
+        }
+    </script>
+</body>
+</html>

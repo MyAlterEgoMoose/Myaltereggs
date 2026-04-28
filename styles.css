@@ -1232,3 +1232,74 @@ body {
     background: #b91c1c;
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
 }
+
+/* Hide Image Question Type Styles */
+.hide-image-wrapper {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.hide-image-wrapper:hover {
+    transform: scale(1.02);
+}
+
+.hide-image-element {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.hide-image-element.image-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.hide-image-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(102, 126, 234, 0.9);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.hide-image-wrapper:hover .hide-image-hint {
+    opacity: 1;
+}
+
+.hide-image-status {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    text-align: center;
+    background: #d4edda;
+    color: #155724;
+}
+
+.hide-image-reset {
+    display: block;
+    margin: 20px auto 0;
+    padding: 12px 30px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.hide-image-reset:hover {
+    background: #5568d3;
+}
